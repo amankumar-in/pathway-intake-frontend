@@ -175,7 +175,7 @@ const IDEmergencyInfoForm = ({ data, handleInputChange }) => {
               <MenuItem value="Santa Maria">Santa Maria</MenuItem>
               <MenuItem value="Bakersfield">Bakersfield</MenuItem>
               <MenuItem value="Riverside">Riverside</MenuItem>
-              <MenuItem value="SBR">SBR</MenuItem>
+              <MenuItem value="San Bernardino">San Bernardino</MenuItem>
             </Select>
           </FormControl>
           <Typography variant="caption" color="textSecondary">
@@ -1186,7 +1186,7 @@ const getOfficeAddress = (office) => {
       return "1600 N Florida Ave #301, Hemet, CA 92544";
     case "Santa Maria":
       return "218 W Carmen Ln #208, Santa Maria, CA 93458";
-    case "SBR":
+    case "San Bernardino":
       return "1200 S Woodland St #D, San Bernardino, CA 92408";
     default:
       return "218 W Carmen Ln #208, Santa Maria, CA 93458";
@@ -1201,7 +1201,7 @@ const getHospitalName = (office) => {
       return "HEMET VALLEY MEDICAL CENTER";
     case "Santa Maria":
       return "VALLEY COMMUNITY HOSPITAL";
-    case "SBR":
+    case "San Bernardino":
       return "SAN BERNARDINO COMMUNITY HOSPITAL";
     default:
       return "VALLEY COMMUNITY HOSPITAL";
@@ -1216,7 +1216,7 @@ const getHospitalAddress = (office) => {
       return "1117 E Devonshire Ave, Hemet, CA 92543";
     case "Santa Maria":
       return "505 Plaza Drive, Santa Maria, CA 93454";
-    case "SBR":
+    case "San Bernardino":
       return "1805 Medical Center Dr, San Bernardino, CA 92411";
     default:
       return "505 Plaza Drive, Santa Maria, CA 93454";

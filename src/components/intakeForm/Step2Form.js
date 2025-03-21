@@ -89,10 +89,10 @@ const Step2Form = ({ formData, handleInputChange }) => {
 
   return (
     <Box component="form">
-      {/* Foster Home Information Section */}
+      {/* Resource Home Information Section */}
       {renderFormSection(
-        "Foster Home Information",
-        "Details about the foster home where the client will be placed",
+        "Resource Home Information",
+        "Details about the Resource home where the client will be placed",
         <HomeIcon sx={{ fontSize: 24 }} />,
         <>
           <Alert
@@ -108,11 +108,11 @@ const Step2Form = ({ formData, handleInputChange }) => {
             <Grid item xs={12} md={6}>
               <TextField
                 fullWidth
-                label="Foster Parents Payment"
-                name="fosterParentsPayment"
-                value={formData.fosterParentsPayment}
+                label="Resource Parents Payment"
+                name="ResourceParentsPayment"
+                value={formData.ResourceParentsPayment}
                 onChange={handleInputChange}
-                helperText="Monthly payment to foster parents"
+                helperText="Monthly payment to Resource parents"
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
@@ -126,11 +126,11 @@ const Step2Form = ({ formData, handleInputChange }) => {
             <Grid item xs={12} md={6}>
               <TextField
                 fullWidth
-                label="Name of Foster Parents"
-                name="nameOfFosterParents"
-                value={formData.nameOfFosterParents}
+                label="Name of Resource Parents"
+                name="nameOfResourceParents"
+                value={formData.nameOfResourceParents}
                 onChange={handleInputChange}
-                helperText="Full names of foster parents"
+                helperText="Full names of Resource parents"
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
@@ -144,10 +144,10 @@ const Step2Form = ({ formData, handleInputChange }) => {
               <TextField
                 fullWidth
                 label="Telephone Number"
-                name="fosterParentsTelephone"
-                value={formData.fosterParentsTelephone}
+                name="ResourceParentsTelephone"
+                value={formData.ResourceParentsTelephone}
                 onChange={handleInputChange}
-                helperText="Primary contact number for foster parents"
+                helperText="Primary contact number for Resource parents"
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
@@ -164,7 +164,7 @@ const Step2Form = ({ formData, handleInputChange }) => {
                 gutterBottom
                 sx={{ mt: 1, color: "text.secondary" }}
               >
-                Foster Home Address
+                Resource Home Address
               </Typography>
               <Divider sx={{ mb: 2 }} />
             </Grid>
@@ -173,10 +173,10 @@ const Step2Form = ({ formData, handleInputChange }) => {
               <TextField
                 fullWidth
                 label="Address"
-                name="fosterParentsAddress"
-                value={formData.fosterParentsAddress}
+                name="ResourceParentsAddress"
+                value={formData.ResourceParentsAddress}
                 onChange={handleInputChange}
-                helperText="Street address of foster home"
+                helperText="Street address of Resource home"
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
@@ -190,8 +190,8 @@ const Step2Form = ({ formData, handleInputChange }) => {
               <TextField
                 fullWidth
                 label="Mailing Address (if different from above)"
-                name="fosterParentsMailingAddress"
-                value={formData.fosterParentsMailingAddress}
+                name="ResourceParentsMailingAddress"
+                value={formData.ResourceParentsMailingAddress}
                 onChange={handleInputChange}
                 helperText="Leave blank if same as physical address"
                 InputProps={{
@@ -207,10 +207,10 @@ const Step2Form = ({ formData, handleInputChange }) => {
               <TextField
                 fullWidth
                 label="City"
-                name="fosterParentsCity"
-                value={formData.fosterParentsCity}
+                name="ResourceParentsCity"
+                value={formData.ResourceParentsCity}
                 onChange={handleInputChange}
-                helperText="City of foster home"
+                helperText="City of Resource home"
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
@@ -224,20 +224,20 @@ const Step2Form = ({ formData, handleInputChange }) => {
               <TextField
                 fullWidth
                 label="State"
-                name="fosterParentsState"
-                value={formData.fosterParentsState}
+                name="ResourceParentsState"
+                value={formData.ResourceParentsState}
                 onChange={handleInputChange}
-                helperText="State of foster home"
+                helperText="State of Resource home"
               />
             </Grid>
             <Grid item xs={12} md={3}>
               <TextField
                 fullWidth
                 label="Zip"
-                name="fosterParentsZip"
-                value={formData.fosterParentsZip}
+                name="ResourceParentsZip"
+                value={formData.ResourceParentsZip}
                 onChange={handleInputChange}
-                helperText="Zip code of foster home"
+                helperText="Zip code of Resource home"
               />
             </Grid>
           </Grid>

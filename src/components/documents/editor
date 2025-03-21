@@ -327,23 +327,23 @@ const AgencyToAgencyAgreement = ({
         onClose={handleMenuClose}
       >
         <MenuItem disabled>
-          <Typography variant="subtitle2">Select a signature:</Typography>
-        </MenuItem>
-        <MenuItem onClick={() => handleSignatureSelect("childSignature")}>
-          Child Signature
-        </MenuItem>
-        <MenuItem onClick={() => handleSignatureSelect("parentSignature")}>
-          Parent/Guardian Signature
-        </MenuItem>
-        <MenuItem onClick={() => handleSignatureSelect("caseworkerSignature")}>
-          Caseworker Signature
-        </MenuItem>
-        <MenuItem onClick={() => handleSignatureSelect("supervisorSignature")}>
-          Supervisor Signature
-        </MenuItem>
-        <MenuItem onClick={() => handleSignatureSelect("agencyRepSignature")}>
-          Agency Representative Signature
-        </MenuItem>
+                  <Typography variant="subtitle2">Select a signature:</Typography>
+                </MenuItem>
+                <MenuItem onClick={() => handleSignatureSelect("childSignature")}>
+                  Foster Child Signature
+                </MenuItem>
+                <MenuItem onClick={() => handleSignatureSelect("parentSignature")}>
+                  Resource Mother Signature
+                </MenuItem>
+                <MenuItem onClick={() => handleSignatureSelect("caseworkerSignature")}>
+                  Resource Father Signature
+                </MenuItem>
+                <MenuItem onClick={() => handleSignatureSelect("supervisorSignature")}>
+                  Pathway Social Worker Signature
+                </MenuItem>
+                <MenuItem onClick={() => handleSignatureSelect("agencyRepSignature")}>
+                  County Social Worker Signature
+                </MenuItem>
       </Menu>
     </div>
   );

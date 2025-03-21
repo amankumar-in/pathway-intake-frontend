@@ -181,7 +181,7 @@ const IDEmergencyInfo = ({
     switch (office) {
       case "Bakersfield":
         return "KERN CO. DEPT. HUMAN SERVICES";
-      case "SBR":
+      case "San Bernardino":
         return "SAN BERNARDINO CO. DEPT. HUMAN SERVICES";
       case "Riverside":
         return "RIVERSIDE CO. DEPT. HUMAN SERVICES";
@@ -201,7 +201,7 @@ const IDEmergencyInfo = ({
         return "547 N San Jacinto St., Hemet, CA 92544";
       case "Santa Maria":
         return "2125 S. Centerpoint Prkwy, Santa Maria, CA 93455";
-      case "SBR":
+      case "San Bernardino":
         return "150 S Lena Rd, San Bernardino, CA 92415";
       default:
         return "2125 S. Centerpoint Prkwy, Santa Maria, CA 93455";
@@ -217,7 +217,7 @@ const IDEmergencyInfo = ({
         return "(951) 791-3200";
       case "Santa Maria":
         return "(805) 931-6150";
-      case "SBR":
+      case "San Bernardino":
         return "(909) 388-0245";
       default:
         return "(805) 931-6150";
@@ -233,7 +233,7 @@ const IDEmergencyInfo = ({
         return "HEMET VALLEY MEDICAL CENTER";
       case "Santa Maria":
         return "VALLEY COMMUNITY HOSPITAL";
-      case "SBR":
+      case "San Bernardino":
         return "SAN BERNARDINO COMMUNITY HOSPITAL";
       default:
         return "VALLEY COMMUNITY HOSPITAL";
@@ -249,7 +249,7 @@ const IDEmergencyInfo = ({
         return "1117 E Devonshire Ave, Hemet, CA 92543";
       case "Santa Maria":
         return "505 Plaza Drive, Santa Maria, CA 93454";
-      case "SBR":
+      case "San Bernardino":
         return "1805 Medical Center Dr, San Bernardino, CA 92411";
       default:
         return "505 Plaza Drive, Santa Maria, CA 93454";
@@ -265,7 +265,7 @@ const IDEmergencyInfo = ({
         return "1600 N Florida Ave #301, Hemet, CA 92544";
       case "Santa Maria":
         return "218 W Carmen Ln #208, Santa Maria, CA 93458";
-      case "SBR":
+      case "San Bernardino":
         return "1200 S Woodland St #D, San Bernardino, CA 92408";
       default:
         return "218 W Carmen Ln #208, Santa Maria, CA 93458";
@@ -281,7 +281,7 @@ const IDEmergencyInfo = ({
         return "(951) 530-4831";
       case "Santa Maria":
         return "(805) 739-1111";
-      case "SBR":
+      case "San Bernardino":
         return "(909) 890-5295";
       default:
         return "(805) 739-1111";
@@ -1027,19 +1027,19 @@ const IDEmergencyInfo = ({
           <Typography variant="subtitle2">Select a signature:</Typography>
         </MenuItem>
         <MenuItem onClick={() => handleSignatureSelect("childSignature")}>
-          Child Signature
+          Foster Child Signature
         </MenuItem>
         <MenuItem onClick={() => handleSignatureSelect("parentSignature")}>
-          Parent/Guardian Signature
+          Resource Mother Signature
         </MenuItem>
         <MenuItem onClick={() => handleSignatureSelect("caseworkerSignature")}>
-          Caseworker Signature
+          Resource Father Signature
         </MenuItem>
         <MenuItem onClick={() => handleSignatureSelect("supervisorSignature")}>
-          Supervisor Signature
+          Pathway Social Worker Signature
         </MenuItem>
         <MenuItem onClick={() => handleSignatureSelect("agencyRepSignature")}>
-          Agency Representative Signature
+          County Social Worker Signature
         </MenuItem>
       </Menu>
     </div>

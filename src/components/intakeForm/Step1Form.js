@@ -144,7 +144,7 @@ const Step1Form = ({ formData, handleInputChange }) => {
               <MenuItem value="Santa Maria">Santa Maria</MenuItem>
               <MenuItem value="Bakersfield">Bakersfield</MenuItem>
               <MenuItem value="Riverside">Riverside</MenuItem>
-              <MenuItem value="SBR">SBR</MenuItem>
+              <MenuItem value="San Bernardino">San Bernardino</MenuItem>
             </TextField>
           </Grid>
           <Grid item xs={12} md={6}>
@@ -171,7 +171,7 @@ const Step1Form = ({ formData, handleInputChange }) => {
           <Grid item xs={12} md={6}>
             <TextField
               fullWidth
-              label="Transaction Date"
+              label="Placement Date"
               name="transactionDate"
               type="date"
               value={formData.transactionDate}
@@ -194,7 +194,7 @@ const Step1Form = ({ formData, handleInputChange }) => {
             <TextField
               fullWidth
               select
-              label="Type of Transaction"
+              label="Type of Placement"
               name="typeOfTransaction"
               value={formData.typeOfTransaction}
               onChange={handleInputChange}
@@ -451,12 +451,12 @@ const Step1Form = ({ formData, handleInputChange }) => {
               >
                 <MenuItem value="Natural Parent">Natural Parent</MenuItem>
                 <MenuItem value="County Facility">County Facility</MenuItem>
-                <MenuItem value="County Foster Home">
-                  County Foster Home
+                <MenuItem value="County Resource Home">
+                  County Resource Home
                 </MenuItem>
                 <MenuItem value="County Hospital">County Hospital</MenuItem>
-                <MenuItem value="Foster Care Agency">
-                  Foster Care Agency
+                <MenuItem value="Resource Care Agency">
+                  Resource Care Agency
                 </MenuItem>
                 <MenuItem value="Friend of Family">Friend of Family</MenuItem>
                 <MenuItem value="Group Home">Group Home</MenuItem>

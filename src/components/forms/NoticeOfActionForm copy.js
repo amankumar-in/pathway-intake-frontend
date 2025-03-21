@@ -56,7 +56,7 @@ const NoticeOfActionForm = ({ data, handleInputChange }) => {
               <MenuItem value="Santa Maria">Santa Maria</MenuItem>
               <MenuItem value="Bakersfield">Bakersfield</MenuItem>
               <MenuItem value="Riverside">Riverside</MenuItem>
-              <MenuItem value="SBR">SBR</MenuItem>
+              <MenuItem value="San Bernardino">San Bernardino</MenuItem>
             </Select>
           </FormControl>
         </Grid>
@@ -84,11 +84,11 @@ const NoticeOfActionForm = ({ data, handleInputChange }) => {
         </Grid>
         <Grid item xs={12} md={6}>
           <FormControl fullWidth>
-            <InputLabel>Type of Transaction</InputLabel>
+            <InputLabel>Type of Placement</InputLabel>
             <Select
               name="typeOfTransaction"
               value={data?.typeOfTransaction || "Shelter Placement"}
-              label="Type of Transaction"
+              label="Type of Placement"
               onChange={handleInputChange}
             >
               <MenuItem value="Intake">Intake</MenuItem>

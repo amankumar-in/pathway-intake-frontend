@@ -243,7 +243,7 @@ const EditForm = () => {
           officeNumber = "410";
           phoneNumber = "(951) 686-3706";
           break;
-        case "SBR":
+        case "San Bernardino":
           officeNumber = "505";
           phoneNumber = "(909) 890-5295";
           break;
@@ -386,8 +386,8 @@ const EditForm = () => {
   const validateForm = () => {
     const requiredFields = [
       { name: "yourName", label: "Your Name" },
-      { name: "transactionDate", label: "Transaction Date" },
-      { name: "typeOfTransaction", label: "Type of Transaction" },
+      { name: "transactionDate", label: "Placement Date" },
+      { name: "typeOfTransaction", label: "Type of Placement" },
       { name: "caseNumber", label: "Case Number" },
       { name: "name", label: "Client Name" },
       { name: "dateOfBirth", label: "Date of Birth" },

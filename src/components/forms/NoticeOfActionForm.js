@@ -102,7 +102,7 @@ const NoticeOfActionForm = ({ data, handleInputChange }) => {
               readOnly: true,
             }}
             InputLabelProps={{ shrink: true }}
-            helperText="Auto-populated from intake form (Transaction Date)"
+            helperText="Auto-populated from intake form (Placement Date)"
             disabled
           />
         </Grid>

@@ -204,7 +204,7 @@ const ViewDocument = () => {
               </Grid>
 
               <Grid item xs={12} sm={6} md={4}>
-                <Typography variant="subtitle2">Transaction Date:</Typography>
+                <Typography variant="subtitle2">Placement Date:</Typography>
                 <Typography variant="body2">
                   {formData.transactionDate &&
                     new Date(formData.transactionDate).toLocaleDateString()}

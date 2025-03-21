@@ -45,36 +45,36 @@ import { getIntakeForm, updateSignature } from "../utils/api";
 const signatures = [
   {
     type: "childSignature",
-    label: "Child Signature",
+    label: "Foster Child",
     description: "Signature of the child client (if age-appropriate)",
     icon: <ChildIcon />,
     color: "#1976d2", // primary blue
   },
   {
     type: "parentSignature",
-    label: "Parent/Guardian Signature",
-    description: "Signature of parent or legal guardian",
+    label: "Resource Mother",
+    description: "Signature of Resource Mother",
     icon: <PersonIcon />,
     color: "#9c27b0", // purple
   },
   {
     type: "caseworkerSignature",
-    label: "Caseworker Signature",
-    description: "Signature of the assigned caseworker",
+    label: "Resource Father",
+    description: "Signature of Resource Father",
     icon: <FaceIcon />,
     color: "#2e7d32", // green
   },
   {
     type: "supervisorSignature",
-    label: "Supervisor Signature",
-    description: "Signature of the supervising staff member",
+    label: "Pathway Social Worker",
+    description: "Signature of Pathway Social Worker",
     icon: <SupervisorIcon />,
     color: "#ed6c02", // orange
   },
   {
     type: "agencyRepSignature",
-    label: "Agency Representative Signature",
-    description: "Signature of agency official representative",
+    label: "County Social Worker",
+    description: "Signature of County Social Worker",
     icon: <WorkIcon />,
     color: "#d32f2f", // red
   },

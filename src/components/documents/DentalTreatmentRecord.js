@@ -211,7 +211,6 @@ const DentalTreatmentRecord = ({
           Dental Treatment Record
         </h2>
         <hr></hr>
-        
       </div>
 
       {/* Client information section */}
@@ -809,19 +808,19 @@ const DentalTreatmentRecord = ({
           <Typography variant="subtitle2">Select a signature:</Typography>
         </MenuItem>
         <MenuItem onClick={() => handleSignatureSelect("childSignature")}>
-          Child Signature
+          Foster Child Signature
         </MenuItem>
         <MenuItem onClick={() => handleSignatureSelect("parentSignature")}>
-          Parent/Guardian Signature
+          Resource Mother Signature
         </MenuItem>
         <MenuItem onClick={() => handleSignatureSelect("caseworkerSignature")}>
-          Caseworker Signature
+          Resource Father Signature
         </MenuItem>
         <MenuItem onClick={() => handleSignatureSelect("supervisorSignature")}>
-          Supervisor Signature
+          Pathway Social Worker Signature
         </MenuItem>
         <MenuItem onClick={() => handleSignatureSelect("agencyRepSignature")}>
-          Agency Representative Signature
+          County Social Worker Signature
         </MenuItem>
       </Menu>
     </div>

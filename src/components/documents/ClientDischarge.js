@@ -238,7 +238,9 @@ const ClientDischarge = ({
           CLIENT MOVE/DISCHARGE/REMOVAL POLICIES & PROCEDURES
         </h3>
 
-        <p style={{ fontSize: "12px", lineHeight: "1.3", textAlign: "justify" }}>
+        <p
+          style={{ fontSize: "12px", lineHeight: "1.3", textAlign: "justify" }}
+        >
           Pathway Family Services operate by a standard of policies regarding
           planned and unplanned terminations. Pathway will endeavor to maintain
           a client in placement based on whether an appropriate placement is
@@ -255,7 +257,9 @@ const ClientDischarge = ({
           Moving a Child in Placement to another Foster Home
         </h4>
 
-        <p style={{ fontSize: "12px", lineHeight: "1.3", textAlign: "justify" }}>
+        <p
+          style={{ fontSize: "12px", lineHeight: "1.3", textAlign: "justify" }}
+        >
           A child may be moved when it obvious the child is not benefiting from
           the placement due to being incompatible with the foster family; or the
           child is completely noncompliant with the foster family's structure or
@@ -275,7 +279,9 @@ const ClientDischarge = ({
           Placement Discharge/Removal
         </h4>
 
-        <p style={{ fontSize: "12px", lineHeight: "1.3", textAlign: "justify" }}>
+        <p
+          style={{ fontSize: "12px", lineHeight: "1.3", textAlign: "justify" }}
+        >
           There are many reasons why a child might leave a foster home. They
           include:
         </p>
@@ -316,7 +322,9 @@ const ClientDischarge = ({
           </li>
         </ul>
 
-        <p style={{ fontSize: "12px", lineHeight: "1.3", textAlign: "justify" }}>
+        <p
+          style={{ fontSize: "12px", lineHeight: "1.3", textAlign: "justify" }}
+        >
           Pathway reserves the right to terminate placements for several other
           reasons, such as serious emergency medical care, previously
           unidentified special health care needs about a child, emergency
@@ -327,12 +335,16 @@ const ClientDischarge = ({
           threatens the well being of the family.
         </p>
 
-        <p style={{ fontSize: "12px", lineHeight: "1.3", textAlign: "justify" }}>
+        <p
+          style={{ fontSize: "12px", lineHeight: "1.3", textAlign: "justify" }}
+        >
           Pathway also recognizes that the child's authorized representative may
           terminate the placement at any time deem necessary.
         </p>
 
-        <p style={{ fontSize: "12px", lineHeight: "1.3", textAlign: "justify" }}>
+        <p
+          style={{ fontSize: "12px", lineHeight: "1.3", textAlign: "justify" }}
+        >
           Terminations are to be approved by an Agency Supervisor. The Agency
           Supervisor is immediately notified by the Agency social worker or
           foster parents when a removal is pending or has occurred. All
@@ -341,7 +353,9 @@ const ClientDischarge = ({
           offered the opportunity to participate in the termination process.
         </p>
 
-        <p style={{ fontSize: "12px", lineHeight: "1.3", textAlign: "justify" }}>
+        <p
+          style={{ fontSize: "12px", lineHeight: "1.3", textAlign: "justify" }}
+        >
           The Agency social worker will prepare a Termination report, which
           specifies the reason(s) for the termination or discharge and any
           services rendered since the last treatment plan report.
@@ -443,19 +457,19 @@ const ClientDischarge = ({
           <Typography variant="subtitle2">Select a signature:</Typography>
         </MenuItem>
         <MenuItem onClick={() => handleSignatureSelect("childSignature")}>
-          Child Signature
+          Foster Child Signature
         </MenuItem>
         <MenuItem onClick={() => handleSignatureSelect("parentSignature")}>
-          Parent/Guardian Signature
+          Resource Mother Signature
         </MenuItem>
         <MenuItem onClick={() => handleSignatureSelect("caseworkerSignature")}>
-          Caseworker Signature
+          Resource Father Signature
         </MenuItem>
         <MenuItem onClick={() => handleSignatureSelect("supervisorSignature")}>
-          Supervisor Signature
+          Pathway Social Worker Signature
         </MenuItem>
         <MenuItem onClick={() => handleSignatureSelect("agencyRepSignature")}>
-          Agency Representative Signature
+          County Social Worker Signature
         </MenuItem>
       </Menu>
     </div>

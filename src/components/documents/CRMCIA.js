@@ -346,11 +346,10 @@ const CRMCIA = ({
         {/* Signature section for Part 1 */}
         <div
           style={{
-                      display: "flex",
-              alignItems: "end",
+            display: "flex",
+            alignItems: "end",
             justifyContent: "space-between",
             marginTop: "10px",
-            
           }}
         >
           <div style={{ width: "45%" }}>
@@ -377,7 +376,7 @@ const CRMCIA = ({
       </div>
 
       {/* Part 2 - Authorization section */}
-      <div style={{ marginTop: "10px"}}>
+      <div style={{ marginTop: "10px" }}>
         <p style={{ fontSize: "12px", fontWeight: "bold" }}>
           Part 2- AUTHORIZATION FOR USE OR DISCLOSURE OF CONFIDENTIAL
           INFORMATION
@@ -424,7 +423,9 @@ const CRMCIA = ({
       </div>
 
       {/* Legal text */}
-      <div style={{ marginTop: "20px", fontSize: "12px", textAlign: "justify" }}>
+      <div
+        style={{ marginTop: "20px", fontSize: "12px", textAlign: "justify" }}
+      >
         <p>
           <strong>NOTE:</strong> Exchange of information may take place by
           personal contact, telephone, email, and fax.
@@ -582,19 +583,19 @@ const CRMCIA = ({
           <Typography variant="subtitle2">Select a signature:</Typography>
         </MenuItem>
         <MenuItem onClick={() => handleSignatureSelect("childSignature")}>
-          Child Signature
+          Foster Child Signature
         </MenuItem>
         <MenuItem onClick={() => handleSignatureSelect("parentSignature")}>
-          Parent/Guardian Signature
+          Resource Mother Signature
         </MenuItem>
         <MenuItem onClick={() => handleSignatureSelect("caseworkerSignature")}>
-          Caseworker Signature
+          Resource Father Signature
         </MenuItem>
         <MenuItem onClick={() => handleSignatureSelect("supervisorSignature")}>
-          Supervisor Signature
+          Pathway Social Worker Signature
         </MenuItem>
         <MenuItem onClick={() => handleSignatureSelect("agencyRepSignature")}>
-          Agency Representative Signature
+          County Social Worker Signature
         </MenuItem>
       </Menu>
     </div>

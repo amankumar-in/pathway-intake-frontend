@@ -61,10 +61,10 @@ const Step3Form = ({ formData, goToStep }) => {
         { label: "Office", value: formData.office },
         { label: "Date Submitted", value: formatDate(formData.dateSubmitted) },
         {
-          label: "Transaction Date",
+          label: "Placement Date",
           value: formatDate(formData.transactionDate),
         },
-        { label: "Type of Transaction", value: formData.typeOfTransaction },
+        { label: "Type of Placement", value: formData.typeOfTransaction },
       ],
     },
     {
@@ -126,28 +126,28 @@ const Step3Form = ({ formData, goToStep }) => {
       condition: !!formData.infantFullName,
     },
     {
-      id: "foster-home",
-      title: "Foster Home Information",
+      id: "Resource-home",
+      title: "Resource Home Information",
       icon: <HomeIcon />,
       color: "success.main",
       fields: [
         {
-          label: "Foster Parents Payment",
-          value: formData.fosterParentsPayment,
+          label: "Resource Parents Payment",
+          value: formData.ResourceParentsPayment,
         },
         {
-          label: "Name of Foster Parents",
-          value: formData.nameOfFosterParents,
+          label: "Name of Resource Parents",
+          value: formData.nameOfResourceParents,
         },
-        { label: "Telephone Number", value: formData.fosterParentsTelephone },
-        { label: "Address", value: formData.fosterParentsAddress },
+        { label: "Telephone Number", value: formData.ResourceParentsTelephone },
+        { label: "Address", value: formData.ResourceParentsAddress },
         {
           label: "Mailing Address",
-          value: formData.fosterParentsMailingAddress || "Same as above",
+          value: formData.ResourceParentsMailingAddress || "Same as above",
         },
-        { label: "City", value: formData.fosterParentsCity },
-        { label: "State", value: formData.fosterParentsState },
-        { label: "Zip", value: formData.fosterParentsZip },
+        { label: "City", value: formData.ResourceParentsCity },
+        { label: "State", value: formData.ResourceParentsState },
+        { label: "Zip", value: formData.ResourceParentsZip },
       ],
     },
     {
@@ -178,10 +178,10 @@ const Step3Form = ({ formData, goToStep }) => {
   // Check for required fields that aren't filled
   const requiredFields = [
     { name: "yourName", label: "Your Name", section: "office" },
-    { name: "transactionDate", label: "Transaction Date", section: "office" },
+    { name: "transactionDate", label: "Placement Date", section: "office" },
     {
       name: "typeOfTransaction",
-      label: "Type of Transaction",
+      label: "Type of Placement",
       section: "office",
     },
     { name: "caseNumber", label: "Case Number", section: "client" },

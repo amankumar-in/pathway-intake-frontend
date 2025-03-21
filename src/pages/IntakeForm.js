@@ -75,7 +75,7 @@ const steps = [
     icon: <PersonIcon />,
   },
   {
-    label: "Foster Home & County Details",
+    label: "Resource Home & County Details",
     description: "Provide placement and county contact information",
     icon: <HomeIcon />,
   },
@@ -135,15 +135,15 @@ const IntakeForm = () => {
     infantGender: "Male",
     infantEthnicity: "Unknown",
 
-    // Foster Home Information
-    fosterParentsPayment: "$1206.00",
-    nameOfFosterParents: "",
-    fosterParentsTelephone: "",
-    fosterParentsAddress: "",
-    fosterParentsMailingAddress: "",
-    fosterParentsCity: "",
-    fosterParentsState: "California",
-    fosterParentsZip: "",
+    // Resource Home Information
+    ResourceParentsPayment: "$1206.00",
+    nameOfResourceParents: "",
+    ResourceParentsTelephone: "",
+    ResourceParentsAddress: "",
+    ResourceParentsMailingAddress: "",
+    ResourceParentsCity: "",
+    ResourceParentsState: "California",
+    ResourceParentsZip: "",
 
     // County Worker Information
     countyWillPay: "$2,638.00",
@@ -228,7 +228,7 @@ const IntakeForm = () => {
           officeNumber = "410";
           phoneNumber = "(951) 686-3706";
           break;
-        case "SBR":
+        case "San Bernardino":
           officeNumber = "505";
           phoneNumber = "(909) 890-5295";
           break;
@@ -244,24 +244,24 @@ const IntakeForm = () => {
     }
 
     if (name === "levelOfCare") {
-      // Update foster parents payment based on level of care
-      let fosterParentsPayment = "";
+      // Update Resource parents payment based on level of care
+      let ResourceParentsPayment = "";
 
       switch (value) {
         case "Level 1":
-          fosterParentsPayment = "$1,206.00";
+          ResourceParentsPayment = "$1,206.00";
           break;
         case "Level 2":
-          fosterParentsPayment = "$1,570.00";
+          ResourceParentsPayment = "$1,570.00";
           break;
         case "Level 3":
-          fosterParentsPayment = "$2,058.00";
+          ResourceParentsPayment = "$2,058.00";
           break;
         case "Level 4":
-          fosterParentsPayment = "$2,742.00";
+          ResourceParentsPayment = "$2,742.00";
           break;
         case "Level 5":
-          fosterParentsPayment = "$3,426.00";
+          ResourceParentsPayment = "$3,426.00";
           break;
         default:
           break;
@@ -292,7 +292,7 @@ const IntakeForm = () => {
 
       setFormData((prev) => ({
         ...prev,
-        fosterParentsPayment,
+        ResourceParentsPayment,
         countyWillPay,
       }));
     }
@@ -371,8 +371,8 @@ const IntakeForm = () => {
   const validateForm = () => {
     const requiredFields = [
       { name: "yourName", label: "Your Name" },
-      { name: "transactionDate", label: "Transaction Date" },
-      { name: "typeOfTransaction", label: "Type of Transaction" },
+      { name: "transactionDate", label: "Placement Date" },
+      { name: "typeOfTransaction", label: "Type of Placement" },
       { name: "caseNumber", label: "Case Number" },
       { name: "name", label: "Client Name" },
       { name: "dateOfBirth", label: "Date of Birth" },
@@ -700,7 +700,7 @@ const IntakeForm = () => {
               {activeStep === 0
                 ? "This step collects basic information about the office handling the case and the client being admitted. Fields marked with an asterisk (*) are required."
                 : activeStep === 1
-                ? "This step gathers information about the foster home and county worker involved in this case. Foster parent and county payment amounts are automatically calculated based on the Level of Care selected in Step 1."
+                ? "This step gathers information about the Resource home and county worker involved in this case. Resource parent and county payment amounts are automatically calculated based on the Level of Care selected in Step 1."
                 : "Please review all the information you've entered. You can navigate back to previous steps to make corrections by clicking the Edit button in each section."}
             </Typography>
 

@@ -201,7 +201,7 @@ const IDEmergencyInfoForm = ({ data, handleInputChange }) => {
               <MenuItem value="Santa Maria">Santa Maria</MenuItem>
               <MenuItem value="Bakersfield">Bakersfield</MenuItem>
               <MenuItem value="Riverside">Riverside</MenuItem>
-              <MenuItem value="SBR">SBR</MenuItem>
+              <MenuItem value="San Bernardino">San Bernardino</MenuItem>
             </Select>
           </FormControl>
         </Grid>

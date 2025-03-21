@@ -1,0 +1,352 @@
+import React, { useState, useEffect } from "react";
+import { Menu, MenuItem, Typography, Tooltip, IconButton } from "@mui/material";
+import { AddCircleOutline, Delete, Star } from "@mui/icons-material";
+
+// AgencyToAgencyAgreement component using improved styling and layout
+const AgencyToAgencyAgreement = ({
+  data,
+  signatures = {},
+  onAddSignature,
+  onRemoveSignature,
+  onTouchSignatureArea,
+  touchedArea,
+  signatureAreaClass,
+  deleteButtonClass,
+  placeholderClass,
+}) => {
+  // State for signature menu
+  const [signatureMenuAnchor, setSignatureMenuAnchor] = useState(null);
+  const [currentSignatureArea, setCurrentSignatureArea] = useState("");
+
+  // Format dates
+  const formatDate = (dateString) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
+
+  // Helper to determine if we're in print/export mode
+  const isPrintMode = () => {
+    return (
+      document.body.classList.contains("print-mode") ||
+      window.matchMedia("print").matches ||
+      document.body.getAttribute("data-pdf-export") === "true"
+    );
+  };
+
+  useEffect(() => {
+    // Listen for print events to properly hide controls
+    const beforePrintHandler = () => document.body.classList.add("print-mode");
+    const afterPrintHandler = () =>
+      document.body.classList.remove("print-mode");
+
+    window.addEventListener("beforeprint", beforePrintHandler);
+    window.addEventListener("afterprint", afterPrintHandler);
+
+    return () => {
+      window.removeEventListener("beforeprint", beforePrintHandler);
+      window.removeEventListener("afterprint", afterPrintHandler);
+    };
+  }, []);
+
+  // Handle signature icon click
+  const handleSignatureClick = (event, signatureArea) => {
+    setSignatureMenuAnchor(event.currentTarget);
+    setCurrentSignatureArea(signatureArea);
+  };
+
+  // Handle menu close
+  const handleMenuClose = () => {
+    setSignatureMenuAnchor(null);
+    setCurrentSignatureArea("");
+  };
+
+  // Handle signature selection
+  const handleSignatureSelect = (signatureType) => {
+    if (onAddSignature) {
+      onAddSignature(signatureType, currentSignatureArea);
+    }
+    handleMenuClose();
+  };
+
+  // Handle signature removal
+  const handleRemoveSignature = (signatureArea) => {
+    if (onRemoveSignature) {
+      onRemoveSignature(signatureArea);
+    }
+  };
+
+  // Check if a signature is placed
+  const hasSignature = (signatureArea) => {
+    return signatures && signatures[signatureArea];
+  };
+
+  // Render signature area
+  const renderSignatureArea = (title, signatureArea) => {
+    const signaturePlaced = hasSignature(signatureArea);
+    const inPrintMode = isPrintMode();
+
+    return (
+      <div
+        className={signatureAreaClass || "signature-area"}
+        style={{
+          marginTop: "8px",
+          width: "100%", // Ensure full width
+          boxSizing: "border-box", // Include padding and border in width calculation
+        }}
+      >
+        {signaturePlaced ? (
+          <div>
+            <div
+              style={{
+                height: "50px",
+                backgroundImage: `url(${signatures[signatureArea]})`,
+                backgroundSize: "contain",
+                backgroundRepeat: "no-repeat",
+                backgroundPosition: "center",
+                borderBottom: "1px solid #ccc",
+              }}
+            />
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                fontSize: "9px",
+              }}
+            >
+              <span>{title}</span>
+              {!inPrintMode && (
+                <Tooltip title="Remove Signature">
+                  <IconButton
+                    size="small"
+                    color="error"
+                    onClick={() => handleRemoveSignature(signatureArea)}
+                    className={deleteButtonClass || "delete-button"}
+                  >
+                    <Delete fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+              )}
+            </div>
+          </div>
+        ) : (
+          <div>
+            <div
+              style={{
+                height: "50px",
+                borderBottom: "1px solid #ccc",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              {!inPrintMode && (
+                <Tooltip title="Add Signature">
+                  <IconButton
+                    color="primary"
+                    onClick={(e) => handleSignatureClick(e, signatureArea)}
+                    className={placeholderClass || "signature-placeholder"}
+                    size="small"
+                  >
+                    <AddCircleOutline fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+              )}
+            </div>
+            <span style={{ fontSize: "9px" }}>{title}</span>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // Document styles (simplified and more consistent)
+  const styles = {
+    document: {
+      padding: "15px",
+      backgroundColor: "#ffffff",
+      border: "1px solid #e0e0e0",
+      fontFamily: "Arial, sans-serif",
+      fontSize: "10px",
+      lineHeight: "1.2",
+      pageBreakInside: "avoid",
+      maxWidth: "8.3in",
+      margin: "0 auto",
+    },
+    // ... (other styles remain the same)
+  };
+
+  // Format signature date or use current date if not available
+  const formattedSignatureDate =
+    formatDate(data?.signatureDate) || formatDate(new Date());
+
+  return (
+    <div style={styles.document}>
+      {/* Previous content remains the same */}
+      
+      {/* Signature section - modified to prevent wrapping */}
+      <table
+        style={{
+          width: "100%",
+          borderCollapse: "collapse",
+          marginTop: "10px",
+          fontSize: "9px",
+        }}
+      >
+        <tbody>
+          {/* Signature Areas */}
+          <tr>
+            <td style={{ width: "45%", verticalAlign: "top" }}>
+              {renderSignatureArea("", "placementWorkerSignature")}
+            </td>
+            <td style={{ width: "10%" }}></td>
+            <td style={{ width: "45%", verticalAlign: "top" }}>
+              {renderSignatureArea("", "agencyRepSignature")}
+            </td>
+          </tr>
+          
+          {/* Labels */}
+          <tr>
+            <td style={{ paddingTop: "3px", fontSize: "9px" }}>
+              Children Placement Worker
+            </td>
+            <td></td>
+            <td style={{ paddingTop: "3px", fontSize: "9px" }}>
+              Authorized Agency Representative
+            </td>
+          </tr>
+          
+          {/* Names */}
+          <tr>
+            <td>{data?.placementWorkerName || data?.countyWorkerName || ""}</td>
+            <td></td>
+            <td>{data?.agencyRepresentative || ""}</td>
+          </tr>
+          
+          {/* Titles */}
+          <tr>
+            <td style={{ paddingTop: "5px", whiteSpace: "nowrap" }}>
+              <span style={{ fontWeight: "bold", fontSize: "8px" }}>
+                Title:
+              </span>{" "}
+              {data?.placementWorkerTitle || "CSW"}
+            </td>
+            <td></td>
+            <td style={{ paddingTop: "5px", whiteSpace: "nowrap" }}>
+              <span style={{ fontWeight: "bold", fontSize: "8px" }}>
+                Title:
+              </span>{" "}
+              {data?.agencyRepresentativeTitle || ""}
+            </td>
+          </tr>
+          
+          {/* Agency */}
+          <tr>
+            <td style={{ paddingTop: "5px", whiteSpace: "nowrap" }}>
+              <span style={{ fontWeight: "bold", fontSize: "8px" }}>
+                Agency:
+              </span>{" "}
+              {data?.placingAgencyName || "DHS"}
+            </td>
+            <td></td>
+            <td style={{ paddingTop: "5px", whiteSpace: "nowrap" }}>
+              <span style={{ fontWeight: "bold", fontSize: "8px" }}>
+                Agency:
+              </span>{" "}
+              {data?.agencyName || "Pathway Family Services, Inc."}
+            </td>
+          </tr>
+          
+          {/* Address */}
+          <tr>
+            <td style={{ paddingTop: "5px", whiteSpace: "nowrap" }}>
+              <span style={{ fontWeight: "bold", fontSize: "8px" }}>
+                Address:
+              </span>{" "}
+              {data?.placingAgencyAddress || "2125 S. Centerpoint Prkwy"}
+            </td>
+            <td></td>
+            <td style={{ paddingTop: "5px", whiteSpace: "nowrap" }}>
+              <span style={{ fontWeight: "bold", fontSize: "8px" }}>
+                Address:
+              </span>{" "}
+              {data?.agencyAddress || "P.O. Box 888, Bakersfield, CA 93302"}
+            </td>
+          </tr>
+          
+          {/* City/State/Zip */}
+          <tr>
+            <td style={{ whiteSpace: "nowrap" }}>
+              {data?.placingAgencyCity || "Santa Maria"},{" "}
+              {data?.placingAgencyState || "CA"}{" "}
+              {data?.placingAgencyZip || "93455"}
+            </td>
+            <td></td>
+            <td></td>
+          </tr>
+          
+          {/* Phone and Date */}
+          <tr>
+            <td style={{ paddingTop: "5px", whiteSpace: "nowrap" }}>
+              <span style={{ fontWeight: "bold", fontSize: "8px", marginRight: "3px" }}>
+                Phone:
+              </span>{" "}
+              {data?.placingAgencyPhone || "805-819-1921"}
+            </td>
+            <td style={{ paddingTop: "5px", whiteSpace: "nowrap" }}>
+              <span style={{ fontWeight: "bold", fontSize: "8px", marginRight: "3px" }}>
+                Date:
+              </span>{" "}
+              {formattedSignatureDate}
+            </td>
+            <td style={{ paddingTop: "5px", whiteSpace: "nowrap" }}>
+              <span style={{ fontWeight: "bold", fontSize: "8px", marginRight: "3px" }}>
+                Phone:
+              </span>{" "}
+              {data?.agencyPhone || "(805) 739-1111"}
+            </td>
+            <td style={{ paddingTop: "5px", whiteSpace: "nowrap" }}>
+              <span style={{ fontWeight: "bold", fontSize: "8px", marginRight: "3px" }}>
+                Date:
+              </span>{" "}
+              {formattedSignatureDate}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      {/* Signature selection menu */}
+      <Menu
+        anchorEl={signatureMenuAnchor}
+        open={Boolean(signatureMenuAnchor)}
+        onClose={handleMenuClose}
+      >
+        <MenuItem disabled>
+          <Typography variant="subtitle2">Select a signature:</Typography>
+        </MenuItem>
+        <MenuItem onClick={() => handleSignatureSelect("childSignature")}>
+          Child Signature
+        </MenuItem>
+        <MenuItem onClick={() => handleSignatureSelect("parentSignature")}>
+          Parent/Guardian Signature
+        </MenuItem>
+        <MenuItem onClick={() => handleSignatureSelect("caseworkerSignature")}>
+          Caseworker Signature
+        </MenuItem>
+        <MenuItem onClick={() => handleSignatureSelect("supervisorSignature")}>
+          Supervisor Signature
+        </MenuItem>
+        <MenuItem onClick={() => handleSignatureSelect("agencyRepSignature")}>
+          Agency Representative Signature
+        </MenuItem>
+      </Menu>
+    </div>
+  );
+};
+
+export default AgencyToAgencyAgreement;

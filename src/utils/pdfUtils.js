@@ -10,9 +10,14 @@ import html2pdf from "html2pdf.js"; // Keep for fallback
 // const MULTI_PDF_SERVICE_URL = "http://localhost:3001/api/generate-multiple-pdf";
 
 // For integrated backend:
-const PDF_SERVICE_URL = "http://localhost:5000/api/v1/pdf/generate";
+const PDF_SERVICE_URL =
+  process.env.NODE_ENV === "production"
+    ? "https://pathway-intake-backend.onrender.com/api/v1/pdf/generate"
+    : "http://localhost:5000/api/v1/pdf/generate";
 const MULTI_PDF_SERVICE_URL =
-  "http://localhost:5000/api/v1/pdf/generate-multiple";
+  process.env.NODE_ENV === "production"
+    ? "https://pathway-intake-backend.onrender.com/api/v1/pdf/generate-multiple"
+    : "http://localhost:5000/api/v1/pdf/generate-multiple";
 
 // Flag to control whether to use server-side PDF generation
 // If false, will fall back to client-side generation (images)

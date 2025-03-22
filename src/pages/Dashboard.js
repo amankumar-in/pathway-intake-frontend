@@ -676,7 +676,7 @@ const Dashboard = () => {
               mb: 0,
             }}
           >
-            Welcome, {user?.name || "User"}
+            Welcome, {user?.name ? user.name.split(" ")[0] : "User"}!
           </Typography>
           <Typography
             variant="body1"
@@ -1118,7 +1118,7 @@ const Dashboard = () => {
               flexDirection: { xs: "column", sm: "row" },
               justifyContent: "space-between",
               alignItems: { xs: "stretch", sm: "center" },
-              gap: { xs: 1, sm: 0 },
+              gap: { xs: 1, sm: 2 },
             }}
           >
             <Typography
@@ -1130,6 +1130,8 @@ const Dashboard = () => {
                 alignItems: "center",
                 flexWrap: "wrap",
                 gap: 1,
+                flexShrink: 0,
+                whiteSpace: "nowrap",
               }}
             >
               {activeTab === 3 ? "Documents" : "Intake Forms"}
@@ -1143,21 +1145,31 @@ const Dashboard = () => {
               )}
             </Typography>
 
-            <Box sx={{ width: "100%", overflow: "auto" }}>
+            <Box
+              sx={{
+                overflow: "auto",
+                flexGrow: 1,
+                maxWidth: { sm: "75%", md: "80%" },
+                display: "flex",
+                justifyContent: "flex-end",
+              }}
+            >
               <Tabs
                 value={activeTab}
                 onChange={handleTabChange}
                 textColor="primary"
                 indicatorColor="primary"
-                variant={isMobile ? "scrollable" : "standard"}
-                scrollButtons={isMobile ? "auto" : false}
+                variant={isMobile || isTablet ? "scrollable" : "standard"}
+                scrollButtons="auto"
                 sx={{
                   minHeight: { xs: 36, sm: 48 },
                   "& .MuiTab-root": {
                     minHeight: { xs: 36, sm: 48 },
                     py: 0.5,
                     fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                    px: { xs: 1, sm: 1.5, md: 2 },
                   },
+                  maxWidth: "100%",
                 }}
               >
                 <Tab
@@ -1177,6 +1189,13 @@ const Dashboard = () => {
                   />
                 )}
                 <Tab
+                  label="Single Docs"
+                  icon={
+                    <DescriptionIcon fontSize={isMobile ? "small" : "medium"} />
+                  }
+                  iconPosition="start"
+                />
+                <Tab
                   label={
                     <Badge
                       badgeContent={
@@ -1189,13 +1208,6 @@ const Dashboard = () => {
                   }
                   icon={
                     <ArchiveIcon fontSize={isMobile ? "small" : "medium"} />
-                  }
-                  iconPosition="start"
-                />
-                <Tab
-                  label="Single Docs"
-                  icon={
-                    <DescriptionIcon fontSize={isMobile ? "small" : "medium"} />
                   }
                   iconPosition="start"
                 />
@@ -1530,13 +1542,27 @@ const Dashboard = () => {
                         <TableRow
                           key={doc._id}
                           hover
+                          onClick={(e) => {
+                            // Prevent row click if clicking on checkbox or actions
+                            if (
+                              e.target.closest('input[type="checkbox"]') ||
+                              e.target.closest("button")
+                            ) {
+                              return;
+                            }
+                            handleViewDocument(doc._id);
+                          }}
                           sx={{
                             "&:hover": {
                               bgcolor: "rgba(0, 0, 0, 0.04)",
+                              cursor: "pointer",
                             },
                           }}
                         >
-                          <TableCell padding="checkbox">
+                          <TableCell
+                            padding="checkbox"
+                            onClick={(e) => e.stopPropagation()}
+                          >
                             <Checkbox
                               checked={selectedItems.includes(doc._id)}
                               onChange={() => handleSelectItem(doc._id)}
@@ -1575,7 +1601,10 @@ const Dashboard = () => {
                               {doc.createdBy?.name || "Unknown"}
                             </TableCell>
                           )}
-                          <TableCell align="right">
+                          <TableCell
+                            align="right"
+                            onClick={(e) => e.stopPropagation()}
+                          >
                             <Box
                               sx={{
                                 display: "flex",
@@ -1584,25 +1613,39 @@ const Dashboard = () => {
                                 gap: 0.5,
                               }}
                             >
-                              <Button
-                                variant="contained"
-                                size="small"
-                                color="primary"
-                                onClick={() => handleViewDocument(doc._id)}
-                              >
-                                {isMobile ? "View" : "View"}
-                              </Button>
-                              <Button
-                                variant="outlined"
-                                size="small"
-                                color="primary"
-                                startIcon={!isMobile && <EditIcon />}
-                                onClick={() =>
-                                  handleEditDocument(doc._id, true)
-                                }
-                              >
-                                {isMobile ? "Edit" : "Edit"}
-                              </Button>
+                              {!(isMobile || isTablet) && (
+                                <Button
+                                  variant="contained"
+                                  size="small"
+                                  color="primary"
+                                  onClick={() => handleViewDocument(doc._id)}
+                                >
+                                  View
+                                </Button>
+                              )}
+                              {isMobile || isTablet ? (
+                                <IconButton
+                                  size="small"
+                                  color="primary"
+                                  onClick={() =>
+                                    handleEditDocument(doc._id, true)
+                                  }
+                                >
+                                  <EditIcon fontSize="small" />
+                                </IconButton>
+                              ) : (
+                                <Button
+                                  variant="outlined"
+                                  size="small"
+                                  color="primary"
+                                  startIcon={<EditIcon />}
+                                  onClick={() =>
+                                    handleEditDocument(doc._id, true)
+                                  }
+                                >
+                                  Edit
+                                </Button>
+                              )}
                               <IconButton
                                 size="small"
                                 color="error"
@@ -1663,9 +1706,20 @@ const Dashboard = () => {
                       <TableRow
                         key={form._id}
                         hover
+                        onClick={(e) => {
+                          // Prevent row click if clicking on checkbox or actions
+                          if (
+                            e.target.closest('input[type="checkbox"]') ||
+                            e.target.closest("button")
+                          ) {
+                            return;
+                          }
+                          handleViewForm(form._id);
+                        }}
                         sx={{
                           "&:hover": {
                             bgcolor: "rgba(0, 0, 0, 0.04)",
+                            cursor: "pointer",
                           },
                           bgcolor: form.archived
                             ? "rgba(0, 0, 0, 0.04)"
@@ -1673,7 +1727,10 @@ const Dashboard = () => {
                         }}
                       >
                         {activeTab === 2 && isAdmin() && (
-                          <TableCell padding="checkbox">
+                          <TableCell
+                            padding="checkbox"
+                            onClick={(e) => e.stopPropagation()}
+                          >
                             <Checkbox
                               checked={selectedItems.includes(form._id)}
                               onChange={() => handleSelectItem(form._id)}
@@ -1696,7 +1753,10 @@ const Dashboard = () => {
                           {formatDate(form.createdAt)}
                         </TableCell>
                         <TableCell>{getStatusChip(form.status)}</TableCell>
-                        <TableCell align="right">
+                        <TableCell
+                          align="right"
+                          onClick={(e) => e.stopPropagation()}
+                        >
                           <Box
                             sx={{
                               display: "flex",
@@ -1705,23 +1765,35 @@ const Dashboard = () => {
                               gap: 0.5,
                             }}
                           >
-                            <Button
-                              variant="contained"
-                              size="small"
-                              color="primary"
-                              onClick={() => handleViewForm(form._id)}
-                            >
-                              View
-                            </Button>
-                            <Button
-                              variant="outlined"
-                              size="small"
-                              color="primary"
-                              startIcon={!isMobile && <EditIcon />}
-                              onClick={() => handleEditForm(form._id)}
-                            >
-                              {isMobile ? "Edit" : "Edit"}
-                            </Button>
+                            {!(isMobile || isTablet) && (
+                              <Button
+                                variant="contained"
+                                size="small"
+                                color="primary"
+                                onClick={() => handleViewForm(form._id)}
+                              >
+                                View
+                              </Button>
+                            )}
+                            {isMobile || isTablet ? (
+                              <IconButton
+                                size="small"
+                                color="primary"
+                                onClick={() => handleEditForm(form._id)}
+                              >
+                                <EditIcon fontSize="small" />
+                              </IconButton>
+                            ) : (
+                              <Button
+                                variant="outlined"
+                                size="small"
+                                color="primary"
+                                startIcon={<EditIcon />}
+                                onClick={() => handleEditForm(form._id)}
+                              >
+                                Edit
+                              </Button>
+                            )}
                             <IconButton
                               size="small"
                               onClick={(event) => handleMenuOpen(event, form)}

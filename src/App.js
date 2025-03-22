@@ -1,6 +1,7 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { CssBaseline, ThemeProvider, createTheme } from "@mui/material";
+import { useEffect } from "react";
 
 // Context
 import { AuthProvider } from "./context/AuthContext";
@@ -35,6 +36,9 @@ const theme = createTheme({
 });
 
 function App() {
+  useEffect(() => {
+    document.title = "Pathway Family Services";
+  }, []);
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />

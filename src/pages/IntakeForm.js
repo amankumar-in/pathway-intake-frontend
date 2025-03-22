@@ -160,7 +160,9 @@ const IntakeForm = () => {
     // Categories (default to Intake Paperwork)
     categories: ["Intake Paperwork"],
   });
-
+useEffect(() => {
+  document.title = "New Intake | Pathway Foster Agency";
+}, []);
   // Calculate progress based on required fields filled
   useEffect(() => {
     const requiredFields = [

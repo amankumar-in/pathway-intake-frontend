@@ -242,6 +242,16 @@ const ViewDocuments = () => {
     },
   ];
 
+  // Dynamic title that updates when intakeForm data loads
+  useEffect(() => {
+    if (intakeForm) {
+      document.title = `${
+        intakeForm.name || "Unknown Client"
+      } Documents | Pathway Foster Agency`;
+    } else {
+      document.title = "View Documents | Pathway Foster Agency";
+    }
+  }, [intakeForm]);
   // Fetch documents on component mount
   useEffect(() => {
     const fetchData = async () => {

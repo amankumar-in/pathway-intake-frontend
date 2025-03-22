@@ -80,6 +80,9 @@ const UserManagement = () => {
   const theme = useTheme();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    document.title = "User Management | Pathway Foster Agency";
+  }, []);
   // Fetch users on component mount
   useEffect(() => {
     fetchUsers();

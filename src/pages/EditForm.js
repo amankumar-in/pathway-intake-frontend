@@ -113,7 +113,9 @@ const EditForm = () => {
     if (isNaN(date.getTime())) return ""; // Invalid date
     return date.toISOString().split("T")[0]; // Returns YYYY-MM-DD
   };
-
+useEffect(() => {
+  document.title = "Edit Intake Form | Pathway Foster Agency";
+}, []);
   // Fetch the form data when component mounts
   useEffect(() => {
     const fetchFormData = async () => {

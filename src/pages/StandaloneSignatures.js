@@ -88,6 +88,9 @@ const StandaloneSignatures = () => {
     setError(""); // Clear any previous errors
   };
 
+  useEffect(() => {
+    document.title = "Signatures | Pathway Foster Agency";
+  }, []);
   // Fetch document data on component mount
   useEffect(() => {
     const fetchDocumentData = async () => {

@@ -49,7 +49,9 @@ const EditDocument = () => {
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [saveMessage, setSaveMessage] = useState("");
   const [hasChanges, setHasChanges] = useState(false);
-
+useEffect(() => {
+  document.title = "Edit Document Form | Pathway Foster Agency";
+}, []);
   // Fetch document data
   useEffect(() => {
     const fetchDocument = async () => {

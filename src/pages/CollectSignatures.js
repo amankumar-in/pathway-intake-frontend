@@ -98,6 +98,9 @@ const CollectSignatures = () => {
     setError(""); // Clear any previous errors
   };
 
+  useEffect(() => {
+      document.title = "Signatures | Pathway Foster Agency";
+    }, []);
   // Fetch form data on component mount
   useEffect(() => {
     const fetchFormData = async () => {

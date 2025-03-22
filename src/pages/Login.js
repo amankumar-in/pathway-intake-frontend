@@ -42,7 +42,9 @@ const Login = () => {
 
   // Added animation effect for the login card
   const [showCard, setShowCard] = useState(false);
-
+useEffect(() => {
+  document.title = "Sign in | Pathway Foster Agency";
+}, []);
   useEffect(() => {
     // Delay to allow for a smooth animation
     const timer = setTimeout(() => {

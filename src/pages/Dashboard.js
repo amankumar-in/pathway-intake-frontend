@@ -122,6 +122,10 @@ const Dashboard = () => {
   const [permanentDeleteItem, setPermanentDeleteItem] = useState(null);
   const [successMessage, setSuccessMessage] = useState("");
 
+  useEffect(() => {
+    document.title = "Dashboard | Pathway Foster Agency";
+  }, []);
+
   // Fetch intake forms and standalone documents
   useEffect(() => {
     const fetchData = async () => {

@@ -41,6 +41,9 @@ const StandaloneDocumentForm = () => {
   const [formData, setFormData] = useState({});
   const [documentData, setDocumentData] = useState(null);
 
+  useEffect(() => {
+    document.title = "Create New Doc | Pathway Foster Agency";
+  }, []);
   // Get document data from URL query params if present
   useEffect(() => {
     const queryParams = new URLSearchParams(window.location.search);

@@ -31,6 +31,8 @@ import {
   Stack,
   List,
   ListItem,
+  useMediaQuery,
+  Collapse,
 } from "@mui/material";
 import {
   ArrowBack as ArrowBackIcon,
@@ -52,6 +54,8 @@ import {
   Category as CategoryIcon,
   Label as LabelIcon,
   Description as DescriptionIcon,
+  KeyboardArrowDown as KeyboardArrowDownIcon,
+  KeyboardArrowUp as KeyboardArrowUpIcon,
 } from "@mui/icons-material";
 import {
   getDocument,
@@ -167,6 +171,18 @@ const signatureAreaStyles = `
     margin: 0;
     border: 0;
   }
+  
+  /* Responsive container for small screens */
+  @media (max-width: 600px) {
+    .document-container {
+      padding: 0;
+    }
+    .document-paper {
+      padding: 0.5rem;
+      margin: 0 auto;
+      box-shadow: none;
+    }
+  }
 `;
 
 const ViewDocument = () => {
@@ -187,6 +203,7 @@ const ViewDocument = () => {
   const [showDownloadProgress, setShowDownloadProgress] = useState(false);
   const [downloadProgress, setDownloadProgress] = useState(0);
   const [reloading, setReloading] = useState(false);
+  const [infoExpanded, setInfoExpanded] = useState(false);
 
   // New state variables for signature selection
   const [currentSignatureArea, setCurrentSignatureArea] = useState(null);
@@ -195,6 +212,11 @@ const ViewDocument = () => {
 
   // Create a ref for the document content
   const documentContentRef = useRef(null);
+
+  // Media queries for responsive design
+  const isXsScreen = useMediaQuery(theme.breakpoints.down("sm")); // Phone
+  const isSmScreen = useMediaQuery(theme.breakpoints.between("sm", "md")); // Tablet
+  const isMdScreen = useMediaQuery(theme.breakpoints.between("md", "lg")); // Small laptop
 
   // Fetch document data and signatures
   useEffect(() => {
@@ -299,9 +321,6 @@ const ViewDocument = () => {
   };
 
   // Navigate to edit document form
-  
-
-  // Replace it with this version that redirects standalone documents to StandaloneDocumentForm:
   const handleEditDocument = () => {
     if (document?.standAlone) {
       // For standalone documents, redirect to StandaloneDocumentForm
@@ -667,69 +686,85 @@ const ViewDocument = () => {
       {/* Add the CSS for signature areas */}
       <style>{signatureAreaStyles}</style>
 
-      {/* Main content */}
-      <Paper
-        elevation={fullscreenMode ? 0 : 3}
-        sx={{
-          p: fullscreenMode ? 0 : 0,
-          borderRadius: fullscreenMode ? 0 : 2,
-          overflow: "hidden",
-          height: fullscreenMode ? "100vh" : "auto",
-          display: "flex",
-          flexDirection: "column",
-        }}
-      >
-        {/* Header */}
+      {/* Main content - Different wrapper based on screen size */}
+      {isXsScreen ? (
+        // Mobile view - no Paper wrapper
         <Box
           sx={{
+            overflow: "hidden",
+            height: "auto",
             display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            p: 3,
-            borderBottom: "1px solid",
-            borderColor: "divider",
-            bgcolor: alpha(theme.palette.primary.main, 0.03),
+            flexDirection: "column",
+            width: "100%",
           }}
         >
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            <IconButton
-              onClick={() => {
-                // Always go back to the document list view for this intake form
-                if (document?.intakeForm) {
-                  const intakeFormId =
-                    typeof document.intakeForm === "object"
-                      ? document.intakeForm._id || document.intakeForm.id
-                      : document.intakeForm;
-                  navigate(`/view-documents/${intakeFormId}`);
-                } else {
-                  // Fallback to history if no intake form ID
-                  navigate("/");
-                }
-              }}
+          {/* Header for mobile */}
+          <Box
+            sx={{
+              p: 2,
+              borderBottom: "1px solid",
+              borderColor: "divider",
+              bgcolor: alpha(theme.palette.primary.main, 0.03),
+            }}
+          >
+            {/* Row 1: Back button and title only */}
+            <Box
               sx={{
-                mr: 2,
-                bgcolor: alpha(theme.palette.primary.main, 0.1),
-                color: "primary.main",
+                display: "flex",
+                alignItems: "center",
+                width: "100%",
+                mb: 2,
               }}
             >
-              <ArrowBackIcon />
-            </IconButton>
-            <Box>
+              <IconButton
+                onClick={() => {
+                  if (document?.intakeForm) {
+                    const intakeFormId =
+                      typeof document.intakeForm === "object"
+                        ? document.intakeForm._id || document.intakeForm.id
+                        : document.intakeForm;
+                    navigate(`/view-documents/${intakeFormId}`);
+                  } else {
+                    navigate("/");
+                  }
+                }}
+                sx={{
+                  mr: 2,
+                  bgcolor: alpha(theme.palette.primary.main, 0.1),
+                  color: "primary.main",
+                }}
+              >
+                <ArrowBackIcon />
+              </IconButton>
               <Typography
                 variant="h5"
                 component="h1"
                 fontWeight="medium"
                 color="primary.main"
+                sx={{ fontSize: "16px" }}
               >
                 {document.title}
               </Typography>
+            </Box>
+
+            {/* Row 2: Chips - 100% width, left aligned */}
+            <Box
+              sx={{
+                width: "100%",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "flex-start",
+                mb: 2,
+                gap: 1,
+              }}
+            >
               <Box
                 sx={{
                   display: "flex",
                   alignItems: "center",
                   flexWrap: "wrap",
                   gap: 1,
-                  mt: 0.5,
+                  width: "100%",
                 }}
               >
                 {intakeForm.name && (
@@ -756,9 +791,10 @@ const ViewDocument = () => {
                   color="default"
                 />
               </Box>
+
               {/* Standalone document information */}
               {document?.standAlone && (
-                <Box sx={{ mb: 3 }}>
+                <Box>
                   <Box
                     sx={{
                       display: "flex",
@@ -801,187 +837,713 @@ const ViewDocument = () => {
                 </Box>
               )}
             </Box>
+
+            {/* Row 3: Action buttons - 100% width, left aligned */}
+            <Box
+              sx={{
+                width: "100%",
+                display: "flex",
+                justifyContent: "flex-start",
+                alignItems: "center",
+                gap: 1,
+              }}
+            >
+              <Button
+                variant="outlined"
+                startIcon={<EditIcon />}
+                onClick={handleEditDocument}
+                sx={{ mr: 1 }}
+                size="small"
+              >
+                Edit
+              </Button>
+              <Button
+                variant="contained"
+                startIcon={<PdfIcon />}
+                onClick={handleExportPDF}
+                disabled={generatingPDF}
+                size="small"
+              >
+                {generatingPDF ? "Generating..." : "Export"}
+              </Button>
+              <Tooltip title="More options">
+                <IconButton onClick={handleOpenMenu} size="small">
+                  <MoreVertIcon />
+                </IconButton>
+              </Tooltip>
+            </Box>
           </Box>
 
-          <Box sx={{ display: "flex", gap: 1 }}>
-            <Button
-              variant="outlined"
-              startIcon={<EditIcon />}
-              onClick={handleEditDocument}
-              sx={{ mr: 1 }}
+          {/* Error message */}
+          {error && (
+            <Alert
+              severity="error"
+              onClose={() => setError("")}
+              sx={{ mx: 3, mt: 3, borderRadius: 1 }}
             >
-              Edit
-            </Button>
-            <Button
-              variant="contained"
-              startIcon={<PdfIcon />}
-              onClick={handleExportPDF}
-              disabled={generatingPDF}
-            >
-              {generatingPDF ? "Generating..." : "Export PDF"}
-            </Button>
-            <Tooltip title="More options">
-              <IconButton onClick={handleOpenMenu}>
-                <MoreVertIcon />
-              </IconButton>
-            </Tooltip>
-          </Box>
-        </Box>
+              {error}
+            </Alert>
+          )}
 
-        {/* Error message */}
-        {error && (
-          <Alert
-            severity="error"
-            onClose={() => setError("")}
-            sx={{ mx: 3, mt: 3, borderRadius: 1 }}
-          >
-            {error}
-          </Alert>
-        )}
-
-        {/* Document info and signature status */}
-        <Box sx={{ p: 3, borderBottom: "1px solid", borderColor: "divider" }}>
-          <Grid container spacing={2} alignItems="center">
-            <Grid item xs={12} md={6}>
-              <Box sx={{ display: "flex", alignItems: "center" }}>
-                <InfoIcon color="primary" sx={{ mr: 1 }} />
-                <Typography variant="subtitle1">
-                  Document Information
-                </Typography>
-              </Box>
-              <Box sx={{ mt: 1, ml: 4 }}>
-                <Typography variant="body2" color="text.secondary">
-                  Type: {formData.template || "Standard"}
-                </Typography>
-
-                {/* Categories display - showing multiple categories */}
-                <Box sx={{ mt: 1, display: "flex", alignItems: "flex-start" }}>
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{ mr: 1, mt: 0.5 }}
-                  >
-                    Categories:
-                  </Typography>
-                  <Stack
-                    direction="row"
-                    spacing={0.5}
-                    sx={{ flexWrap: "wrap" }}
-                  >
-                    {categories.map((category, index) => (
-                      <Chip
-                        key={index}
-                        size="small"
-                        label={category}
-                        color={getCategoryColor(category)}
-                        variant="outlined"
-                        icon={<CategoryIcon fontSize="small" />}
-                        sx={{
-                          height: 24,
-                          "& .MuiChip-label": {
-                            px: 0.75,
-                            fontSize: "0.7rem",
-                          },
-                          mb: 0.5,
-                        }}
-                      />
-                    ))}
-                  </Stack>
-                </Box>
-
-                {document.updatedAt && (
-                  <Typography variant="body2" color="text.secondary">
-                    Last modified: {formatDate(document.updatedAt)}
-                  </Typography>
-                )}
-              </Box>
-            </Grid>
-
-            <Grid item xs={12} md={6}>
-              <Box sx={{ display: "flex", alignItems: "center" }}>
-                <PdfIcon color="primary" sx={{ mr: 1 }} />
-                <Typography variant="subtitle1">Signature Status</Typography>
-              </Box>
-              <Box sx={{ mt: 1, ml: 4 }}>
-                <Typography variant="body2" color="text.secondary" gutterBottom>
-                  {signatureCount === 0
-                    ? "No signatures added to this document."
-                    : `${signatureCount} signature${
-                        signatureCount !== 1 ? "s" : ""
-                      } on this document.`}
-                </Typography>
-                {document?.standAlone ? (
-                  <Typography variant="body2" color="text.secondary">
-                    {signatureCount === 0
-                      ? "Click 'Add Signatures' to collect signatures for this document."
-                      : "Click on any signature area in the document to place a signature."}
-                  </Typography>
-                ) : intakeFormData?.signatures ? (
-                  <Typography variant="body2" color="text.secondary">
-                    {Object.keys(intakeFormData.signatures).length} signature(s)
-                    available from intake form.
-                  </Typography>
-                ) : (
-                  <Typography variant="body2" color="text.secondary">
-                    No signatures collected in the intake form yet.
-                  </Typography>
-                )}
-              </Box>
-            </Grid>
-          </Grid>
-        </Box>
-
-        {/* Document content with improved layout */}
-        <Box
-          className="document-container"
-          sx={{
-            flex: 1,
-            overflowX: "auto",
-            overflowY: "visible",
-            p: 3,
-            bgcolor: alpha(theme.palette.background.default, 0.7),
-          }}
-        >
+          {/* Document info toggle for mobile */}
           <Box
-            className="document-paper"
             sx={{
-              bgcolor: "background.paper",
-              width: `${(8.5 * zoomLevel) / 100}in`,
-              p: 4,
-              mx: "auto",
-              boxShadow: 2,
-              position: "relative",
-              minHeight: `${(11 * zoomLevel) / 100}in`,
-              transform: `scale(${zoomLevel / 100})`,
-              transformOrigin: "top center",
-              transition: "transform 0.2s ease",
+              p: 2,
+              borderBottom: "1px solid",
+              borderColor: "divider",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
             }}
           >
-            {/* Document content - Using the document mapper with signature handling */}
-            {document && formData && (
-              <Box ref={documentContentRef}>
-                {React.cloneElement(
-                  getDocumentComponent(formData.template, formData),
-                  {
-                    signatures,
-                    onAddSignature: handleAddSignature,
-                    onRemoveSignature: handleRemoveSignature,
-                    onTouchSignatureArea: handleSignatureTouch,
-                    touchedArea: touchedSignatureArea,
-                    // Add wrapper class for signature areas
-                    signatureAreaClass: "signature-area",
-                    deleteButtonClass: "delete-button",
-                    placeholderClass: "signature-placeholder",
-                    isStandalone: document.standAlone,
+            <IconButton
+              onClick={() => setInfoExpanded(!infoExpanded)}
+              aria-expanded={infoExpanded}
+              aria-label="show document info"
+              color="primary"
+            >
+              <InfoIcon />
+              {infoExpanded ? (
+                <KeyboardArrowUpIcon />
+              ) : (
+                <KeyboardArrowDownIcon />
+              )}
+            </IconButton>
+            <Typography variant="body2" color="text.secondary">
+              {infoExpanded ? "Hide" : "Show"} document information
+            </Typography>
+          </Box>
+
+          {/* Document info content - Collapsible on mobile */}
+          <Collapse in={infoExpanded}>
+            <Box
+              sx={{ p: 3, borderBottom: "1px solid", borderColor: "divider" }}
+            >
+              <Grid container spacing={2} alignItems="flex-start">
+                <Grid item xs={12}>
+                  <Box sx={{ display: "flex", alignItems: "center" }}>
+                    <InfoIcon color="primary" sx={{ mr: 1 }} />
+                    <Typography variant="subtitle1">
+                      Document Information
+                    </Typography>
+                  </Box>
+                  <Box sx={{ mt: 1, ml: 4 }}>
+                    <Typography variant="body2" color="text.secondary">
+                      Type: {formData.template || "Standard"}
+                    </Typography>
+
+                    {/* Categories display */}
+                    <Box
+                      sx={{ mt: 1, display: "flex", alignItems: "flex-start" }}
+                    >
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{ mr: 1, mt: 0.5 }}
+                      >
+                        Categories:
+                      </Typography>
+                      <Stack
+                        direction="row"
+                        spacing={0.5}
+                        sx={{ flexWrap: "wrap" }}
+                      >
+                        {categories.map((category, index) => (
+                          <Chip
+                            key={index}
+                            size="small"
+                            label={category}
+                            color={getCategoryColor(category)}
+                            variant="outlined"
+                            icon={<CategoryIcon fontSize="small" />}
+                            sx={{
+                              height: 24,
+                              "& .MuiChip-label": {
+                                px: 0.75,
+                                fontSize: "0.7rem",
+                              },
+                              mb: 0.5,
+                            }}
+                          />
+                        ))}
+                      </Stack>
+                    </Box>
+
+                    {document.updatedAt && (
+                      <Typography variant="body2" color="text.secondary">
+                        Last modified: {formatDate(document.updatedAt)}
+                      </Typography>
+                    )}
+                  </Box>
+                </Grid>
+
+                <Grid item xs={12}>
+                  <Box sx={{ display: "flex", alignItems: "center" }}>
+                    <PdfIcon color="primary" sx={{ mr: 1 }} />
+                    <Typography variant="subtitle1">
+                      Signature Status
+                    </Typography>
+                  </Box>
+                  <Box sx={{ mt: 1, ml: 4 }}>
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      gutterBottom
+                    >
+                      {signatureCount === 0
+                        ? "No signatures added to this document."
+                        : `${signatureCount} signature${
+                            signatureCount !== 1 ? "s" : ""
+                          } on this document.`}
+                    </Typography>
+                    {document?.standAlone ? (
+                      <Typography variant="body2" color="text.secondary">
+                        {signatureCount === 0
+                          ? "Click 'Add Signatures' to collect signatures for this document."
+                          : "Click on any signature area in the document to place a signature."}
+                      </Typography>
+                    ) : intakeFormData?.signatures ? (
+                      <Typography variant="body2" color="text.secondary">
+                        {Object.keys(intakeFormData.signatures).length}{" "}
+                        signature(s) available from intake form.
+                      </Typography>
+                    ) : (
+                      <Typography variant="body2" color="text.secondary">
+                        No signatures collected in the intake form yet.
+                      </Typography>
+                    )}
+                  </Box>
+                </Grid>
+              </Grid>
+            </Box>
+          </Collapse>
+
+          {/* Document content - No padding for mobile */}
+          <Box
+            className="document-container"
+            sx={{
+              flex: 1,
+              overflowX: "auto",
+              overflowY: "visible",
+              p: 0,
+              bgcolor: alpha(theme.palette.background.default, 0.7),
+            }}
+          >
+            <Box
+              className="document-paper"
+              sx={{
+                bgcolor: "background.paper",
+                width: "100%",
+                p: 0.5,
+                mx: "auto",
+                boxShadow: 0,
+                position: "relative",
+                minHeight: "auto",
+                transform: "none",
+              }}
+            >
+              {/* Document content - Using the document mapper with signature handling */}
+              {document && formData && (
+                <Box ref={documentContentRef}>
+                  {React.cloneElement(
+                    getDocumentComponent(formData.template, formData),
+                    {
+                      signatures,
+                      onAddSignature: handleAddSignature,
+                      onRemoveSignature: handleRemoveSignature,
+                      onTouchSignatureArea: handleSignatureTouch,
+                      touchedArea: touchedSignatureArea,
+                      signatureAreaClass: "signature-area",
+                      deleteButtonClass: "delete-button",
+                      placeholderClass: "signature-placeholder",
+                      isStandalone: document.standAlone,
+                    }
+                  )}
+                </Box>
+              )}
+            </Box>
+          </Box>
+        </Box>
+      ) : (
+        // Tablet and Desktop view - with Paper wrapper
+        <Paper
+          elevation={fullscreenMode ? 0 : 3}
+          sx={{
+            p: 0,
+            borderRadius: fullscreenMode ? 0 : 2,
+            overflow: "hidden",
+            height: fullscreenMode ? "100vh" : "auto",
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          {/* Header for tablet/desktop */}
+          <Box
+            sx={{
+              p: 3,
+              borderBottom: "1px solid",
+              borderColor: "divider",
+              bgcolor: alpha(theme.palette.primary.main, 0.03),
+            }}
+          >
+            {/* Row 1: Back button and title only */}
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                width: "100%",
+                mb: isSmScreen ? 2 : 0,
+              }}
+            >
+              <IconButton
+                onClick={() => {
+                  if (document?.intakeForm) {
+                    const intakeFormId =
+                      typeof document.intakeForm === "object"
+                        ? document.intakeForm._id || document.intakeForm.id
+                        : document.intakeForm;
+                    navigate(`/view-documents/${intakeFormId}`);
+                  } else {
+                    navigate("/");
                   }
-                )}
+                }}
+                sx={{
+                  mr: 2,
+                  bgcolor: alpha(theme.palette.primary.main, 0.1),
+                  color: "primary.main",
+                }}
+              >
+                <ArrowBackIcon />
+              </IconButton>
+              <Typography
+                variant="h5"
+                component="h1"
+                fontWeight="medium"
+                color="primary.main"
+                sx={{ fontSize: isSmScreen ? "18px" : "h5.fontSize" }}
+              >
+                {document.title}
+              </Typography>
+            </Box>
+
+            {/* For tablet - Row 2: 50/50 split with chips and buttons */}
+            {isSmScreen && (
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "flex-start",
+                }}
+              >
+                {/* Left side - Chips */}
+                <Box
+                  sx={{
+                    width: "50%",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "flex-start",
+                    gap: 1,
+                  }}
+                >
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      flexWrap: "wrap",
+                      gap: 1,
+                    }}
+                  >
+                    {intakeForm.name && (
+                      <Chip
+                        size="small"
+                        icon={<PersonIcon fontSize="small" />}
+                        label={`Client: ${intakeForm.name}`}
+                        variant="outlined"
+                      />
+                    )}
+                    {intakeForm.caseNumber && (
+                      <Chip
+                        size="small"
+                        icon={<FingerprintIcon fontSize="small" />}
+                        label={`Case: ${intakeForm.caseNumber}`}
+                        variant="outlined"
+                      />
+                    )}
+                    <Chip
+                      size="small"
+                      icon={<HistoryIcon fontSize="small" />}
+                      label={`Created: ${formatDate(document.createdAt)}`}
+                      variant="outlined"
+                      color="default"
+                    />
+                  </Box>
+
+                  {/* Standalone document information */}
+                  {document?.standAlone && (
+                    <Box>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          flexWrap: "wrap",
+                          gap: 1,
+                          mb: 1,
+                        }}
+                      >
+                        <Chip
+                          icon={<DescriptionIcon fontSize="small" />}
+                          label="Standalone Document"
+                          color="secondary"
+                          variant="outlined"
+                          size="small"
+                        />
+                        {document.createdFor && (
+                          <Chip
+                            icon={<PersonIcon fontSize="small" />}
+                            label={`Created For: ${document.createdFor}`}
+                            color="info"
+                            variant="outlined"
+                            size="small"
+                          />
+                        )}
+                      </Box>
+                      {(!document.signatures ||
+                        Object.keys(document.signatures).length === 0) && (
+                        <Button
+                          variant="outlined"
+                          size="small"
+                          startIcon={<EditIcon />}
+                          onClick={() =>
+                            navigate(`/standalone-signatures/${id}`)
+                          }
+                          sx={{ mt: 1 }}
+                        >
+                          Add Signatures
+                        </Button>
+                      )}
+                    </Box>
+                  )}
+                </Box>
+
+                {/* Right side - Action buttons */}
+                <Box
+                  sx={{
+                    width: "50%",
+                    display: "flex",
+                    justifyContent: "flex-end",
+                    alignItems: "center",
+                    gap: 1,
+                  }}
+                >
+                  <Button
+                    variant="outlined"
+                    startIcon={<EditIcon />}
+                    onClick={handleEditDocument}
+                    sx={{ mr: 1 }}
+                    size="small"
+                  >
+                    Edit
+                  </Button>
+                  <Button
+                    variant="contained"
+                    startIcon={<PdfIcon />}
+                    onClick={handleExportPDF}
+                    disabled={generatingPDF}
+                    size="small"
+                  >
+                    {generatingPDF ? "Generating..." : "Export"}
+                  </Button>
+                  <Tooltip title="More options">
+                    <IconButton onClick={handleOpenMenu} size="small">
+                      <MoreVertIcon />
+                    </IconButton>
+                  </Tooltip>
+                </Box>
+              </Box>
+            )}
+
+            {/* Desktop layout - everything in one row */}
+            {!isSmScreen && !isXsScreen && (
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  mt: 2,
+                }}
+              >
+                <Box>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      flexWrap: "wrap",
+                      gap: 1,
+                    }}
+                  >
+                    {intakeForm.name && (
+                      <Chip
+                        size="small"
+                        icon={<PersonIcon fontSize="small" />}
+                        label={`Client: ${intakeForm.name}`}
+                        variant="outlined"
+                      />
+                    )}
+                    {intakeForm.caseNumber && (
+                      <Chip
+                        size="small"
+                        icon={<FingerprintIcon fontSize="small" />}
+                        label={`Case: ${intakeForm.caseNumber}`}
+                        variant="outlined"
+                      />
+                    )}
+                    <Chip
+                      size="small"
+                      icon={<HistoryIcon fontSize="small" />}
+                      label={`Created: ${formatDate(document.createdAt)}`}
+                      variant="outlined"
+                      color="default"
+                    />
+                  </Box>
+
+                  {/* Standalone document information */}
+                  {document?.standAlone && (
+                    <Box sx={{ mt: 1 }}>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          flexWrap: "wrap",
+                          gap: 1,
+                          mb: 1,
+                        }}
+                      >
+                        <Chip
+                          icon={<DescriptionIcon fontSize="small" />}
+                          label="Standalone Document"
+                          color="secondary"
+                          variant="outlined"
+                          size="small"
+                        />
+                        {document.createdFor && (
+                          <Chip
+                            icon={<PersonIcon fontSize="small" />}
+                            label={`Created For: ${document.createdFor}`}
+                            color="info"
+                            variant="outlined"
+                            size="small"
+                          />
+                        )}
+                      </Box>
+                      {(!document.signatures ||
+                        Object.keys(document.signatures).length === 0) && (
+                        <Button
+                          variant="outlined"
+                          size="small"
+                          startIcon={<EditIcon />}
+                          onClick={() =>
+                            navigate(`/standalone-signatures/${id}`)
+                          }
+                        >
+                          Add Signatures
+                        </Button>
+                      )}
+                    </Box>
+                  )}
+                </Box>
+
+                <Box
+                  sx={{
+                    display: "flex",
+                    gap: 1,
+                  }}
+                >
+                  <Button
+                    variant="outlined"
+                    startIcon={<EditIcon />}
+                    onClick={handleEditDocument}
+                    sx={{ mr: 1 }}
+                  >
+                    Edit
+                  </Button>
+                  <Button
+                    variant="contained"
+                    startIcon={<PdfIcon />}
+                    onClick={handleExportPDF}
+                    disabled={generatingPDF}
+                  >
+                    {generatingPDF ? "Generating..." : "Export PDF"}
+                  </Button>
+                  <Tooltip title="More options">
+                    <IconButton onClick={handleOpenMenu}>
+                      <MoreVertIcon />
+                    </IconButton>
+                  </Tooltip>
+                </Box>
               </Box>
             )}
           </Box>
-        </Box>
 
-        {/* Zoom controls (fixed position) */}
-        {!fullscreenMode && (
+          {/* Error message */}
+          {error && (
+            <Alert
+              severity="error"
+              onClose={() => setError("")}
+              sx={{ mx: 3, mt: 3, borderRadius: 1 }}
+            >
+              {error}
+            </Alert>
+          )}
+
+          {/* Document info and signature status */}
+          <Box sx={{ p: 3, borderBottom: "1px solid", borderColor: "divider" }}>
+            <Grid container spacing={2} alignItems="flex-start">
+              {/* Force 50% width on tablet to ensure side-by-side layout */}
+              <Grid item xs={12} sm={6} md={6}>
+                <Box sx={{ display: "flex", alignItems: "center" }}>
+                  <InfoIcon color="primary" sx={{ mr: 1 }} />
+                  <Typography variant="subtitle1">
+                    Document Information
+                  </Typography>
+                </Box>
+                <Box sx={{ mt: 1, ml: 4 }}>
+                  <Typography variant="body2" color="text.secondary">
+                    Type: {formData.template || "Standard"}
+                  </Typography>
+
+                  {/* Categories display */}
+                  <Box
+                    sx={{ mt: 1, display: "flex", alignItems: "flex-start" }}
+                  >
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{ mr: 1, mt: 0.5 }}
+                    >
+                      Categories:
+                    </Typography>
+                    <Stack
+                      direction="row"
+                      spacing={0.5}
+                      sx={{ flexWrap: "wrap" }}
+                    >
+                      {categories.map((category, index) => (
+                        <Chip
+                          key={index}
+                          size="small"
+                          label={category}
+                          color={getCategoryColor(category)}
+                          variant="outlined"
+                          icon={<CategoryIcon fontSize="small" />}
+                          sx={{
+                            height: 24,
+                            "& .MuiChip-label": {
+                              px: 0.75,
+                              fontSize: "0.7rem",
+                            },
+                            mb: 0.5,
+                          }}
+                        />
+                      ))}
+                    </Stack>
+                  </Box>
+
+                  {document.updatedAt && (
+                    <Typography variant="body2" color="text.secondary">
+                      Last modified: {formatDate(document.updatedAt)}
+                    </Typography>
+                  )}
+                </Box>
+              </Grid>
+
+              {/* Force 50% width on tablet to ensure side-by-side layout */}
+              <Grid item xs={12} sm={6} md={6}>
+                <Box sx={{ display: "flex", alignItems: "center" }}>
+                  <PdfIcon color="primary" sx={{ mr: 1 }} />
+                  <Typography variant="subtitle1">Signature Status</Typography>
+                </Box>
+                <Box sx={{ mt: 1, ml: 4 }}>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    gutterBottom
+                  >
+                    {signatureCount === 0
+                      ? "No signatures added to this document."
+                      : `${signatureCount} signature${
+                          signatureCount !== 1 ? "s" : ""
+                        } on this document.`}
+                  </Typography>
+                  {document?.standAlone ? (
+                    <Typography variant="body2" color="text.secondary">
+                      {signatureCount === 0
+                        ? "Click 'Add Signatures' to collect signatures for this document."
+                        : "Click on any signature area in the document to place a signature."}
+                    </Typography>
+                  ) : intakeFormData?.signatures ? (
+                    <Typography variant="body2" color="text.secondary">
+                      {Object.keys(intakeFormData.signatures).length}{" "}
+                      signature(s) available from intake form.
+                    </Typography>
+                  ) : (
+                    <Typography variant="body2" color="text.secondary">
+                      No signatures collected in the intake form yet.
+                    </Typography>
+                  )}
+                </Box>
+              </Grid>
+            </Grid>
+          </Box>
+
+          {/* Document content */}
+          <Box
+            className="document-container"
+            sx={{
+              flex: 1,
+              overflowX: "auto",
+              overflowY: "visible",
+              p: isSmScreen ? 2 : 3,
+              bgcolor: alpha(theme.palette.background.default, 0.7),
+            }}
+          >
+            <Box
+              className="document-paper"
+              sx={{
+                bgcolor: "background.paper",
+                width: isSmScreen ? "100%" : `${(8.5 * zoomLevel) / 100}in`,
+                p: 4,
+                mx: "auto",
+                boxShadow: 2,
+                position: "relative",
+                minHeight: isSmScreen ? "auto" : `${(11 * zoomLevel) / 100}in`,
+                transform: isSmScreen ? "none" : `scale(${zoomLevel / 100})`,
+                transformOrigin: "top center",
+                transition: "transform 0.2s ease",
+              }}
+            >
+              {/* Document content - Using the document mapper with signature handling */}
+              {document && formData && (
+                <Box ref={documentContentRef}>
+                  {React.cloneElement(
+                    getDocumentComponent(formData.template, formData),
+                    {
+                      signatures,
+                      onAddSignature: handleAddSignature,
+                      onRemoveSignature: handleRemoveSignature,
+                      onTouchSignatureArea: handleSignatureTouch,
+                      touchedArea: touchedSignatureArea,
+                      signatureAreaClass: "signature-area",
+                      deleteButtonClass: "delete-button",
+                      placeholderClass: "signature-placeholder",
+                      isStandalone: document.standAlone,
+                    }
+                  )}
+                </Box>
+              )}
+            </Box>
+          </Box>
+
+          {/* Zoom controls */}
           <Box
             className="zoom-controls"
             sx={{
@@ -1028,8 +1590,8 @@ const ViewDocument = () => {
               </IconButton>
             </Tooltip>
           </Box>
-        )}
-      </Paper>
+        </Paper>
+      )}
 
       {/* Actions menu */}
       <Menu

@@ -46,6 +46,9 @@ import {
   ListItemIcon,
   Checkbox,
   Snackbar,
+  useMediaQuery,
+  useTheme,
+  Stack,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
@@ -82,6 +85,10 @@ import DocumentTypeSelector from "../components/DocumentTypeSelector";
 const Dashboard = () => {
   const { user, isAdmin } = useContext(AuthContext);
   const navigate = useNavigate();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isTablet = useMediaQuery(theme.breakpoints.down("md"));
+
   const [activeTab, setActiveTab] = useState(0);
   const [forms, setForms] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -436,11 +443,13 @@ const Dashboard = () => {
   const formatDate = (dateString) => {
     if (!dateString) return "";
     const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
+    return isMobile
+      ? date.toLocaleDateString("en-US")
+      : date.toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        });
   };
 
   // Get status chip color based on status
@@ -639,73 +648,83 @@ const Dashboard = () => {
   const filteredStandaloneDocuments = getFilteredStandaloneDocuments();
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, mb: 8 }}>
+    <Container maxWidth="lg" sx={{ mt: 2, mb: 8, px: { xs: 1, sm: 2, md: 3 } }}>
       {/* Welcome Header */}
-      <Box sx={{ mb: 4 }}>
-        <Grid container spacing={2} alignItems="center">
-          <Grid item xs={12} md={6}>
-            <Box sx={{ display: "flex", alignItems: "center" }}>
-              <Box>
-                <Typography
-                  variant="h4"
-                  component="h1"
-                  gutterBottom
-                  color="primary"
-                >
-                  Welcome, {user?.name || "User"}
-                </Typography>
-                <Typography variant="body1" color="textSecondary">
-                  Foster Care Intake Management Dashboard
-                </Typography>
-              </Box>
-            </Box>
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: { xs: "flex-start", md: "flex-end" },
-              }}
-            >
-              
-              <Tooltip
-                title={"Create new intake form"
-                }
-              >
-                <Button
-                  variant="contained"
-                  color="secondary"
-                  startIcon={<AddIcon />}
-                  onClick={handleStartNewForm
-                  }
-                  sx={{ mr: 2 }}
-                >
-                  {"New Intake"}
-                </Button>
-              </Tooltip>
-              <Tooltip
-                title={"Create standalone document"
-                   
-                }
-              >
-                <Button
-                  variant="outlined"
-                  color="secondary"
-                  startIcon={<AddIcon />}
-                  onClick={() => setShowDocumentSelector(true)}
-                >
-                  New Single Doc
-                </Button>
-              </Tooltip>
-            </Box>
-          </Grid>
-        </Grid>
+      <Box
+        sx={{
+          mb: { xs: 2, sm: 3, md: 4 },
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "space-between",
+          alignItems: "center",
+          flexWrap: { xs: "nowrap", sm: "nowrap" },
+        }}
+      >
+        {/* Welcome text */}
+        <Box>
+          <Typography
+            variant="h5"
+            component="h1"
+            gutterBottom={false}
+            color="primary"
+            sx={{
+              fontSize: { xs: "0.9rem", sm: "1.25rem", md: "1.5rem" },
+              mb: 0,
+            }}
+          >
+            Welcome, {user?.name || "User"}
+          </Typography>
+          <Typography
+            variant="body1"
+            color="textSecondary"
+            sx={{
+              fontSize: { xs: "0.7rem", sm: "0.85rem", md: "1rem" },
+              display: { xs: "none", sm: "block" },
+            }}
+          >
+            Foster Care Intake Management
+          </Typography>
+        </Box>
+
+        {/* Action buttons */}
+        <Stack
+          direction="row"
+          spacing={1}
+          sx={{
+            ml: { xs: 1, sm: 2 },
+          }}
+        >
+          <Button
+            variant="contained"
+            color="secondary"
+            startIcon={<AddIcon />}
+            onClick={handleStartNewForm}
+            size="small"
+            sx={{
+              fontSize: { xs: "0.7rem", sm: "0.8rem", md: "0.875rem" },
+            }}
+          >
+            {isMobile ? "New Intake" : "New Intake"}
+          </Button>
+          <Button
+            variant="outlined"
+            color="secondary"
+            startIcon={<AddIcon />}
+            onClick={() => setShowDocumentSelector(true)}
+            size="small"
+            sx={{
+              fontSize: { xs: "0.7rem", sm: "0.8rem", md: "0.875rem" },
+            }}
+          >
+            {isMobile ? "New Doc" : "New Single Doc"}
+          </Button>
+        </Stack>
       </Box>
 
-      {/* Stats Cards - Only show on intake form tabs (0,1,2) */}
+      {/* Stats Cards - Only show on intake form tabs (0,1,2) and make responsive for mobile */}
       {activeTab < 3 && (
-        <Grid container spacing={3} sx={{ mb: 4 }}>
-          <Grid item xs={12} sm={3}>
+        <Grid container spacing={1} sx={{ mb: { xs: 2, sm: 3, md: 4 } }}>
+          <Grid item xs={3} sm={3}>
             <Card
               elevation={statusFilter === "" ? 6 : 2}
               onClick={() => handleStatusCardClick("")}
@@ -723,13 +742,11 @@ const Dashboard = () => {
                 },
                 borderLeft: "4px solid",
                 borderColor: "primary.main",
-                // Highlighted state for active filter
                 ...(statusFilter === "" && {
                   outline: "2px solid",
                   outlineColor: "primary.main",
                   bgcolor: "rgba(25, 118, 210, 0.04)",
                 }),
-                // Add a subtle indicator at the top right
                 "&::after":
                   statusFilter === ""
                     ? {
@@ -747,21 +764,33 @@ const Dashboard = () => {
                     : {},
               }}
             >
-              <CardContent sx={{ textAlign: "center", py: 3 }}>
+              <CardContent
+                sx={{
+                  textAlign: "center",
+                  py: { xs: 1, sm: 3 },
+                  px: { xs: 0.5, sm: 2 },
+                }}
+              >
                 <Typography
-                  variant="h6"
+                  variant="subtitle2"
                   color={statusFilter === "" ? "primary" : "textSecondary"}
                   gutterBottom
+                  sx={{ fontSize: { xs: "1rem", sm: "1rem" } }}
                 >
                   All Forms
                 </Typography>
-                <Typography variant="h3" component="div" color="primary">
+                <Typography
+                  variant="h5"
+                  component="div"
+                  color="primary"
+                  sx={{ fontSize: { xs: "1.2rem", sm: "2.125rem" } }}
+                >
                   {stats.totalForms}
                 </Typography>
               </CardContent>
             </Card>
           </Grid>
-          <Grid item xs={12} sm={3}>
+          <Grid item xs={3} sm={3}>
             <Card
               elevation={statusFilter === "In Progress" ? 6 : 2}
               onClick={() => handleStatusCardClick("In Progress")}
@@ -783,12 +812,10 @@ const Dashboard = () => {
                     : "rgba(25, 118, 210, 0.04)",
                 borderLeft: "4px solid",
                 borderColor: "primary.main",
-                // Highlighted state for active filter
                 ...(statusFilter === "In Progress" && {
                   outline: "2px solid",
                   outlineColor: "primary.main",
                 }),
-                // Add a subtle indicator at the top right
                 "&::after":
                   statusFilter === "In Progress"
                     ? {
@@ -806,24 +833,36 @@ const Dashboard = () => {
                     : {},
               }}
             >
-              <CardContent sx={{ textAlign: "center", py: 3 }}>
+              <CardContent
+                sx={{
+                  textAlign: "center",
+                  py: { xs: 0.5, sm: 3 },
+                  px: { xs: 0.5, sm: 2 },
+                }}
+              >
                 <Typography
-                  variant="h6"
+                  variant="subtitle2"
                   color="primary.dark"
                   gutterBottom
                   fontWeight={
                     statusFilter === "In Progress" ? "bold" : "medium"
                   }
+                  sx={{ fontSize: { xs: "1rem", sm: "1rem" } }}
                 >
                   In Progress
                 </Typography>
-                <Typography variant="h3" component="div" color="primary.dark">
+                <Typography
+                  variant="h5"
+                  component="div"
+                  color="primary.dark"
+                  sx={{ fontSize: { xs: "1.2rem", sm: "2.125rem" } }}
+                >
                   {stats.inProgressForms}
                 </Typography>
               </CardContent>
             </Card>
           </Grid>
-          <Grid item xs={12} sm={3}>
+          <Grid item xs={3} sm={3}>
             <Card
               elevation={statusFilter === "Pending" ? 6 : 2}
               onClick={() => handleStatusCardClick("Pending")}
@@ -845,12 +884,10 @@ const Dashboard = () => {
                     : "rgba(237, 108, 2, 0.04)",
                 borderLeft: "4px solid",
                 borderColor: "warning.main",
-                // Highlighted state for active filter
                 ...(statusFilter === "Pending" && {
                   outline: "2px solid",
                   outlineColor: "warning.main",
                 }),
-                // Add a subtle indicator at the top right
                 "&::after":
                   statusFilter === "Pending"
                     ? {
@@ -868,22 +905,34 @@ const Dashboard = () => {
                     : {},
               }}
             >
-              <CardContent sx={{ textAlign: "center", py: 3 }}>
+              <CardContent
+                sx={{
+                  textAlign: "center",
+                  py: { xs: 1, sm: 3 },
+                  px: { xs: 0.5, sm: 2 },
+                }}
+              >
                 <Typography
-                  variant="h6"
+                  variant="subtitle2"
                   color="warning.dark"
                   gutterBottom
                   fontWeight={statusFilter === "Pending" ? "bold" : "medium"}
+                  sx={{ fontSize: { xs: "1rem", sm: "1rem" } }}
                 >
                   Pending
                 </Typography>
-                <Typography variant="h3" component="div" color="warning.dark">
+                <Typography
+                  variant="h5"
+                  component="div"
+                  color="warning.dark"
+                  sx={{ fontSize: { xs: "1.2rem", sm: "2.125rem" } }}
+                >
                   {stats.pendingForms}
                 </Typography>
               </CardContent>
             </Card>
           </Grid>
-          <Grid item xs={12} sm={3}>
+          <Grid item xs={3} sm={3}>
             <Card
               elevation={statusFilter === "Needs Review" ? 6 : 3}
               onClick={() => handleStatusCardClick("Needs Review")}
@@ -905,12 +954,10 @@ const Dashboard = () => {
                     : "rgba(211, 47, 47, 0.04)",
                 borderLeft: "4px solid",
                 borderColor: "error.main",
-                // Highlighted state for active filter
                 ...(statusFilter === "Needs Review" && {
                   outline: "2px solid",
                   outlineColor: "error.main",
                 }),
-                // Make this card pulse subtly if there are items needing review and it's not the active filter
                 animation:
                   stats.needsReviewForms > 0 && statusFilter !== "Needs Review"
                     ? "pulse 2s infinite"
@@ -926,7 +973,6 @@ const Dashboard = () => {
                     boxShadow: "0 0 0 0 rgba(211, 47, 47, 0)",
                   },
                 },
-                // Add a subtle indicator at the top right
                 "&::after":
                   statusFilter === "Needs Review"
                     ? {
@@ -944,18 +990,30 @@ const Dashboard = () => {
                     : {},
               }}
             >
-              <CardContent sx={{ textAlign: "center", py: 3 }}>
+              <CardContent
+                sx={{
+                  textAlign: "center",
+                  py: { xs: 1, sm: 3 },
+                  px: { xs: 0.5, sm: 2 },
+                }}
+              >
                 <Typography
-                  variant="h6"
+                  variant="subtitle2"
                   color="error.dark"
                   gutterBottom
                   fontWeight={
                     statusFilter === "Needs Review" ? "bold" : "medium"
                   }
+                  sx={{ fontSize: { xs: "1rem", sm: "1rem" } }}
                 >
-                  Needs Review
+                  Review
                 </Typography>
-                <Typography variant="h3" component="div" color="error.dark">
+                <Typography
+                  variant="h5"
+                  component="div"
+                  color="error.dark"
+                  sx={{ fontSize: { xs: "1.2rem", sm: "2.125rem" } }}
+                >
                   {stats.needsReviewForms}
                 </Typography>
               </CardContent>
@@ -965,7 +1023,7 @@ const Dashboard = () => {
       )}
 
       {/* Help Section */}
-      <Box sx={{ mb: 4 }}>
+      <Box sx={{ mb: 2 }}>
         <Box
           sx={{
             display: "flex",
@@ -974,22 +1032,34 @@ const Dashboard = () => {
             mb: 1,
           }}
         >
-          <Typography variant="subtitle2" color="textSecondary">
+          <Typography
+            variant="subtitle2"
+            color="textSecondary"
+            sx={{ fontSize: { xs: "0.7rem", sm: "0.8rem" } }}
+          >
             Need help with{" "}
             {activeTab === 3 ? "standalone documents" : "intake forms"}?
           </Typography>
           <IconButton onClick={toggleHelp} color="primary" size="small">
-            <HelpOutlineIcon />
+            <HelpOutlineIcon fontSize={isMobile ? "small" : "medium"} />
           </IconButton>
         </Box>
         <Collapse in={helpOpen}>
           <Alert severity="info" sx={{ mb: 2 }}>
-            <Typography variant="body2" paragraph>
+            <Typography
+              variant="body2"
+              paragraph
+              sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+            >
               <strong>Quick Guide:</strong>
             </Typography>
             {activeTab === 3 ? (
-              <Typography variant="body2" component="div">
-                • Click the <strong>+ New Document</strong> button to create a
+              <Typography
+                variant="body2"
+                component="div"
+                sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+              >
+                • Click the <strong>+ New Doc</strong> button to create a
                 standalone document
                 <br />
                 • Standalone documents don't require going through the full
@@ -1000,8 +1070,12 @@ const Dashboard = () => {
                 <strong>Edit</strong> to modify it
               </Typography>
             ) : (
-              <Typography variant="body2" component="div">
-                • Click the <strong>+ New Intake</strong> button to create a new
+              <Typography
+                variant="body2"
+                component="div"
+                sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+              >
+                • Click the <strong>+ New Form</strong> button to create a new
                 intake form
                 <br />
                 • Use the tabs to switch between your forms, all forms, and
@@ -1031,65 +1105,98 @@ const Dashboard = () => {
           overflow: "hidden",
         }}
       >
-        <Box sx={{ p: 3, bgcolor: "background.paper" }}>
+        <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 }, bgcolor: "background.paper" }}>
           {/* Tabs integrated with table */}
           <Box
             sx={{
-              mb: 3,
+              mb: 2,
               display: "flex",
+              flexDirection: { xs: "column", sm: "row" },
               justifyContent: "space-between",
-              alignItems: "center",
+              alignItems: { xs: "stretch", sm: "center" },
+              gap: { xs: 1, sm: 0 },
             }}
           >
-            <Typography variant="h6" component="h2">
+            <Typography
+              variant="h6"
+              component="h2"
+              sx={{
+                fontSize: { xs: "1rem", sm: "1.25rem" },
+                display: "flex",
+                alignItems: "center",
+                flexWrap: "wrap",
+                gap: 1,
+              }}
+            >
               {activeTab === 3 ? "Documents" : "Intake Forms"}
               {statusFilter && activeTab !== 3 && (
                 <Chip
-                  label={`Filtered by: ${statusFilter}`}
+                  label={`Filtered: ${statusFilter}`}
                   size="small"
                   color="primary"
                   onDelete={() => setStatusFilter("")}
-                  sx={{ ml: 2 }}
                 />
               )}
             </Typography>
 
-            <Tabs
-              value={activeTab}
-              onChange={handleTabChange}
-              textColor="primary"
-              indicatorColor="primary"
-            >
-              <Tab
-                label="My Forms"
-                icon={<AssignmentIcon />}
-                iconPosition="start"
-              />
-              {isAdmin() && (
+            <Box sx={{ width: "100%", overflow: "auto" }}>
+              <Tabs
+                value={activeTab}
+                onChange={handleTabChange}
+                textColor="primary"
+                indicatorColor="primary"
+                variant={isMobile ? "scrollable" : "standard"}
+                scrollButtons={isMobile ? "auto" : false}
+                sx={{
+                  minHeight: { xs: 36, sm: 48 },
+                  "& .MuiTab-root": {
+                    minHeight: { xs: 36, sm: 48 },
+                    py: 0.5,
+                    fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                  },
+                }}
+              >
                 <Tab
-                  label="All Forms"
-                  icon={<PeopleIcon />}
+                  label="My Forms"
+                  icon={
+                    <AssignmentIcon fontSize={isMobile ? "small" : "medium"} />
+                  }
                   iconPosition="start"
                 />
-              )}
-              <Tab
-                label={
-                  <Badge
-                    badgeContent={forms.filter((form) => form.archived).length}
-                    color="default"
-                  >
-                    Archived
-                  </Badge>
-                }
-                icon={<ArchiveIcon />}
-                iconPosition="start"
-              />
-              <Tab
-                label="Single Documents"
-                icon={<DescriptionIcon />}
-                iconPosition="start"
-              />
-            </Tabs>
+                {isAdmin() && (
+                  <Tab
+                    label="All Forms"
+                    icon={
+                      <PeopleIcon fontSize={isMobile ? "small" : "medium"} />
+                    }
+                    iconPosition="start"
+                  />
+                )}
+                <Tab
+                  label={
+                    <Badge
+                      badgeContent={
+                        forms.filter((form) => form.archived).length
+                      }
+                      color="default"
+                    >
+                      Archived
+                    </Badge>
+                  }
+                  icon={
+                    <ArchiveIcon fontSize={isMobile ? "small" : "medium"} />
+                  }
+                  iconPosition="start"
+                />
+                <Tab
+                  label="Single Docs"
+                  icon={
+                    <DescriptionIcon fontSize={isMobile ? "small" : "medium"} />
+                  }
+                  iconPosition="start"
+                />
+              </Tabs>
+            </Box>
           </Box>
 
           <Divider sx={{ mb: 2 }} />
@@ -1101,15 +1208,18 @@ const Dashboard = () => {
               variant="outlined"
               placeholder={
                 activeTab === 3
-                  ? "Search by document title, created for..."
-                  : "Search by client name, case number, or status..."
+                  ? "Search documents..."
+                  : "Search by name, case number..."
               }
               value={searchTerm}
               onChange={handleSearchChange}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <SearchIcon color="action" />
+                    <SearchIcon
+                      color="action"
+                      fontSize={isMobile ? "small" : "medium"}
+                    />
                   </InputAdornment>
                 ),
                 endAdornment: searchTerm && (
@@ -1120,7 +1230,7 @@ const Dashboard = () => {
                   </InputAdornment>
                 ),
               }}
-              size="small"
+              size={isMobile ? "small" : "medium"}
             />
           </Box>
 
@@ -1155,6 +1265,7 @@ const Dashboard = () => {
                 onClick={() =>
                   handleBulkDeleteDialog(activeTab === 3 ? "document" : "form")
                 }
+                size={isMobile ? "small" : "medium"}
               >
                 Delete Selected
               </Button>
@@ -1166,8 +1277,8 @@ const Dashboard = () => {
               <CircularProgress />
             </Box>
           ) : (
-            <TableContainer>
-              <Table>
+            <TableContainer sx={{ overflowX: "auto" }}>
+              <Table size={isMobile ? "small" : "medium"}>
                 <TableHead>
                   <TableRow>
                     {activeTab === 3 ? (
@@ -1193,21 +1304,26 @@ const Dashboard = () => {
                             }}
                           />
                         </TableCell>
-                        <TableCell sx={{ fontWeight: "bold" }}>
+                        <TableCell
+                          sx={{ fontWeight: "bold", whiteSpace: "nowrap" }}
+                        >
                           Document Title
                         </TableCell>
-                        <TableCell sx={{ fontWeight: "bold" }}>
-                          Created For
-                        </TableCell>
+                        {!isMobile && (
+                          <TableCell sx={{ fontWeight: "bold" }}>
+                            Created For
+                          </TableCell>
+                        )}
                         <TableCell
                           sx={{
                             fontWeight: "bold",
                             cursor: "pointer",
+                            whiteSpace: "nowrap",
                           }}
                           onClick={handleToggleDateSort}
                         >
                           <Box sx={{ display: "flex", alignItems: "center" }}>
-                            Date Created
+                            Date
                             {dateSort === "asc" ? (
                               <ArrowUpwardIcon
                                 fontSize="small"
@@ -1221,9 +1337,11 @@ const Dashboard = () => {
                             )}
                           </Box>
                         </TableCell>
-                        <TableCell sx={{ fontWeight: "bold" }}>
-                          Created By
-                        </TableCell>
+                        {!isMobile && (
+                          <TableCell sx={{ fontWeight: "bold" }}>
+                            Created By
+                          </TableCell>
+                        )}
                         <TableCell align="right" sx={{ fontWeight: "bold" }}>
                           Actions
                         </TableCell>
@@ -1247,21 +1365,26 @@ const Dashboard = () => {
                             />
                           </TableCell>
                         )}
-                        <TableCell sx={{ fontWeight: "bold" }}>
+                        <TableCell
+                          sx={{ fontWeight: "bold", whiteSpace: "nowrap" }}
+                        >
                           Client Name
                         </TableCell>
-                        <TableCell sx={{ fontWeight: "bold" }}>
-                          Case Number
-                        </TableCell>
+                        {!isMobile && (
+                          <TableCell sx={{ fontWeight: "bold" }}>
+                            Case #
+                          </TableCell>
+                        )}
                         <TableCell
                           sx={{
                             fontWeight: "bold",
                             cursor: "pointer",
+                            whiteSpace: "nowrap",
                           }}
                           onClick={handleToggleDateSort}
                         >
                           <Box sx={{ display: "flex", alignItems: "center" }}>
-                            Date Created
+                            Date
                             {dateSort === "asc" ? (
                               <ArrowUpwardIcon
                                 fontSize="small"
@@ -1421,63 +1544,70 @@ const Dashboard = () => {
                               <DescriptionIcon
                                 color="action"
                                 fontSize="small"
-                                sx={{ mr: 1, opacity: 0.7 }}
+                                sx={{
+                                  mr: 1,
+                                  opacity: 0.7,
+                                  display: { xs: "none", sm: "block" },
+                                }}
                               />
-                              <Typography variant="body2">
+                              <Typography
+                                variant="body2"
+                                sx={{
+                                  fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                                }}
+                              >
                                 {doc.title || "Untitled Document"}
                               </Typography>
                             </Box>
                           </TableCell>
-                          <TableCell>
-                            {doc.createdFor || "Not specified"}
-                          </TableCell>
+                          {!isMobile && (
+                            <TableCell>
+                              {doc.createdFor || "Not specified"}
+                            </TableCell>
+                          )}
                           <TableCell>{formatDate(doc.createdAt)}</TableCell>
-                          <TableCell>
-                            {doc.createdBy?.name || "Unknown"}
-                          </TableCell>
+                          {!isMobile && (
+                            <TableCell>
+                              {doc.createdBy?.name || "Unknown"}
+                            </TableCell>
+                          )}
                           <TableCell align="right">
                             <Box
                               sx={{
                                 display: "flex",
                                 justifyContent: "flex-end",
+                                flexWrap: "nowrap",
+                                gap: 0.5,
                               }}
                             >
-                              <Tooltip title="View document" arrow>
-                                <Button
-                                  variant="contained"
-                                  size="small"
-                                  color="primary"
-                                  onClick={() => handleViewDocument(doc._id)}
-                                  sx={{ mr: 1 }}
-                                >
-                                  View
-                                </Button>
-                              </Tooltip>
-                              <Tooltip title="Edit document" arrow>
-                                <Button
-                                  variant="outlined"
-                                  size="small"
-                                  color="primary"
-                                  startIcon={<EditIcon />}
-                                  onClick={() =>
-                                    handleEditDocument(doc._id, true)
-                                  }
-                                  sx={{ mr: 1 }}
-                                >
-                                  Edit
-                                </Button>
-                              </Tooltip>
-                              <Tooltip title="Delete document" arrow>
-                                <IconButton
-                                  size="small"
-                                  color="error"
-                                  onClick={() =>
-                                    handlePermanentDeleteDialog(doc, "document")
-                                  }
-                                >
-                                  <DeleteIcon fontSize="small" />
-                                </IconButton>
-                              </Tooltip>
+                              <Button
+                                variant="contained"
+                                size="small"
+                                color="primary"
+                                onClick={() => handleViewDocument(doc._id)}
+                              >
+                                {isMobile ? "View" : "View"}
+                              </Button>
+                              <Button
+                                variant="outlined"
+                                size="small"
+                                color="primary"
+                                startIcon={!isMobile && <EditIcon />}
+                                onClick={() =>
+                                  handleEditDocument(doc._id, true)
+                                }
+                              >
+                                {isMobile ? "Edit" : "Edit"}
+                              </Button>
+                              <IconButton
+                                size="small"
+                                color="error"
+                                onClick={() =>
+                                  handlePermanentDeleteDialog(doc, "document")
+                                }
+                              >
+                                <DeleteIcon fontSize="small" />
+                              </IconButton>
                             </Box>
                           </TableCell>
                         </TableRow>
@@ -1485,7 +1615,7 @@ const Dashboard = () => {
                     ) : (
                       <TableRow>
                         <TableCell
-                          colSpan={6}
+                          colSpan={isMobile ? 4 : 6}
                           sx={{ py: 4, textAlign: "center" }}
                         >
                           <Box
@@ -1515,6 +1645,7 @@ const Dashboard = () => {
                               variant="contained"
                               startIcon={<AddIcon />}
                               onClick={() => setShowDocumentSelector(true)}
+                              size={isMobile ? "small" : "medium"}
                             >
                               Create Document
                             </Button>
@@ -1546,45 +1677,53 @@ const Dashboard = () => {
                             />
                           </TableCell>
                         )}
-                        <TableCell>{form.name}</TableCell>
-                        <TableCell>{form.caseNumber}</TableCell>
-                        <TableCell>{formatDate(form.createdAt)}</TableCell>
+                        <TableCell
+                          sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+                        >
+                          {form.name}
+                        </TableCell>
+                        {!isMobile && <TableCell>{form.caseNumber}</TableCell>}
+                        <TableCell
+                          sx={{
+                            fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          {formatDate(form.createdAt)}
+                        </TableCell>
                         <TableCell>{getStatusChip(form.status)}</TableCell>
                         <TableCell align="right">
                           <Box
-                            sx={{ display: "flex", justifyContent: "flex-end" }}
+                            sx={{
+                              display: "flex",
+                              justifyContent: "flex-end",
+                              flexWrap: "nowrap",
+                              gap: 0.5,
+                            }}
                           >
-                            <Tooltip title="View form details" arrow>
-                              <Button
-                                variant="contained"
-                                size="small"
-                                color="primary"
-                                onClick={() => handleViewForm(form._id)}
-                                sx={{ mr: 1 }}
-                              >
-                                View
-                              </Button>
-                            </Tooltip>
-                            <Tooltip title="Edit form" arrow>
-                              <Button
-                                variant="outlined"
-                                size="small"
-                                color="primary"
-                                startIcon={<EditIcon />}
-                                onClick={() => handleEditForm(form._id)}
-                                sx={{ mr: 1 }}
-                              >
-                                Edit
-                              </Button>
-                            </Tooltip>
-                            <Tooltip title="More actions" arrow>
-                              <IconButton
-                                size="small"
-                                onClick={(event) => handleMenuOpen(event, form)}
-                              >
-                                <MoreVertIcon />
-                              </IconButton>
-                            </Tooltip>
+                            <Button
+                              variant="contained"
+                              size="small"
+                              color="primary"
+                              onClick={() => handleViewForm(form._id)}
+                            >
+                              View
+                            </Button>
+                            <Button
+                              variant="outlined"
+                              size="small"
+                              color="primary"
+                              startIcon={!isMobile && <EditIcon />}
+                              onClick={() => handleEditForm(form._id)}
+                            >
+                              {isMobile ? "Edit" : "Edit"}
+                            </Button>
+                            <IconButton
+                              size="small"
+                              onClick={(event) => handleMenuOpen(event, form)}
+                            >
+                              <MoreVertIcon fontSize="small" />
+                            </IconButton>
                           </Box>
                         </TableCell>
                       </TableRow>
@@ -1617,12 +1756,20 @@ const Dashboard = () => {
                           >
                             Try adjusting your search criteria or filters
                           </Typography>
-                          <Box sx={{ display: "flex", gap: 2 }}>
+                          <Box
+                            sx={{
+                              display: "flex",
+                              gap: 2,
+                              flexWrap: "wrap",
+                              justifyContent: "center",
+                            }}
+                          >
                             {searchTerm && (
                               <Button
                                 variant="outlined"
                                 onClick={() => setSearchTerm("")}
                                 startIcon={<ClearIcon />}
+                                size={isMobile ? "small" : "medium"}
                               >
                                 Clear Search
                               </Button>
@@ -1632,6 +1779,7 @@ const Dashboard = () => {
                                 variant="outlined"
                                 onClick={() => setStatusFilter("")}
                                 startIcon={<ClearIcon />}
+                                size={isMobile ? "small" : "medium"}
                               >
                                 Clear Filter
                               </Button>
@@ -1643,7 +1791,9 @@ const Dashboard = () => {
                   ) : (
                     <TableRow>
                       <TableCell
-                        colSpan={activeTab === 2 && isAdmin() ? 6 : 5}
+                        colSpan={
+                          isMobile ? 4 : activeTab === 2 && isAdmin() ? 6 : 5
+                        }
                         sx={{ py: 4, textAlign: "center" }}
                       >
                         <Box
@@ -1691,6 +1841,7 @@ const Dashboard = () => {
                                 variant="contained"
                                 startIcon={<AddIcon />}
                                 onClick={handleStartNewForm}
+                                size={isMobile ? "small" : "medium"}
                               >
                                 Create New Form
                               </Button>

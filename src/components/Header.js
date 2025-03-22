@@ -16,6 +16,10 @@ import {
   ListItemIcon,
   ListItemText,
   Popover,
+  IconButton,
+  Drawer,
+  List,
+  ListItem,
 } from "@mui/material";
 import { Link as RouterLink, useLocation, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
@@ -25,6 +29,7 @@ import DashboardIcon from "@mui/icons-material/Dashboard";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import LogoutIcon from "@mui/icons-material/Logout";
 import PeopleIcon from "@mui/icons-material/People";
+import MenuIcon from "@mui/icons-material/Menu";
 
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import DescriptionIcon from "@mui/icons-material/Description";
@@ -41,6 +46,7 @@ const Header = () => {
   const { user, logout } = useContext(AuthContext);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isTablet = useMediaQuery(theme.breakpoints.between("sm", "md"));
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -49,6 +55,7 @@ const Header = () => {
   const [navMenuAnchor, setNavMenuAnchor] = useState(null);
   const [notificationsAnchor, setNotificationsAnchor] = useState(null);
   const [formsMenuAnchor, setFormsMenuAnchor] = useState(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Dialog states
   const [showDocumentSelector, setShowDocumentSelector] = useState(false);
@@ -81,9 +88,14 @@ const Header = () => {
     setFormsMenuAnchor(event.currentTarget);
   const handleFormsMenuClose = () => setFormsMenuAnchor(null);
 
+  // Handle mobile menu
+  const toggleMobileMenu = () => setMobileMenuOpen(!mobileMenuOpen);
+  const closeMobileMenu = () => setMobileMenuOpen(false);
+
   // Handle logout with menu close
   const handleLogout = () => {
     handleUserMenuClose();
+    closeMobileMenu();
     logout();
   };
 
@@ -91,6 +103,7 @@ const Header = () => {
   const handleSelectDocument = (documentData) => {
     // Close the document selector
     setShowDocumentSelector(false);
+    closeMobileMenu();
 
     // Encode the document data to pass via URL
     const encodedData = encodeURIComponent(JSON.stringify(documentData));
@@ -197,24 +210,41 @@ const Header = () => {
       >
         <Container maxWidth="xl">
           <Toolbar disableGutters>
-            {/* Logo and Brand */}
-            <Box sx={{ display: "flex", alignItems: "center", mr: 2 }}>
+            {/* Mobile Menu Icon - only shown if logged in and on mobile */}
+            {user && isMobile && (
+              <IconButton
+                color="inherit"
+                aria-label="open menu"
+                edge="start"
+                onClick={toggleMobileMenu}
+                sx={{ mr: 1 }}
+              >
+                <MenuIcon />
+              </IconButton>
+            )}
+
+            {/* Logo and Brand - positioned after menu icon on mobile */}
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                mr: 2,
+              }}
+            >
               <RouterLink to="/">
                 <img
                   src={require("../logo.svg").default}
                   alt="Pathway Logo"
                   style={{
                     height: 40,
-                    marginRight: 16,
+                    marginRight: isMobile ? 0 : 16,
                     filter: "brightness(0) invert(1)",
                   }}
                 />
               </RouterLink>
-
-              {/* Mobile logo */}
             </Box>
 
-            {/* Navigation Menu - only shown if logged in */}
+            {/* Navigation Menu - only shown if logged in and not on mobile */}
             {user && !isMobile && (
               <Box sx={{ display: "flex", ml: 2 }}>
                 <Button
@@ -265,148 +295,6 @@ const Header = () => {
                     Users
                   </Button>
                 )}
-                {/* Enhanced Forms Menu */}
-                <Popover
-                  open={Boolean(formsMenuAnchor)}
-                  anchorEl={formsMenuAnchor}
-                  onClose={handleFormsMenuClose}
-                  anchorOrigin={{
-                    vertical: "bottom",
-                    horizontal: "left",
-                  }}
-                  transformOrigin={{
-                    vertical: "top",
-                    horizontal: "left",
-                  }}
-                  PaperProps={{
-                    sx: {
-                      mt: 1,
-                      width: 650,
-                      borderRadius: 2,
-                      overflow: "hidden",
-                      boxShadow: 3,
-                    },
-                  }}
-                >
-                  <Box sx={{ p: 2, bgcolor: "primary.main", color: "white" }}>
-                    <Typography variant="subtitle1" fontWeight="bold">
-                      Create New Form or Document
-                    </Typography>
-                    <Typography variant="body2">
-                      Select the type of form or document you want to create
-                    </Typography>
-                  </Box>
-                  <Box sx={{ p: 2, bgcolor: "#f5f5f5" }}>
-                    <Button
-                      fullWidth
-                      variant="contained"
-                      component={RouterLink}
-                      to="/intake-form"
-                      startIcon={<AssignmentIcon />}
-                      onClick={handleFormsMenuClose}
-                      sx={{ mb: 2 }}
-                    >
-                      Start New Intake Form
-                    </Button>
-
-                    <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                      Create Individual Documents
-                    </Typography>
-
-                    <Button
-                      fullWidth
-                      variant="outlined"
-                      startIcon={<AddCircleOutlineIcon />}
-                      onClick={() => {
-                        setShowDocumentSelector(true);
-                        handleFormsMenuClose();
-                      }}
-                      sx={{ mb: 2 }}
-                    >
-                      Create Standalone Document
-                    </Button>
-                  </Box>
-                  <Divider />
-                  {/* Document reference list - informational only */}
-
-                  <Box sx={{ px: 2, py: 2, bgcolor: "rgba(0, 0, 0, 0.02)" }}>
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      sx={{ display: "flex", alignItems: "center", mb: 1.5 }}
-                    >
-                      <InfoIcon fontSize="small" sx={{ mr: 0.5 }} />
-                      Available document types (create using the button above)
-                    </Typography>
-
-                    {/* Masonry layout using CSS columns */}
-                    <Box
-                      sx={{
-                        columnCount: { xs: 1, sm: 2, md: 3 },
-                        columnGap: 2,
-                        columnRule: "1px solid rgba(0, 0, 0, 0.08)", // Adds subtle divider between columns
-                        orphans: 1,
-                        widows: 1,
-                      }}
-                    >
-                      {documentCategories.map((category) => (
-                        <Box
-                          key={category.name}
-                          sx={{
-                            breakInside: "avoid",
-                            pageBreakInside: "avoid",
-                            mb: 2,
-                            pb: 1.5,
-                            display: "inline-block",
-                            width: "100%",
-                            borderBottom: "1px solid rgba(0, 0, 0, 0.05)", // Horizontal divider between categories
-                          }}
-                        >
-                          <Typography
-                            variant="subtitle2"
-                            sx={{
-                              display: "flex",
-                              alignItems: "center",
-                              color: category.color,
-                              mb: 0.5,
-                            }}
-                          >
-                            {React.cloneElement(category.icon, {
-                              fontSize: "small",
-                              sx: { mr: 0.5 },
-                            })}
-                            {category.name}
-                          </Typography>
-
-                          {category.documents.map((doc, index) => (
-                            <Typography
-                              key={index}
-                              variant="body2"
-                              sx={{
-                                display: "flex",
-                                alignItems: "center",
-                                pl: 1.5,
-                                py: 0.25,
-                                color: "text.secondary",
-                                borderBottom:
-                                  index < category.documents.length - 1
-                                    ? "1px dotted rgba(0,0,0,0.1)"
-                                    : "none",
-                              }}
-                            >
-                              <span
-                                style={{ fontSize: "8px", marginRight: "6px" }}
-                              >
-                                •
-                              </span>
-                              {doc}
-                            </Typography>
-                          ))}
-                        </Box>
-                      ))}
-                    </Box>
-                  </Box>
-                </Popover>
               </Box>
             )}
 
@@ -416,19 +304,39 @@ const Header = () => {
             {/* User Section */}
             {user ? (
               <Box sx={{ display: "flex", alignItems: "center" }}>
-                {/* User Profile & Menu */}
+                {/* User Profile & Menu - responsive text sizes and margins */}
                 <Box
                   sx={{
-                    ml: 2,
+                    ml: { xs: 1, sm: 1.5, md: 2 },
                     display: "flex",
                     alignItems: "center",
                     cursor: "pointer",
                   }}
                   onClick={handleUserMenuOpen}
                 >
+                  {/* Hide text on mobile, use smaller text on tablet */}
                   {!isMobile && (
-                    <Box sx={{ mr: 2, textAlign: "right" }}>
-                      <Typography variant="body2" component="div">
+                    <Box
+                      sx={{
+                        mr: { xs: 1, sm: 1.5, md: 2 },
+                        textAlign: "right",
+                        maxWidth: { xs: 90, sm: 110, md: 150 },
+                      }}
+                    >
+                      <Typography
+                        variant="body2"
+                        component="div"
+                        sx={{
+                          fontSize: {
+                            xs: "0.7rem",
+                            sm: "0.75rem",
+                            md: "0.875rem",
+                          },
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        }}
+                      >
                         {user.name}
                       </Typography>
                       <Typography
@@ -438,6 +346,11 @@ const Header = () => {
                           color: getUserRoleColor(),
                           fontWeight: "bold",
                           textShadow: "0px 0px 1px rgba(0,0,0,0.5)",
+                          fontSize: {
+                            xs: "0.6rem",
+                            sm: "0.65rem",
+                            md: "0.7rem",
+                          },
                         }}
                       >
                         {user.role}
@@ -448,61 +361,18 @@ const Header = () => {
                   <Tooltip title="Account settings">
                     <Avatar
                       sx={{
-                        width: 36,
-                        height: 36,
+                        width: { xs: 32, sm: 34, md: 36 },
+                        height: { xs: 32, sm: 34, md: 36 },
                         bgcolor: getUserRoleColor(),
                         border: "2px solid white",
                         fontWeight: "bold",
-                        fontSize: "0.9rem",
+                        fontSize: { xs: "0.7rem", sm: "0.8rem", md: "0.9rem" },
                       }}
                     >
                       {getUserInitials()}
                     </Avatar>
                   </Tooltip>
                 </Box>
-
-                {/* User Menu */}
-                <Menu
-                  anchorEl={userMenuAnchor}
-                  open={Boolean(userMenuAnchor)}
-                  onClose={handleUserMenuClose}
-                  onClick={handleUserMenuClose}
-                  transformOrigin={{ horizontal: "right", vertical: "top" }}
-                  anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
-                  PaperProps={{
-                    sx: {
-                      mt: 1.5,
-                      width: 200,
-                    },
-                  }}
-                >
-                  <Box
-                    sx={{ px: 2, py: 1, display: { xs: "block", sm: "none" } }}
-                  >
-                    <Typography variant="subtitle2">{user.name}</Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      {user.role}
-                    </Typography>
-                  </Box>
-
-                  <Divider sx={{ display: { xs: "block", sm: "none" } }} />
-
-                  <MenuItem component={RouterLink} to="/">
-                    <ListItemIcon>
-                      <DashboardIcon fontSize="small" />
-                    </ListItemIcon>
-                    <ListItemText>Dashboard</ListItemText>
-                  </MenuItem>
-
-                  <Divider />
-
-                  <MenuItem onClick={handleLogout}>
-                    <ListItemIcon>
-                      <LogoutIcon fontSize="small" />
-                    </ListItemIcon>
-                    <ListItemText>Logout</ListItemText>
-                  </MenuItem>
-                </Menu>
               </Box>
             ) : (
               // Login button for non-authenticated users
@@ -525,6 +395,118 @@ const Header = () => {
           </Toolbar>
         </Container>
       </AppBar>
+
+      {/* Mobile Navigation Drawer */}
+      <Drawer
+        anchor="left"
+        open={mobileMenuOpen}
+        onClose={closeMobileMenu}
+        PaperProps={{
+          sx: {
+            width: 280,
+            pt: 1,
+          },
+        }}
+      >
+        {user && (
+          <>
+            {/* User Info at top of drawer */}
+            <Box sx={{ p: 2, display: "flex", alignItems: "center" }}>
+              <Avatar
+                sx={{
+                  bgcolor: getUserRoleColor(),
+                  mr: 2,
+                }}
+              >
+                {getUserInitials()}
+              </Avatar>
+              <Box>
+                <Typography variant="subtitle2">{user.name}</Typography>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    color: "text.secondary",
+                    fontWeight: "medium",
+                  }}
+                >
+                  {user.role}
+                </Typography>
+              </Box>
+            </Box>
+
+            <Divider sx={{ mb: 1 }} />
+
+            {/* Navigation Links */}
+            <List>
+              <ListItem
+                button
+                component={RouterLink}
+                to="/"
+                onClick={closeMobileMenu}
+                selected={location.pathname === "/"}
+              >
+                <ListItemIcon>
+                  <DashboardIcon />
+                </ListItemIcon>
+                <ListItemText primary="Dashboard" />
+              </ListItem>
+
+              <ListItem
+                button
+                onClick={() => {
+                  closeMobileMenu();
+                  navigate("/intake-form");
+                }}
+              >
+                <ListItemIcon>
+                  <AssignmentIcon />
+                </ListItemIcon>
+                <ListItemText primary="New Intake Form" />
+              </ListItem>
+
+              <ListItem
+                button
+                onClick={() => {
+                  setShowDocumentSelector(true);
+                  closeMobileMenu();
+                }}
+              >
+                <ListItemIcon>
+                  <AddCircleOutlineIcon />
+                </ListItemIcon>
+                <ListItemText primary="New Standalone Document" />
+              </ListItem>
+
+              {user.role === "admin" && (
+                <ListItem
+                  button
+                  component={RouterLink}
+                  to="/user-management"
+                  onClick={closeMobileMenu}
+                  selected={location.pathname === "/user-management"}
+                >
+                  <ListItemIcon>
+                    <PeopleIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="User Management" />
+                </ListItem>
+              )}
+            </List>
+
+            <Divider />
+
+            {/* Logout Button */}
+            <List>
+              <ListItem button onClick={handleLogout}>
+                <ListItemIcon>
+                  <LogoutIcon />
+                </ListItemIcon>
+                <ListItemText primary="Logout" />
+              </ListItem>
+            </List>
+          </>
+        )}
+      </Drawer>
 
       {/* Document Type Selector Dialog */}
       <DocumentTypeSelector

@@ -109,7 +109,7 @@ const NoticeOfActionForm = ({ data, handleInputChange }) => {
         <Grid item xs={12} md={6}>
           <TextField
             fullWidth
-            label="Transaction Type"
+            label="Placement Type"
             name="typeOfTransaction"
             value={data?.typeOfTransaction || ""}
             onChange={handleInputChange}

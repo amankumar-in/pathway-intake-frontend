@@ -277,7 +277,7 @@ const NoticeOfAction = ({
         <div style={{ width: "45%" }}>
           <div style={{ marginBottom: "10px" }}>
             <div style={{ fontSize: "11px", fontWeight: "bold" }}>
-              Transaction Type
+              Placement Type
             </div>
             <div
               style={{

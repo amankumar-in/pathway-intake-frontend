@@ -38,6 +38,7 @@ import {
   Collapse,
   Stack,
   Snackbar,
+  useMediaQuery,
 } from "@mui/material";
 import {
   Add as AddIcon,
@@ -79,6 +80,7 @@ const UserManagement = () => {
   const [formError, setFormError] = useState("");
   const theme = useTheme();
   const navigate = useNavigate();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   useEffect(() => {
     document.title = "User Management | Pathway Foster Agency";
@@ -253,7 +255,10 @@ const UserManagement = () => {
   };
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+    <Container
+      maxWidth="lg"
+      sx={{ mt: isMobile ? 2 : 4, mb: 4, px: isMobile ? 1 : 2 }}
+    >
       {/* Header Card */}
       <Card
         variant="outlined"
@@ -263,63 +268,126 @@ const UserManagement = () => {
           overflow: "hidden",
         }}
       >
-        <Box sx={{ bgcolor: "primary.main", color: "white", p: 3 }}>
+        <Box
+          sx={{ bgcolor: "primary.main", color: "white", p: isMobile ? 2 : 3 }}
+        >
           <Box
             sx={{
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
+              flexDirection: "row",
             }}
           >
-            <Box sx={{ display: "flex", alignItems: "center" }}>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                flex: isMobile ? "0 0 75%" : "auto",
+              }}
+            >
               <IconButton
                 onClick={() => navigate("/")}
-                sx={{ color: "white", mr: 2 }}
+                sx={{
+                  color: "white",
+                  mr: 1.5,
+                  padding: isMobile ? 0.5 : 1,
+                }}
               >
-                <ArrowBackIcon />
+                <ArrowBackIcon fontSize={isMobile ? "small" : "medium"} />
               </IconButton>
 
-              <Box>
-                <Typography variant="h5" component="h1" fontWeight="medium">
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <Typography
+                  variant={isMobile ? "h6" : "h5"}
+                  component="h1"
+                  fontWeight="medium"
+                  sx={{ fontSize: isMobile ? "1rem" : undefined }}
+                >
                   User Management
                 </Typography>
-                <Typography variant="body2" sx={{ mt: 0.5, opacity: 0.9 }}>
+
+                {isMobile && (
+                  <IconButton
+                    color="inherit"
+                    onClick={() => setShowHelp(!showHelp)}
+                    size="small"
+                    sx={{
+                      ml: 1,
+                      width: 24,
+                      height: 24,
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    <HelpIcon fontSize="small" />
+                  </IconButton>
+                )}
+
+                <Typography
+                  variant="body2"
+                  sx={{
+                    mt: 0.5,
+                    marginLeft: 2,
+                    opacity: 0.9,
+                    fontSize: isMobile ? "0.75rem" : undefined,
+                    display: isMobile ? "none" : "block",
+                  }}
+                >
                   Manage user accounts and access permissions
                 </Typography>
               </Box>
             </Box>
 
-            <Stack direction="row" spacing={2}>
+            <Box
+              sx={{
+                flex: isMobile ? "0 0 25%" : "auto",
+                display: "flex",
+                justifyContent: "flex-end",
+              }}
+            >
               <Button
                 variant="contained"
                 color="secondary"
-                startIcon={<PersonAddIcon />}
+                startIcon={!isMobile && <PersonAddIcon />}
                 onClick={handleOpenAddDialog}
+                size={isMobile ? "small" : "medium"}
                 sx={{
                   bgcolor: "white",
                   color: "primary.main",
                   "&:hover": {
                     bgcolor: alpha("#fff", 0.9),
                   },
+                  fontSize: isMobile ? "0.8rem" : undefined,
+                  whiteSpace: "nowrap",
                 }}
               >
-                Add New User
+                {isMobile ? "Add User" : "Add New User"}
               </Button>
 
-              <IconButton
-                color="inherit"
-                onClick={() => setShowHelp(!showHelp)}
-                size="small"
-                sx={{
-                  bgcolor: alpha("#fff", 0.1),
-                  "&:hover": {
-                    bgcolor: alpha("#fff", 0.2),
-                  },
-                }}
-              >
-                <HelpIcon />
-              </IconButton>
-            </Stack>
+              {!isMobile && (
+                <IconButton
+                  color="inherit"
+                  onClick={() => setShowHelp(!showHelp)}
+                  size="small"
+                  sx={{
+                    ml: 2,
+                    bgcolor: alpha("#fff", 0.1),
+                    "&:hover": {
+                      bgcolor: alpha("#fff", 0.2),
+                    },
+                    width: 32,
+                    height: 32,
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <HelpIcon fontSize="small" />
+                </IconButton>
+              )}
+            </Box>
           </Box>
         </Box>
 
@@ -330,6 +398,7 @@ const UserManagement = () => {
               bgcolor: alpha(theme.palette.info.main, 0.05),
               borderBottom: "1px solid",
               borderColor: alpha(theme.palette.info.main, 0.1),
+              p: isMobile ? 1.5 : 2,
             }}
           >
             <Typography
@@ -337,6 +406,7 @@ const UserManagement = () => {
               color="info.main"
               fontWeight="medium"
               gutterBottom
+              sx={{ fontSize: isMobile ? "0.8rem" : undefined }}
             >
               <InfoIcon
                 fontSize="small"
@@ -345,7 +415,7 @@ const UserManagement = () => {
               User Access Levels:
             </Typography>
 
-            <Grid container spacing={2}>
+            <Grid container spacing={isMobile ? 1 : 2}>
               <Grid item xs={12} md={3}>
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                   <Chip
@@ -354,7 +424,12 @@ const UserManagement = () => {
                     label="Admin"
                     color="error"
                   />
-                  <Typography variant="body2">Full system access</Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{ fontSize: isMobile ? "0.75rem" : undefined }}
+                  >
+                    Full system access
+                  </Typography>
                 </Box>
               </Grid>
               <Grid item xs={12} md={3}>
@@ -365,7 +440,12 @@ const UserManagement = () => {
                     label="Counsellor"
                     color="info"
                   />
-                  <Typography variant="body2">Assessment access</Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{ fontSize: isMobile ? "0.75rem" : undefined }}
+                  >
+                    Assessment access
+                  </Typography>
                 </Box>
               </Grid>
               <Grid item xs={12} md={3}>
@@ -376,7 +456,12 @@ const UserManagement = () => {
                     label="HR"
                     color="warning"
                   />
-                  <Typography variant="body2">Personnel records</Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{ fontSize: isMobile ? "0.75rem" : undefined }}
+                  >
+                    Personnel records
+                  </Typography>
                 </Box>
               </Grid>
               <Grid item xs={12} md={3}>
@@ -387,13 +472,22 @@ const UserManagement = () => {
                     label="Caseworker"
                     color="success"
                   />
-                  <Typography variant="body2">Standard access</Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{ fontSize: isMobile ? "0.75rem" : undefined }}
+                  >
+                    Standard access
+                  </Typography>
                 </Box>
               </Grid>
             </Grid>
 
             <Box sx={{ mt: 2 }}>
-              <Typography variant="body2" color="text.secondary">
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{ fontSize: isMobile ? "0.75rem" : undefined }}
+              >
                 <strong>Note:</strong> The admin user cannot be deleted. Users
                 cannot delete their own accounts.
               </Typography>
@@ -404,10 +498,11 @@ const UserManagement = () => {
         {/* Search and Filters */}
         <Box
           sx={{
-            p: 2,
+            p: isMobile ? 1.5 : 2,
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
+            flexDirection: isMobile ? "column" : "row",
           }}
         >
           <TextField
@@ -416,7 +511,10 @@ const UserManagement = () => {
             size="small"
             value={searchTerm}
             onChange={handleSearchChange}
-            sx={{ minWidth: 300 }}
+            sx={{
+              minWidth: isMobile ? "100%" : 300,
+              mb: isMobile ? 1 : 0,
+            }}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -439,6 +537,8 @@ const UserManagement = () => {
             variant="text"
             color="primary"
             disabled={loading}
+            size={isMobile ? "small" : "medium"}
+            sx={{ fontSize: isMobile ? "0.8rem" : undefined }}
           >
             {loading ? "Refreshing..." : "Refresh"}
           </Button>
@@ -466,15 +566,37 @@ const UserManagement = () => {
         }}
       >
         <TableContainer>
-          <Table>
+          <Table size={isMobile ? "small" : "medium"}>
             <TableHead>
               <TableRow
                 sx={{ bgcolor: alpha(theme.palette.primary.main, 0.05) }}
               >
-                <TableCell sx={{ fontWeight: "bold" }}>User</TableCell>
-                <TableCell sx={{ fontWeight: "bold" }}>Username</TableCell>
-                <TableCell sx={{ fontWeight: "bold" }}>Role</TableCell>
-                <TableCell align="right" sx={{ fontWeight: "bold" }}>
+                <TableCell
+                  sx={{
+                    fontWeight: "bold",
+                    fontSize: isMobile ? "0.75rem" : undefined,
+                  }}
+                >
+                  User
+                </TableCell>
+                {!isMobile && (
+                  <TableCell sx={{ fontWeight: "bold" }}>Username</TableCell>
+                )}
+                <TableCell
+                  sx={{
+                    fontWeight: "bold",
+                    fontSize: isMobile ? "0.75rem" : undefined,
+                  }}
+                >
+                  Role
+                </TableCell>
+                <TableCell
+                  align="right"
+                  sx={{
+                    fontWeight: "bold",
+                    fontSize: isMobile ? "0.75rem" : undefined,
+                  }}
+                >
                   Actions
                 </TableCell>
               </TableRow>
@@ -482,11 +604,19 @@ const UserManagement = () => {
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={4} align="center" sx={{ py: 4 }}>
-                    <CircularProgress size={40} thickness={4} />
+                  <TableCell
+                    colSpan={isMobile ? 3 : 4}
+                    align="center"
+                    sx={{ py: 4 }}
+                  >
+                    <CircularProgress size={isMobile ? 30 : 40} thickness={4} />
                     <Typography
                       variant="body2"
-                      sx={{ mt: 2, color: "text.secondary" }}
+                      sx={{
+                        mt: 2,
+                        color: "text.secondary",
+                        fontSize: isMobile ? "0.75rem" : undefined,
+                      }}
                     >
                       Loading user data...
                     </Typography>
@@ -513,16 +643,34 @@ const UserManagement = () => {
                             color: theme.palette.getContrastText(
                               getAvatarColor(user.role)
                             ),
+                            width: isMobile ? 28 : 40,
+                            height: isMobile ? 28 : 40,
+                            fontSize: isMobile ? "0.75rem" : "1rem",
                           }}
                         >
                           {getInitials(user.name)}
                         </Avatar>
-                        <Typography variant="body2" fontWeight="medium">
-                          {user.name}
-                        </Typography>
+                        <Box>
+                          <Typography
+                            variant="body2"
+                            fontWeight="medium"
+                            sx={{ fontSize: isMobile ? "0.75rem" : undefined }}
+                          >
+                            {user.name}
+                          </Typography>
+                          {isMobile && (
+                            <Typography
+                              variant="caption"
+                              color="text.secondary"
+                              sx={{ fontSize: "0.7rem" }}
+                            >
+                              {user.username}
+                            </Typography>
+                          )}
+                        </Box>
                       </Box>
                     </TableCell>
-                    <TableCell>{user.username}</TableCell>
+                    {!isMobile && <TableCell>{user.username}</TableCell>}
                     <TableCell>
                       <Chip
                         icon={getRoleIcon(user.role)}
@@ -530,6 +678,13 @@ const UserManagement = () => {
                         color={getRoleColor(user.role)}
                         variant="outlined"
                         size="small"
+                        sx={{
+                          height: isMobile ? 24 : 32,
+                          "& .MuiChip-label": {
+                            fontSize: isMobile ? "0.65rem" : "0.75rem",
+                            px: isMobile ? 0.5 : 1,
+                          },
+                        }}
                       />
                     </TableCell>
                     <TableCell align="right">
@@ -537,7 +692,7 @@ const UserManagement = () => {
                         <Tooltip title="Delete User">
                           <IconButton
                             color="error"
-                            size="small"
+                            size={isMobile ? "small" : "small"}
                             onClick={() => handleOpenDeleteDialog(user)}
                             sx={{
                               ml: 1,
@@ -546,7 +701,9 @@ const UserManagement = () => {
                               },
                             }}
                           >
-                            <DeleteIcon fontSize="small" />
+                            <DeleteIcon
+                              fontSize={isMobile ? "small" : "small"}
+                            />
                           </IconButton>
                         </Tooltip>
                       ) : (
@@ -555,6 +712,13 @@ const UserManagement = () => {
                           size="small"
                           color="default"
                           variant="outlined"
+                          sx={{
+                            height: isMobile ? 24 : 32,
+                            "& .MuiChip-label": {
+                              fontSize: isMobile ? "0.65rem" : "0.75rem",
+                              px: isMobile ? 0.5 : 1,
+                            },
+                          }}
                         />
                       )}
                     </TableCell>
@@ -562,11 +726,23 @@ const UserManagement = () => {
                 ))
               ) : searchTerm ? (
                 <TableRow>
-                  <TableCell colSpan={4} align="center" sx={{ py: 6 }}>
+                  <TableCell
+                    colSpan={isMobile ? 3 : 4}
+                    align="center"
+                    sx={{ py: isMobile ? 4 : 6 }}
+                  >
                     <SearchIcon
-                      sx={{ fontSize: 40, color: "text.disabled", mb: 2 }}
+                      sx={{
+                        fontSize: isMobile ? 30 : 40,
+                        color: "text.disabled",
+                        mb: 2,
+                      }}
                     />
-                    <Typography variant="body1" gutterBottom>
+                    <Typography
+                      variant="body1"
+                      gutterBottom
+                      sx={{ fontSize: isMobile ? "0.85rem" : undefined }}
+                    >
                       No users found matching "{searchTerm}"
                     </Typography>
                     <Button
@@ -574,6 +750,7 @@ const UserManagement = () => {
                       startIcon={<CloseIcon />}
                       onClick={() => setSearchTerm("")}
                       sx={{ mt: 1 }}
+                      size={isMobile ? "small" : "medium"}
                     >
                       Clear Search
                     </Button>
@@ -581,11 +758,23 @@ const UserManagement = () => {
                 </TableRow>
               ) : (
                 <TableRow>
-                  <TableCell colSpan={4} align="center" sx={{ py: 6 }}>
+                  <TableCell
+                    colSpan={isMobile ? 3 : 4}
+                    align="center"
+                    sx={{ py: isMobile ? 4 : 6 }}
+                  >
                     <PersonIcon
-                      sx={{ fontSize: 40, color: "text.disabled", mb: 2 }}
+                      sx={{
+                        fontSize: isMobile ? 30 : 40,
+                        color: "text.disabled",
+                        mb: 2,
+                      }}
                     />
-                    <Typography variant="body1" gutterBottom>
+                    <Typography
+                      variant="body1"
+                      gutterBottom
+                      sx={{ fontSize: isMobile ? "0.85rem" : undefined }}
+                    >
                       No users found
                     </Typography>
                     <Button
@@ -593,6 +782,7 @@ const UserManagement = () => {
                       startIcon={<PersonAddIcon />}
                       onClick={handleOpenAddDialog}
                       sx={{ mt: 1 }}
+                      size={isMobile ? "small" : "medium"}
                     >
                       Add New User
                     </Button>
@@ -606,13 +796,17 @@ const UserManagement = () => {
         {/* Table Footer with Info */}
         <Box
           sx={{
-            p: 2,
+            p: isMobile ? 1.5 : 2,
             borderTop: "1px solid",
             borderTopColor: "divider",
             bgcolor: alpha(theme.palette.background.default, 0.5),
           }}
         >
-          <Typography variant="body2" color="text.secondary">
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            sx={{ fontSize: isMobile ? "0.75rem" : undefined }}
+          >
             Showing {filteredUsers.length} of {users.length} users
             {searchTerm && ` (filtered by "${searchTerm}")`}
           </Typography>
@@ -643,10 +837,15 @@ const UserManagement = () => {
         >
           <Box sx={{ display: "flex", alignItems: "center" }}>
             <PersonAddIcon color="primary" sx={{ mr: 1.5 }} />
-            <Typography variant="h6">Add New User</Typography>
+            <Typography
+              variant="h6"
+              sx={{ fontSize: isMobile ? "1rem" : undefined }}
+            >
+              Add New User
+            </Typography>
           </Box>
         </DialogTitle>
-        <DialogContent sx={{ mt: 2 }}>
+        <DialogContent sx={{ mt: 2, p: isMobile ? 1.5 : 2 }}>
           {formError && (
             <Alert
               severity="error"
@@ -658,8 +857,8 @@ const UserManagement = () => {
             </Alert>
           )}
 
-          <Grid container spacing={2}>
-            <Grid item xs={12} >
+          <Grid container spacing={isMobile ? 1.5 : 2}>
+            <Grid item xs={12}>
               <TextField
                 name="name"
                 label="Full Name"
@@ -770,11 +969,16 @@ const UserManagement = () => {
               variant="subtitle2"
               color={`${getRoleColor(newUser.role)}.main`}
               gutterBottom
+              sx={{ fontSize: isMobile ? "0.75rem" : undefined }}
             >
               {newUser.role.charAt(0).toUpperCase() + newUser.role.slice(1)}{" "}
               Role Permissions:
             </Typography>
-            <Typography variant="body2" color="text.secondary">
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{ fontSize: isMobile ? "0.75rem" : undefined }}
+            >
               {newUser.role === "admin" &&
                 "Full system access including user management, all documents, and configuration."}
               {newUser.role === "counsellor" &&
@@ -787,15 +991,25 @@ const UserManagement = () => {
           </Box>
         </DialogContent>
         <DialogActions
-          sx={{ p: 3, pt: 2, borderTop: "1px solid", borderColor: "divider" }}
+          sx={{
+            p: isMobile ? 2 : 3,
+            pt: isMobile ? 1 : 2,
+            borderTop: "1px solid",
+            borderColor: "divider",
+          }}
         >
-          <Button onClick={handleCloseAddDialog} variant="outlined">
+          <Button
+            onClick={handleCloseAddDialog}
+            variant="outlined"
+            size={isMobile ? "small" : "medium"}
+          >
             Cancel
           </Button>
           <Button
             onClick={handleAddUser}
             variant="contained"
             startIcon={<PersonAddIcon />}
+            size={isMobile ? "small" : "medium"}
           >
             Add User
           </Button>
@@ -825,7 +1039,12 @@ const UserManagement = () => {
         >
           <Box sx={{ display: "flex", alignItems: "center" }}>
             <DeleteIcon color="error" sx={{ mr: 1.5 }} />
-            <Typography variant="h6">Confirm Delete</Typography>
+            <Typography
+              variant="h6"
+              sx={{ fontSize: isMobile ? "1rem" : undefined }}
+            >
+              Confirm Delete
+            </Typography>
           </Box>
         </DialogTitle>
         <DialogContent sx={{ pt: 3 }}>
@@ -834,16 +1053,25 @@ const UserManagement = () => {
               <Avatar
                 sx={{
                   bgcolor: getAvatarColor(selectedUser.role),
-                  width: 56,
-                  height: 56,
+                  width: isMobile ? 40 : 56,
+                  height: isMobile ? 40 : 56,
                   mr: 2,
                 }}
               >
                 {getInitials(selectedUser.name)}
               </Avatar>
               <Box>
-                <Typography variant="h6">{selectedUser.name}</Typography>
-                <Typography variant="body2" color="text.secondary">
+                <Typography
+                  variant="h6"
+                  sx={{ fontSize: isMobile ? "1rem" : undefined }}
+                >
+                  {selectedUser.name}
+                </Typography>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ fontSize: isMobile ? "0.75rem" : undefined }}
+                >
                   {selectedUser.username} • {selectedUser.role}
                 </Typography>
               </Box>
@@ -851,19 +1079,32 @@ const UserManagement = () => {
           )}
 
           <Alert severity="warning" variant="outlined" sx={{ mb: 2 }}>
-            This action cannot be undone. The user will lose all access to the
-            system.
+            <Typography sx={{ fontSize: isMobile ? "0.75rem" : undefined }}>
+              This action cannot be undone. The user will lose all access to the
+              system.
+            </Typography>
           </Alert>
 
-          <DialogContentText>
+          <DialogContentText
+            sx={{ fontSize: isMobile ? "0.85rem" : undefined }}
+          >
             Are you sure you want to delete this user? If they need access again
             in the future, you'll need to create a new account.
           </DialogContentText>
         </DialogContent>
         <DialogActions
-          sx={{ p: 3, pt: 2, borderTop: "1px solid", borderColor: "divider" }}
+          sx={{
+            p: isMobile ? 2 : 3,
+            pt: isMobile ? 1 : 2,
+            borderTop: "1px solid",
+            borderColor: "divider",
+          }}
         >
-          <Button onClick={handleCloseDeleteDialog} variant="outlined">
+          <Button
+            onClick={handleCloseDeleteDialog}
+            variant="outlined"
+            size={isMobile ? "small" : "medium"}
+          >
             Cancel
           </Button>
           <Button
@@ -871,6 +1112,7 @@ const UserManagement = () => {
             variant="contained"
             color="error"
             startIcon={<DeleteIcon />}
+            size={isMobile ? "small" : "medium"}
           >
             Delete User
           </Button>
@@ -893,7 +1135,5 @@ const UserManagement = () => {
     </Container>
   );
 };
-
-// Missing LockIcon import
 
 export default UserManagement;

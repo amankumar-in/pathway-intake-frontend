@@ -18,6 +18,10 @@ import {
   Alert,
   Tabs,
   Tab,
+  Tooltip,
+  useMediaQuery,
+  useTheme,
+  IconButton,
 } from "@mui/material";
 import {
   Search as SearchIcon,
@@ -35,6 +39,7 @@ import {
   ListAlt as ListAltIcon,
   ContactEmergency as ContactEmergencyIcon,
   EmojiEmotions as DentalIcon,
+  Info as InfoIcon,
 } from "@mui/icons-material";
 
 // todo Document templates from documentMapper- id is for frontend use, get actual template from controller
@@ -303,11 +308,15 @@ const categories = [
 ];
 
 const DocumentTypeSelector = ({ open, onClose, onSelectDocument }) => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
   const [createdFor, setCreatedFor] = useState("");
   const [activeTab, setActiveTab] = useState("all");
   const [selectedDocument, setSelectedDocument] = useState(null);
+  const [tooltipOpen, setTooltipOpen] = useState(false);
 
   // Reset state when dialog opens or closes - this fixes the loading state issue
   useEffect(() => {
@@ -316,17 +325,23 @@ const DocumentTypeSelector = ({ open, onClose, onSelectDocument }) => {
       setLoading(false);
       setCreatedFor("");
       setSelectedDocument(null);
+      setActiveTab("all"); // Always reset to "all" tab
     }
   }, [open]);
 
   // Filter documents based on search term and active tab
-  const filteredDocuments = documentTemplates.filter((doc) => {
-    const matchesSearch = doc.title
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase());
-    const matchesCategory = activeTab === "all" || doc.category === activeTab;
-    return matchesSearch && matchesCategory;
-  });
+  // Always show all documents on mobile, otherwise use activeTab
+  const filteredDocuments = documentTemplates
+    .filter((doc) => {
+      const matchesSearch = doc.title
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
+      const matchesCategory =
+        isMobile || activeTab === "all" || doc.category === activeTab;
+      return matchesSearch && matchesCategory;
+    })
+    // Sort documents alphabetically by title
+    .sort((a, b) => a.title.localeCompare(b.title));
 
   // Handle document selection
   const handleSelectDocument = (document) => {
@@ -384,7 +399,7 @@ const DocumentTypeSelector = ({ open, onClose, onSelectDocument }) => {
         sx={{
           bgcolor: "primary.main",
           color: "white",
-          p: 2,
+          p: isMobile ? 1.5 : 2,
         }}
       >
         <Box
@@ -394,10 +409,18 @@ const DocumentTypeSelector = ({ open, onClose, onSelectDocument }) => {
             justifyContent: "space-between",
           }}
         >
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            <AddIcon sx={{ mr: 1 }} />
-            <Typography variant="h6">Create New Standalone Document</Typography>
-          </Box>
+          <Typography
+            variant="h6"
+            sx={{
+              fontSize: isMobile ? "16px" : "1.25rem",
+              width: "50%",
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+            }}
+          >
+            Create New Document
+          </Typography>
 
           <TextField
             placeholder="Search Documents"
@@ -405,7 +428,7 @@ const DocumentTypeSelector = ({ open, onClose, onSelectDocument }) => {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             size="small"
-            sx={{ width: "40%" }}
+            sx={{ width: "50%" }}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -440,7 +463,7 @@ const DocumentTypeSelector = ({ open, onClose, onSelectDocument }) => {
 
       <DialogContent
         sx={{
-          p: 3,
+          p: isMobile ? 2 : 3,
           height: "60vh",
           display: "flex",
           flexDirection: "column",
@@ -448,14 +471,34 @@ const DocumentTypeSelector = ({ open, onClose, onSelectDocument }) => {
       >
         {/* "Created For" field moved to top */}
         <Box sx={{ mb: 3 }}>
-          <Typography variant="subtitle1" gutterBottom>
-            Who is this document for?
-          </Typography>
-          <Typography variant="body2" color="text.secondary" paragraph>
-            Enter information about who this document is being created for
-            (e.g., client name, case number, or purpose). This will help
-            identify the document later.
-          </Typography>
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            <Typography variant="subtitle1">
+              Who is this document for?
+            </Typography>
+            <Tooltip
+              title="Enter information about who this document is being created for (e.g., client name, case number, or purpose). This will help identify the document later."
+              open={tooltipOpen}
+              onOpen={() => setTooltipOpen(true)}
+              onClose={() => setTooltipOpen(false)}
+            >
+              <IconButton
+                onClick={() => setTooltipOpen(!tooltipOpen)}
+                size="small"
+              >
+                <InfoIcon fontSize="small" color="action" />
+              </IconButton>
+            </Tooltip>
+          </Box>
+
+          {/* Description is hidden on mobile */}
+          {!isMobile && (
+            <Typography variant="body2" color="text.secondary" paragraph>
+              Enter information about who this document is being created for
+              (e.g., client name, case number, or purpose). This will help
+              identify the document later.
+            </Typography>
+          )}
+
           <TextField
             fullWidth
             label="Created For"
@@ -474,29 +517,31 @@ const DocumentTypeSelector = ({ open, onClose, onSelectDocument }) => {
           />
         </Box>
 
-        {/* Category Tabs */}
-        <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }}>
-          <Tabs
-            value={activeTab}
-            onChange={handleTabChange}
-            variant="scrollable"
-            scrollButtons="auto"
-            aria-label="document categories"
-          >
-            {categories.map((category) => (
-              <Tab
-                key={category.id}
-                value={category.id}
-                label={category.label}
-                sx={{
-                  "&.Mui-selected": {
-                    color: category.color,
-                  },
-                }}
-              />
-            ))}
-          </Tabs>
-        </Box>
+        {/* Category Tabs - Hidden on Mobile */}
+        {!isMobile && (
+          <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }}>
+            <Tabs
+              value={activeTab}
+              onChange={handleTabChange}
+              variant="scrollable"
+              scrollButtons="auto"
+              aria-label="document categories"
+            >
+              {categories.map((category) => (
+                <Tab
+                  key={category.id}
+                  value={category.id}
+                  label={category.label}
+                  sx={{
+                    "&.Mui-selected": {
+                      color: category.color,
+                    },
+                  }}
+                />
+              ))}
+            </Tabs>
+          </Box>
+        )}
 
         {/* Document Grid - smaller cards with fixed height scrollable container */}
         <Box
@@ -508,7 +553,7 @@ const DocumentTypeSelector = ({ open, onClose, onSelectDocument }) => {
             flexDirection: "column",
           }}
         >
-          <Grid container spacing={2} sx={{ mb: 2 }}>
+          <Grid container spacing={isMobile ? 1 : 2} sx={{ mb: 2 }}>
             {filteredDocuments.length > 0 ? (
               filteredDocuments.map((doc) => (
                 <Grid item xs={12} sm={6} md={4} key={doc.id}>
@@ -540,7 +585,7 @@ const DocumentTypeSelector = ({ open, onClose, onSelectDocument }) => {
                   >
                     <CardActionArea
                       onClick={() => handleSelectDocument(doc)}
-                      sx={{ p: 1.5 }}
+                      sx={{ p: isMobile ? 1 : 1.5 }}
                     >
                       <Box
                         sx={{
@@ -559,14 +604,14 @@ const DocumentTypeSelector = ({ open, onClose, onSelectDocument }) => {
                                 ? "#26a69a"
                                 : "#ffa726",
                             borderRadius: "50%",
-                            width: 28,
-                            height: 28,
+                            width: isMobile ? 24 : 28,
+                            height: isMobile ? 24 : 28,
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
                             mr: 1,
                             "& svg": {
-                              fontSize: "1rem",
+                              fontSize: isMobile ? "0.8rem" : "1rem",
                             },
                           }}
                         >
@@ -581,7 +626,7 @@ const DocumentTypeSelector = ({ open, onClose, onSelectDocument }) => {
                               selectedDocument && selectedDocument.id === doc.id
                                 ? "primary.main"
                                 : "text.primary",
-                            fontSize: "0.875rem",
+                            fontSize: isMobile ? "0.8rem" : "0.875rem",
                             maxWidth: "100%",
                             overflow: "hidden",
                             textOverflow: "ellipsis",
@@ -596,7 +641,7 @@ const DocumentTypeSelector = ({ open, onClose, onSelectDocument }) => {
                         color="text.secondary"
                         sx={{
                           mt: 0.5,
-                          fontSize: "0.75rem",
+                          fontSize: isMobile ? "0.7rem" : "0.75rem",
                           lineHeight: 1.3,
                           height: "2.6em",
                           overflow: "hidden",
@@ -627,7 +672,7 @@ const DocumentTypeSelector = ({ open, onClose, onSelectDocument }) => {
                               : doc.category === "Shelter Bed Documents"
                               ? "#00796b"
                               : "#ef6c00",
-                          fontSize: "0.7rem",
+                          fontSize: isMobile ? "0.65rem" : "0.7rem",
                         }}
                       >
                         {doc.category}
@@ -648,7 +693,12 @@ const DocumentTypeSelector = ({ open, onClose, onSelectDocument }) => {
       </DialogContent>
 
       <DialogActions
-        sx={{ px: 3, py: 2, borderTop: "1px solid", borderColor: "divider" }}
+        sx={{
+          px: isMobile ? 2 : 3,
+          py: isMobile ? 1.5 : 2,
+          borderTop: "1px solid",
+          borderColor: "divider",
+        }}
       >
         <Button onClick={onClose} disabled={loading}>
           Cancel

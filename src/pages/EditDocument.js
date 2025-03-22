@@ -21,6 +21,7 @@ import {
   LinearProgress,
   alpha,
   useTheme,
+  useMediaQuery,
 } from "@mui/material";
 import {
   ArrowBack as ArrowBackIcon,
@@ -41,6 +42,9 @@ const EditDocument = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isTablet = useMediaQuery(theme.breakpoints.between("sm", "md"));
+
   const [document, setDocument] = useState(null);
   const [formData, setFormData] = useState({});
   const [loading, setLoading] = useState(true);
@@ -49,9 +53,7 @@ const EditDocument = () => {
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [saveMessage, setSaveMessage] = useState("");
   const [hasChanges, setHasChanges] = useState(false);
-useEffect(() => {
-  document.title = "Edit Document Form | Pathway Foster Agency";
-}, []);
+
   // Fetch document data
   useEffect(() => {
     const fetchDocument = async () => {
@@ -234,8 +236,33 @@ useEffect(() => {
   const documentTitle = document?.title || "Document";
   const intakeForm = document?.intakeForm || {};
 
+  // Mobile-friendly container without Paper on mobile
+  const ContentContainer = isMobile
+    ? Box
+    : ({ children }) => (
+        <Paper
+          elevation={3}
+          sx={{
+            p: 0,
+            borderRadius: 2,
+            overflow: "hidden",
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          {children}
+        </Paper>
+      );
+
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+    <Container
+      maxWidth="lg"
+      sx={{
+        mt: isMobile ? 2 : 4,
+        mb: isMobile ? 3 : 4,
+        px: isMobile ? 1 : 2,
+      }}
+    >
       {/* Saving success message */}
       <Snackbar
         open={!!saveMessage}
@@ -252,114 +279,245 @@ useEffect(() => {
         }
       />
 
-      <Paper
-        elevation={3}
-        sx={{
-          p: 0,
-          borderRadius: 2,
-          overflow: "hidden",
-          display: "flex",
-          flexDirection: "column",
-        }}
-      >
-        {/* Header */}
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            p: 3,
-            borderBottom: "1px solid",
-            borderColor: "divider",
-            bgcolor: alpha(theme.palette.primary.main, 0.03),
-          }}
-        >
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            <IconButton
-              onClick={() => navigate(-1)}
+      <ContentContainer>
+        {/* Header - Mobile vs Desktop Layout */}
+        {isMobile ? (
+          <>
+            {/* Mobile Header: Row 1 - Title and back button */}
+            <Box
               sx={{
-                mr: 2,
-                bgcolor: alpha(theme.palette.primary.main, 0.1),
-                color: "primary.main",
+                display: "flex",
+                alignItems: "center",
+                mb: 1,
+                mt: 1,
               }}
             >
-              <ArrowBackIcon />
-            </IconButton>
-            <Box>
+              <IconButton
+                onClick={() => navigate(-1)}
+                sx={{
+                  mr: 1.5,
+                  bgcolor: alpha(theme.palette.primary.main, 0.1),
+                  color: "primary.main",
+                  padding: 1,
+                }}
+              >
+                <ArrowBackIcon fontSize="small" />
+              </IconButton>
               <Typography
-                variant="h5"
+                variant="h6"
                 component="h1"
                 fontWeight="medium"
                 color="primary.main"
+                sx={{ fontSize: "1rem" }}
               >
                 Editing: {documentTitle}
               </Typography>
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  flexWrap: "wrap",
-                  gap: 1,
-                  mt: 0.5,
-                }}
-              >
-                {intakeForm.name && (
-                  <Chip
-                    size="small"
-                    icon={<PersonIcon fontSize="small" />}
-                    label={`Client: ${intakeForm.name}`}
-                    variant="outlined"
-                  />
-                )}
+            </Box>
+
+            {/* Mobile Header: Row 2 - Chips */}
+            <Box
+              sx={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: 0.5,
+                mb: 1.5,
+                ml: 0.5,
+              }}
+            >
+              {intakeForm.name && (
                 <Chip
                   size="small"
-                  icon={<DescriptionIcon fontSize="small" />}
-                  label={`Type: ${templateType || "Standard"}`}
+                  icon={<PersonIcon fontSize="small" />}
+                  label={`Client: ${intakeForm.name}`}
                   variant="outlined"
+                  sx={{
+                    height: 24,
+                    "& .MuiChip-label": { fontSize: "0.7rem" },
+                  }}
                 />
-                {document?.createdAt && (
+              )}
+              <Chip
+                size="small"
+                icon={<DescriptionIcon fontSize="small" />}
+                label={`Type: ${templateType || "Standard"}`}
+                variant="outlined"
+                sx={{ height: 24, "& .MuiChip-label": { fontSize: "0.7rem" } }}
+              />
+              {document?.createdAt && (
+                <Chip
+                  size="small"
+                  icon={<InfoIcon fontSize="small" />}
+                  label={`Created: ${formatDate(document.createdAt)}`}
+                  variant="outlined"
+                  color="default"
+                  sx={{
+                    height: 24,
+                    "& .MuiChip-label": { fontSize: "0.7rem" },
+                  }}
+                />
+              )}
+              {hasChanges && (
+                <Chip
+                  size="small"
+                  icon={<EditIcon fontSize="small" />}
+                  label="Unsaved changes"
+                  color="warning"
+                  variant="outlined"
+                  sx={{
+                    height: 24,
+                    "& .MuiChip-label": { fontSize: "0.7rem" },
+                  }}
+                />
+              )}
+            </Box>
+
+            {/* Mobile Header: Row 3 - Action buttons */}
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                mb: 2,
+              }}
+            >
+              <Button
+                variant="outlined"
+                startIcon={<ArrowBackIcon />}
+                onClick={handleCancel}
+                disabled={saving}
+                size="small"
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="contained"
+                startIcon={<SaveIcon />}
+                onClick={handleSave}
+                disabled={saving}
+                color={hasChanges ? "primary" : "success"}
+                size="small"
+              >
+                {saving ? "Saving..." : "Save"}
+              </Button>
+            </Box>
+          </>
+        ) : (
+          /* Desktop/Tablet Header */
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              p: 3,
+              borderBottom: "1px solid",
+              borderColor: "divider",
+              bgcolor: alpha(theme.palette.primary.main, 0.03),
+            }}
+          >
+            {/* Left side - 65% */}
+            <Box
+              sx={{
+                flex: "0 0 65%",
+                display: "flex",
+                alignItems: "center",
+              }}
+            >
+              <IconButton
+                onClick={() => navigate(-1)}
+                sx={{
+                  mr: 2,
+                  bgcolor: alpha(theme.palette.primary.main, 0.1),
+                  color: "primary.main",
+                }}
+              >
+                <ArrowBackIcon />
+              </IconButton>
+              <Box>
+                <Typography
+                  variant="h5"
+                  component="h1"
+                  fontWeight="medium"
+                  color="primary.main"
+                  sx={{ fontSize: isTablet ? "1.25rem" : undefined }}
+                >
+                  Editing: {documentTitle}
+                </Typography>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    flexWrap: "wrap",
+                    gap: 1,
+                    mt: 0.5,
+                  }}
+                >
+                  {intakeForm.name && (
+                    <Chip
+                      size="small"
+                      icon={<PersonIcon fontSize="small" />}
+                      label={`Client: ${intakeForm.name}`}
+                      variant="outlined"
+                    />
+                  )}
                   <Chip
                     size="small"
-                    icon={<InfoIcon fontSize="small" />}
-                    label={`Created: ${formatDate(document.createdAt)}`}
-                    variant="outlined"
-                    color="default"
-                  />
-                )}
-                {hasChanges && (
-                  <Chip
-                    size="small"
-                    icon={<EditIcon fontSize="small" />}
-                    label="Unsaved changes"
-                    color="warning"
+                    icon={<DescriptionIcon fontSize="small" />}
+                    label={`Type: ${templateType || "Standard"}`}
                     variant="outlined"
                   />
-                )}
+                  {document?.createdAt && (
+                    <Chip
+                      size="small"
+                      icon={<InfoIcon fontSize="small" />}
+                      label={`Created: ${formatDate(document.createdAt)}`}
+                      variant="outlined"
+                      color="default"
+                    />
+                  )}
+                  {hasChanges && (
+                    <Chip
+                      size="small"
+                      icon={<EditIcon fontSize="small" />}
+                      label="Unsaved changes"
+                      color="warning"
+                      variant="outlined"
+                    />
+                  )}
+                </Box>
               </Box>
             </Box>
-          </Box>
 
-          <Box>
-            <Button
-              variant="outlined"
-              startIcon={<ArrowBackIcon />}
-              onClick={handleCancel}
-              sx={{ mr: 2 }}
-              disabled={saving}
+            {/* Right side - 35% */}
+            <Box
+              sx={{
+                flex: "0 0 35%",
+                display: "flex",
+                justifyContent: "flex-end",
+              }}
             >
-              Cancel
-            </Button>
-            <Button
-              variant="contained"
-              startIcon={<SaveIcon />}
-              onClick={handleSave}
-              disabled={saving}
-              color={hasChanges ? "primary" : "success"}
-            >
-              {saving ? "Saving..." : "Save Changes"}
-            </Button>
+              <Button
+                variant="outlined"
+                startIcon={<ArrowBackIcon />}
+                onClick={handleCancel}
+                sx={{
+                  mr: 2,
+                  fontSize: isTablet ? "0.8rem" : undefined,
+                }}
+                disabled={saving}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="contained"
+                startIcon={<SaveIcon />}
+                onClick={handleSave}
+                disabled={saving}
+                color={hasChanges ? "primary" : "success"}
+                sx={{ fontSize: isTablet ? "0.8rem" : undefined }}
+              >
+                {saving ? "Saving..." : "Save Changes"}
+              </Button>
+            </Box>
           </Box>
-        </Box>
+        )}
 
         {/* Show saving progress if saving */}
         {saving && (
@@ -376,14 +534,14 @@ useEffect(() => {
           <Alert
             severity="error"
             onClose={() => setError("")}
-            sx={{ mx: 3, mt: 3, borderRadius: 1 }}
+            sx={{ mx: isMobile ? 0 : 3, mt: isMobile ? 0 : 3, borderRadius: 1 }}
           >
             {error}
           </Alert>
         )}
 
         {/* Form content */}
-        <Box sx={{ p: 3 }}>
+        <Box sx={{ p: isMobile ? 0 : 3, mt: isMobile ? 1 : 0 }}>
           {hasChanges && (
             <Alert
               severity="info"
@@ -399,23 +557,27 @@ useEffect(() => {
             variant="outlined"
             sx={{
               mb: 4,
-              borderRadius: 2,
+              borderRadius: isMobile ? 1 : 2,
               bgcolor: "background.paper",
               overflow: "hidden",
             }}
           >
             <Box
               sx={{
-                p: 2,
+                p: isMobile ? 1.5 : 2,
                 bgcolor: theme.palette.primary.light,
                 color: "white",
               }}
             >
-              <Typography variant="subtitle1" fontWeight="medium">
+              <Typography
+                variant="subtitle1"
+                fontWeight="medium"
+                sx={{ fontSize: isMobile ? "0.9rem" : undefined }}
+              >
                 Document Information
               </Typography>
             </Box>
-            <CardContent>
+            <CardContent sx={{ p: isMobile ? 1.5 : 2 }}>
               {/* Form for editing document */}
               <Box component="form">
                 {formData &&
@@ -429,62 +591,70 @@ useEffect(() => {
             </CardContent>
           </Card>
 
-          {/* Action buttons (bottom) */}
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              mt: 4,
-              pt: 3,
-              borderTop: "1px solid",
-              borderColor: "divider",
-            }}
-          >
-            <Button
-              variant="outlined"
-              startIcon={<ArrowBackIcon />}
-              onClick={handleCancel}
-              disabled={saving}
-            >
-              Cancel
-            </Button>
-
-            <Button
-              variant="contained"
-              startIcon={<SaveIcon />}
-              onClick={handleSave}
-              disabled={saving}
+          {/* Action buttons (bottom) - Don't show on mobile as we already have them at the top */}
+          {!isMobile && (
+            <Box
               sx={{
-                position: "relative",
-                minWidth: "140px",
+                display: "flex",
+                justifyContent: "space-between",
+                mt: 4,
+                pt: 3,
+                borderTop: "1px solid",
+                borderColor: "divider",
               }}
             >
-              {saving ? (
-                <Box sx={{ display: "flex", alignItems: "center" }}>
-                  <CircularProgress size={20} sx={{ mr: 1 }} color="inherit" />
-                  Saving...
-                </Box>
-              ) : (
-                "Save Changes"
-              )}
+              <Button
+                variant="outlined"
+                startIcon={<ArrowBackIcon />}
+                onClick={handleCancel}
+                disabled={saving}
+                sx={{ fontSize: isTablet ? "0.8rem" : undefined }}
+              >
+                Cancel
+              </Button>
 
-              {saving && (
-                <LinearProgress
-                  sx={{
-                    position: "absolute",
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    height: 2,
-                    borderBottomLeftRadius: 4,
-                    borderBottomRightRadius: 4,
-                  }}
-                />
-              )}
-            </Button>
-          </Box>
+              <Button
+                variant="contained"
+                startIcon={<SaveIcon />}
+                onClick={handleSave}
+                disabled={saving}
+                sx={{
+                  position: "relative",
+                  minWidth: "140px",
+                  fontSize: isTablet ? "0.8rem" : undefined,
+                }}
+              >
+                {saving ? (
+                  <Box sx={{ display: "flex", alignItems: "center" }}>
+                    <CircularProgress
+                      size={20}
+                      sx={{ mr: 1 }}
+                      color="inherit"
+                    />
+                    Saving...
+                  </Box>
+                ) : (
+                  "Save Changes"
+                )}
+
+                {saving && (
+                  <LinearProgress
+                    sx={{
+                      position: "absolute",
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      height: 2,
+                      borderBottomLeftRadius: 4,
+                      borderBottomRightRadius: 4,
+                    }}
+                  />
+                )}
+              </Button>
+            </Box>
+          )}
         </Box>
-      </Paper>
+      </ContentContainer>
     </Container>
   );
 };

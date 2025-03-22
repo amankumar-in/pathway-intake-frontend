@@ -17,6 +17,8 @@ import {
   LinearProgress,
   IconButton,
   Snackbar,
+  useTheme,
+  useMediaQuery,
 } from "@mui/material";
 import {
   ArrowBack as ArrowBackIcon,
@@ -34,6 +36,10 @@ import { createStandaloneDocument } from "../utils/api";
 const StandaloneDocumentForm = () => {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isTablet = useMediaQuery(theme.breakpoints.between("sm", "md"));
+
   const [activeStep, setActiveStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -41,9 +47,6 @@ const StandaloneDocumentForm = () => {
   const [formData, setFormData] = useState({});
   const [documentData, setDocumentData] = useState(null);
 
-  useEffect(() => {
-    document.title = "Create New Doc | Pathway Foster Agency";
-  }, []);
   // Get document data from URL query params if present
   useEffect(() => {
     const queryParams = new URLSearchParams(window.location.search);
@@ -301,15 +304,19 @@ const StandaloneDocumentForm = () => {
         </Alert>
 
         <Card variant="outlined" sx={{ mb: 3 }}>
-          <CardContent>
-            <Typography variant="subtitle1" gutterBottom>
+          <CardContent sx={{ p: isMobile ? 1.5 : 2 }}>
+            <Typography
+              variant="subtitle1"
+              gutterBottom
+              sx={{ fontSize: isMobile ? "0.9rem" : undefined }}
+            >
               Document Details
             </Typography>
             <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
               <Box sx={{ display: "flex" }}>
                 <Typography
                   variant="body2"
-                  sx={{ fontWeight: "bold", width: 200 }}
+                  sx={{ fontWeight: "bold", width: isMobile ? 120 : 200 }}
                 >
                   Document Type:
                 </Typography>
@@ -318,7 +325,7 @@ const StandaloneDocumentForm = () => {
               <Box sx={{ display: "flex" }}>
                 <Typography
                   variant="body2"
-                  sx={{ fontWeight: "bold", width: 200 }}
+                  sx={{ fontWeight: "bold", width: isMobile ? 120 : 200 }}
                 >
                   Created For:
                 </Typography>
@@ -329,7 +336,7 @@ const StandaloneDocumentForm = () => {
               <Box sx={{ display: "flex" }}>
                 <Typography
                   variant="body2"
-                  sx={{ fontWeight: "bold", width: 200 }}
+                  sx={{ fontWeight: "bold", width: isMobile ? 120 : 200 }}
                 >
                   Category:
                 </Typography>
@@ -344,6 +351,7 @@ const StandaloneDocumentForm = () => {
           startIcon={<EditIcon />}
           onClick={() => setActiveStep(0)}
           sx={{ mb: 3 }}
+          size={isMobile ? "small" : "medium"}
         >
           Edit Information
         </Button>
@@ -382,7 +390,10 @@ const StandaloneDocumentForm = () => {
   }
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+    <Container
+      maxWidth="lg"
+      sx={{ mt: isMobile ? 2 : 4, mb: 4, px: isMobile ? 1 : 2 }}
+    >
       {/* Success message */}
       <Snackbar
         open={!!saveMessage}
@@ -401,7 +412,7 @@ const StandaloneDocumentForm = () => {
       />
 
       <Paper
-        elevation={3}
+        elevation={isMobile ? 1 : 3}
         sx={{
           p: 0,
           borderRadius: 2,
@@ -411,36 +422,70 @@ const StandaloneDocumentForm = () => {
         {/* Header */}
         <Box
           sx={{
-            p: 3,
+            p: isMobile ? 2 : 3,
             display: "flex",
-            alignItems: "center",
-            bgcolor: "primary.main",
-            color: "white",
+            alignItems: isMobile ? "flex-start" : "center",
+            bgcolor: isMobile ? "transparent" : "primary.main",
+            color: isMobile ? "text.primary" : "white",
+            flexDirection: isMobile ? "column" : "row",
           }}
         >
-          <IconButton onClick={handleBack} sx={{ mr: 2, color: "white" }}>
-            <ArrowBackIcon />
-          </IconButton>
-          <Box>
-            <Typography variant="h5" component="h1">
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            <IconButton
+              onClick={handleBack}
+              sx={{
+                mr: 1.5,
+                color: isMobile ? "primary.main" : "white",
+                p: isMobile ? 0.5 : 1,
+              }}
+            >
+              <ArrowBackIcon fontSize={isMobile ? "small" : "medium"} />
+            </IconButton>
+            <Typography
+              variant={isMobile ? "h6" : "h5"}
+              component="h1"
+              sx={{
+                fontSize: isMobile ? "1rem" : isTablet ? "1.25rem" : undefined,
+              }}
+            >
               Create {documentData.title}
             </Typography>
-            <Typography variant="body2" sx={{ opacity: 0.9 }}>
+          </Box>
+
+          {!isMobile && (
+            <Typography variant="body2" sx={{ opacity: 0.9, ml: 1 }}>
               For: {documentData.createdFor}
             </Typography>
-          </Box>
+          )}
+
+          {isMobile && (
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{ fontSize: "0.8rem", ml: 5, mt: 0.5 }}
+            >
+              For: {documentData.createdFor}
+            </Typography>
+          )}
         </Box>
 
         {/* Stepper */}
-        <Box sx={{ p: 3, bgcolor: "#f8f9fa" }}>
+        <Box sx={{ p: isMobile ? 1.5 : 3, bgcolor: "#f8f9fa" }}>
           <Stepper activeStep={activeStep} alternativeLabel>
             {steps.map((step, index) => (
               <Step key={step.label}>
                 <StepLabel>
-                  <Typography variant="body2">{step.label}</Typography>
-                  <Typography variant="caption" color="text.secondary">
-                    {step.description}
+                  <Typography
+                    variant="body2"
+                    sx={{ fontSize: isMobile ? "0.75rem" : undefined }}
+                  >
+                    {step.label}
                   </Typography>
+                  {!isMobile && (
+                    <Typography variant="caption" color="text.secondary">
+                      {step.description}
+                    </Typography>
+                  )}
                 </StepLabel>
               </Step>
             ))}
@@ -459,14 +504,14 @@ const StandaloneDocumentForm = () => {
         )}
 
         {/* Form content */}
-        <Box sx={{ p: 3 }}>{renderStepContent()}</Box>
+        <Box sx={{ p: isMobile ? 2 : 3 }}>{renderStepContent()}</Box>
 
         {/* Navigation buttons */}
         <Box
           sx={{
             display: "flex",
             justifyContent: "space-between",
-            p: 3,
+            p: isMobile ? 2 : 3,
             bgcolor: "#f8f9fa",
             borderTop: "1px solid",
             borderColor: "divider",
@@ -477,6 +522,8 @@ const StandaloneDocumentForm = () => {
             onClick={handleBack}
             startIcon={<ArrowBackIcon />}
             disabled={loading}
+            size={isMobile ? "small" : "medium"}
+            sx={{ fontSize: isTablet ? "0.8rem" : undefined }}
           >
             {activeStep === 0 ? "Cancel" : "Back"}
           </Button>
@@ -487,11 +534,17 @@ const StandaloneDocumentForm = () => {
             endIcon={activeStep === steps.length - 1 ? <SendIcon /> : null}
             disabled={loading}
             color={activeStep === steps.length - 1 ? "primary" : "primary"}
+            size={isMobile ? "small" : "medium"}
+            sx={{ fontSize: isTablet ? "0.8rem" : undefined }}
           >
             {loading ? (
-              <CircularProgress size={24} />
+              <CircularProgress size={isMobile ? 16 : 24} />
             ) : activeStep === steps.length - 1 ? (
-              "Create & Continue to Signatures"
+              isMobile ? (
+                "Create & Sign"
+              ) : (
+                "Create & Continue to Signatures"
+              )
             ) : (
               "Continue"
             )}

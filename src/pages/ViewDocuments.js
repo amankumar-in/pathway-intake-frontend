@@ -4,6 +4,7 @@ import ReactDOMServer from "react-dom/server";
 import ReactDOM from "react-dom/client";
 import { PDFDocument } from "pdf-lib";
 
+// API imports
 import {
   getIntakeForm,
   getDocumentsByIntakeForm,
@@ -11,13 +12,9 @@ import {
   getDocument,
 } from "../utils/api";
 import { getDocumentComponent } from "../utils/documentMapper";
-import {
-  generatePDF,
-  generateMultiplePDF,
-  generateMultiElementsPDF,
-  createDocumentElement,
-  generatePDFBlob,
-} from "../utils/pdfUtils";
+import { generatePDF, generatePDFBlob } from "../utils/pdfUtils";
+
+// MUI components import - consolidated
 import {
   Container,
   Typography,
@@ -43,7 +40,6 @@ import {
   Snackbar,
   TextField,
   InputAdornment,
-  Avatar,
   Card,
   CardContent,
   IconButton,
@@ -53,17 +49,17 @@ import {
   useTheme,
   alpha,
   Backdrop,
-  Fade,
   Menu,
   MenuItem,
   ToggleButtonGroup,
   ToggleButton,
-  Switch,
   Paper,
   Stack,
   Collapse,
   useMediaQuery,
 } from "@mui/material";
+
+// MUI icons import - consolidated
 import {
   Description as DescriptionIcon,
   Edit as EditIcon,
@@ -72,31 +68,23 @@ import {
   CheckCircle as CheckCircleIcon,
   Error as ErrorIcon,
   Search as SearchIcon,
-  FilterList as FilterListIcon,
   Folder as FolderIcon,
-  FolderSpecial as FolderSpecialIcon,
   Home as HomeIcon,
-  MoveToInbox as MoveToInboxIcon,
   Sort as SortIcon,
-  Archive as ArchiveIcon,
+  MoveToInbox as MoveToInboxIcon,
   MoreVert as MoreVertIcon,
+  Info as InfoIcon,
   Download as DownloadIcon,
   FileCopy as FileCopyIcon,
   Delete as DeleteIcon,
   CloudDownload as CloudDownloadIcon,
   Assignment as AssignmentIcon,
-  AccessTime as AccessTimeIcon,
   FileDownload as FileDownloadIcon,
-  Info as InfoIcon,
   Person as PersonIcon,
-  Fingerprint as FingerprintIcon,
   Business as BusinessIcon,
   Layers as LayersIcon,
   Article as ArticleIcon,
-  ContentPaste as ContentPasteIcon,
   ExpandMore as ExpandMoreIcon,
-  ExpandLess as ExpandLessIcon,
-  KeyboardArrowDown as KeyboardArrowDownIcon,
   ArrowUpward as ArrowUpwardIcon,
   ArrowDownward as ArrowDownwardIcon,
   ViewList as ViewListIcon,
@@ -105,13 +93,17 @@ import {
   CheckBox as CheckBoxIcon,
   CheckBoxOutlineBlank as CheckBoxOutlineBlankIcon,
   BurstMode as BurstModeIcon,
-  Add as AddMuiIcon, // Add this
-  Remove as RemoveMuiIcon, // Add this
+  Add as AddIcon,
+  Remove as RemoveIcon,
+  Fingerprint as FingerprintIcon,
+  AccessTime as AccessTimeIcon,
+  Archive as ArchiveIcon,
+  FilterListIcon,
 } from "@mui/icons-material";
 
+// Tab panel component
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
-
   return (
     <div
       role="tabpanel"
@@ -124,7 +116,8 @@ function TabPanel(props) {
     </div>
   );
 }
-// todo Use title: "ID-Emergency Information" from document controller file
+
+// Document copies configuration
 const documentCopiesConfig = {
   "Intake Paperwork": {
     "Notice of Action": 3,
@@ -170,7 +163,6 @@ const documentCopiesConfig = {
     "Acknowledgement of Prior Information": 2,
     "Consent to Release Medical/Confidential Information Authorization": 1,
     "Placement Application": 1,
-
     default: 2,
   },
   "In House Move": {
@@ -183,7 +175,6 @@ const documentCopiesConfig = {
     "Emergency Information Log": 1,
     "Quarterly Clothing Allowance": 2,
     "Quarterly Spending Allowance": 2,
-
     default: 1,
   },
   default: 1,
@@ -195,6 +186,8 @@ const ViewDocuments = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const isTablet = useMediaQuery(theme.breakpoints.down("md"));
+
+  // State variables
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState("");
@@ -208,7 +201,7 @@ const ViewDocuments = () => {
   const [selectMode, setSelectMode] = useState(false);
   const [generatingPDF, setGeneratingPDF] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [sortDirection, setSortDirection] = useState("desc"); // desc = newest first
+  const [sortDirection, setSortDirection] = useState("asc"); // asc = A-Z (changed from date to alphabetical)
   const [menuAnchorEl, setMenuAnchorEl] = useState(null);
   const [actionDocument, setActionDocument] = useState(null);
   const [showDownloadProgress, setShowDownloadProgress] = useState(false);
@@ -220,38 +213,21 @@ const ViewDocuments = () => {
 
   // Categories for tabs with icons and colors
   const categories = [
-    {
-      id: "All Documents",
-      icon: <LayersIcon />,
-      color: "primary",
-    },
-    {
-      id: "Intake Paperwork",
-      icon: <AssignmentIcon />,
-      color: "secondary",
-    },
-    {
-      id: "Shelter Bed Documents",
-      icon: <HomeIcon />,
-      color: "info",
-    },
-    {
-      id: "In House Move",
-      icon: <MoveToInboxIcon />,
-      color: "success",
-    },
+    { id: "All Documents", icon: <LayersIcon />, color: "primary" },
+    { id: "Intake Paperwork", icon: <AssignmentIcon />, color: "secondary" },
+    { id: "Shelter Bed Documents", icon: <HomeIcon />, color: "info" },
+    { id: "In House Move", icon: <MoveToInboxIcon />, color: "success" },
   ];
 
-  // Dynamic title that updates when intakeForm data loads
+  // Update document title when intakeForm data loads
   useEffect(() => {
-    if (intakeForm) {
-      document.title = `${
-        intakeForm.name || "Unknown Client"
-      } Documents | Pathway Foster Agency`;
-    } else {
-      document.title = "View Documents | Pathway Foster Agency";
-    }
+    document.title = intakeForm
+      ? `${
+          intakeForm.name || "Unknown Client"
+        } Documents | Pathway Foster Agency`
+      : "View Documents | Pathway Foster Agency";
   }, [intakeForm]);
+
   // Fetch documents on component mount
   useEffect(() => {
     const fetchData = async () => {
@@ -328,7 +304,6 @@ const ViewDocuments = () => {
       setGenerating(true);
       setError("");
 
-      // Call the same API endpoint as initial generation
       const response = await generateDocuments(id);
       setDocuments(response.data);
       setSuccessMessage("Documents regenerated successfully!");
@@ -391,14 +366,13 @@ const ViewDocuments = () => {
     setSearchTerm(event.target.value);
   };
 
-  // Open actions menu for a document
+  // Menu handling functions
   const handleOpenMenu = (event, document) => {
     event.stopPropagation();
     setMenuAnchorEl(event.currentTarget);
     setActionDocument(document);
   };
 
-  // Close actions menu
   const handleCloseMenu = () => {
     setMenuAnchorEl(null);
     setActionDocument(null);
@@ -465,7 +439,7 @@ const ViewDocuments = () => {
       // Wait for rendering to complete
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      // Generate PDF using the exact same approach as ViewDocument.js
+      // Generate PDF
       if (tempDocumentRef.current) {
         await generatePDF(
           tempDocumentRef.current,
@@ -486,177 +460,7 @@ const ViewDocuments = () => {
     }
   };
 
-  // Export selected documents to PDF
-  // Replace the entire handleExportSelectedToPDF function with this one
-  const handleExportSelectedToPDF = async () => {
-    if (selectedDocuments.length === 0) return;
-
-    try {
-      setGeneratingPDF(true);
-      setError("");
-      setSuccessMessage("");
-      simulateDownloadProgress();
-
-      // Array to store PDF blobs
-      const pdfBlobs = [];
-
-      // Track total pages for progress indication
-      let totalPages = 0;
-      let processedPages = 0;
-
-      // First pass - calculate total pages based on copy counts
-      for (const docId of selectedDocuments) {
-        try {
-          // Get document from our documents array
-          const docInfo = documents.find((doc) => doc._id === docId);
-          // Get the active category (tab)
-          const activeCategory = categories[tabValue].id;
-          // Get required copies
-          const copies = getDocumentCopies(docInfo, activeCategory);
-          // Add to total (assuming 1 page per document for simplicity)
-          totalPages += copies;
-        } catch (error) {
-          console.error(
-            `Error calculating copies for document ${docId}:`,
-            error
-          );
-        }
-      }
-
-      // Process each document
-      for (const docId of selectedDocuments) {
-        try {
-          // Fetch document data
-          const response = await getDocument(docId);
-          const fullDocData = response.data;
-
-          // Get document info for copy count
-          const docInfo = documents.find((doc) => doc._id === docId);
-          const activeCategory = categories[tabValue].id;
-          const copies = getDocumentCopies(docInfo, activeCategory);
-
-          // Extract signatures
-          let signatures = {};
-          if (fullDocData.signatures) {
-            for (const [key, value] of Object.entries(fullDocData.signatures)) {
-              signatures[key] = value.signature;
-            }
-          }
-
-          // Create temporary container
-          const tempContainer = document.createElement("div");
-          tempContainer.style.position = "absolute";
-          tempContainer.style.left = "-9999px";
-          document.body.appendChild(tempContainer);
-
-          // Create a ref for the document content
-          const tempDocumentRef = { current: null };
-
-          // Create a temporary component
-          const TempDocumentComponent = () => {
-            const documentComponent = React.cloneElement(
-              getDocumentComponent(
-                fullDocData.formData.template,
-                fullDocData.formData
-              ),
-              { signatures }
-            );
-            return (
-              <div ref={(el) => (tempDocumentRef.current = el)}>
-                {documentComponent}
-              </div>
-            );
-          };
-
-          // Render the component
-          const root = ReactDOM.createRoot(tempContainer);
-          root.render(<TempDocumentComponent />);
-
-          // Wait for rendering to complete
-          await new Promise((resolve) => setTimeout(resolve, 1000));
-
-          // Generate PDF blob
-          if (tempDocumentRef.current) {
-            const pdfBlob = await generatePDFBlob(tempDocumentRef.current);
-
-            // Add the blob multiple times based on copy count
-            for (let i = 0; i < copies; i++) {
-              pdfBlobs.push({
-                blob: pdfBlob,
-                title: fullDocData.title,
-                category: activeCategory,
-              });
-              processedPages++;
-
-              // Update progress
-              setDownloadProgress((processedPages / totalPages) * 100);
-            }
-          }
-
-          // Clean up
-          root.unmount();
-          document.body.removeChild(tempContainer);
-        } catch (error) {
-          console.error(`Error processing document ${docId}:`, error);
-        }
-      }
-
-      // Merge PDFs if we have any
-      if (pdfBlobs.length > 0) {
-        // Create a new PDF document
-        const mergedPdf = await PDFDocument.create();
-
-        // Set metadata
-        mergedPdf.setTitle(`${intakeForm?.name || "Client"} - Documents`);
-        mergedPdf.setAuthor("Pathway Foster Agency");
-        mergedPdf.setCreator("Pathway Intake System");
-
-        // Add pages from each PDF with a cover page for multiple copies
-        let currentDoc = null;
-        let copyCount = 1;
-
-        for (const { blob, title, category } of pdfBlobs) {
-          const pdfBytes = await blob.arrayBuffer();
-          const pdf = await PDFDocument.load(pdfBytes);
-          const pages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
-
-          // Add the document pages
-          pages.forEach((page) => mergedPdf.addPage(page));
-
-          // Update document tracking
-          if (currentDoc === title) {
-            copyCount++;
-          } else {
-            currentDoc = title;
-            copyCount = 1;
-          }
-        }
-
-        // Save the merged PDF
-        const mergedBytes = await mergedPdf.save();
-        const mergedBlob = new Blob([mergedBytes], { type: "application/pdf" });
-
-        // Download the merged PDF
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(mergedBlob);
-        link.download = `${
-          intakeForm?.name || "client"
-        }-documents-${new Date().getTime()}.pdf`;
-        link.click();
-      }
-
-      setSuccessMessage(
-        `Documents exported successfully with appropriate copies!`
-      );
-    } catch (err) {
-      console.error("Error exporting documents:", err);
-      setError("Error exporting documents: " + err.message);
-    } finally {
-      setGeneratingPDF(false);
-    }
-  };
-  // =========================================
-  // Add this function after handleExportSelectedToPDF
+  // Export selected documents to PDF with custom copies
   const handleExportWithCustomCopies = async () => {
     setOpenCopyDialog(false);
 
@@ -780,25 +584,14 @@ const ViewDocuments = () => {
         mergedPdf.setAuthor("Pathway Foster Agency");
         mergedPdf.setCreator("Pathway Intake System");
 
-        // Add pages from each PDF with a cover page for multiple copies
-        let currentDoc = null;
-        let copyCount = 1;
-
-        for (const { blob, title, category } of pdfBlobs) {
+        // Add pages from each PDF
+        for (const { blob, title } of pdfBlobs) {
           const pdfBytes = await blob.arrayBuffer();
           const pdf = await PDFDocument.load(pdfBytes);
           const pages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
 
           // Add the document pages
           pages.forEach((page) => mergedPdf.addPage(page));
-
-          // Update document tracking
-          if (currentDoc === title) {
-            copyCount++;
-          } else {
-            currentDoc = title;
-            copyCount = 1;
-          }
         }
 
         // Save the merged PDF
@@ -822,7 +615,7 @@ const ViewDocuments = () => {
       setGeneratingPDF(false);
     }
   };
-  // =========================================
+
   // Function to get the number of copies needed for a document
   const getDocumentCopies = (document, activeCategory) => {
     // If "All Documents" tab is selected, always return 1 copy
@@ -847,33 +640,6 @@ const ViewDocuments = () => {
     return documentCopiesConfig.default;
   };
 
-  // Calculate total copies
-  const calculateTotalCopies = () => {
-    if (selectedDocuments.length === 0) return 0;
-
-    return selectedDocuments.reduce((total, docId) => {
-      const doc = documents.find((d) => d._id === docId);
-      if (!doc) return total;
-
-      return total + getDocumentCopies(doc, categories[tabValue].id);
-    }, 0);
-  };
-
-  // Function to open the copies dialog
-  const handleOpenCopyDialog = () => {
-    // Initialize with default copy counts
-    const initialCounts = {};
-    selectedDocuments.forEach((docId) => {
-      const doc = documents.find((d) => d._id === docId);
-      if (doc) {
-        initialCounts[docId] = getDocumentCopies(doc, categories[tabValue].id);
-      }
-    });
-
-    setCustomCopyCounts(initialCounts);
-    setOpenCopyDialog(true);
-  };
-
   // Handle copy count change
   const handleCopyCountChange = (docId, value) => {
     // Ensure value is between 1 and 10
@@ -892,7 +658,22 @@ const ViewDocuments = () => {
       0
     );
   };
-  // ==========================================
+
+  // Function to open the copies dialog
+  const handleOpenCopyDialog = () => {
+    // Initialize with default copy counts
+    const initialCounts = {};
+    selectedDocuments.forEach((docId) => {
+      const doc = documents.find((d) => d._id === docId);
+      if (doc) {
+        initialCounts[docId] = getDocumentCopies(doc, categories[tabValue].id);
+      }
+    });
+
+    setCustomCopyCounts(initialCounts);
+    setOpenCopyDialog(true);
+  };
+
   // Filter documents by category and search term with multi-category support
   const getFilteredDocuments = () => {
     let filtered = [...documents];
@@ -922,15 +703,12 @@ const ViewDocuments = () => {
       );
     }
 
-    // Sort documents
+    // Sort documents alphabetically by title
     filtered.sort((a, b) => {
-      const dateA = new Date(a.createdAt || 0);
-      const dateB = new Date(b.createdAt || 0);
-
       if (sortDirection === "asc") {
-        return dateA - dateB;
+        return a.title.localeCompare(b.title);
       } else {
-        return dateB - dateA;
+        return b.title.localeCompare(a.title);
       }
     });
 
@@ -988,36 +766,6 @@ const ViewDocuments = () => {
       default:
         return "primary";
     }
-  };
-
-  // Get document status chip
-  const getDocumentStatusChip = (document) => {
-    // This is a placeholder. In a real app, you'd have actual status data
-    const status = document.status || "Completed";
-
-    let chipProps = {
-      label: status,
-      size: "small",
-      variant: "outlined",
-    };
-
-    switch (status) {
-      case "Pending":
-        chipProps.color = "warning";
-        chipProps.icon = <AccessTimeIcon fontSize="small" />;
-        break;
-      case "Needs Review":
-        chipProps.color = "error";
-        chipProps.icon = <ErrorIcon fontSize="small" />;
-        break;
-      case "Completed":
-      default:
-        chipProps.color = "success";
-        chipProps.icon = <CheckCircleIcon fontSize="small" />;
-        break;
-    }
-
-    return <Chip {...chipProps} />;
   };
 
   // Get document date display
@@ -1083,29 +831,6 @@ const ViewDocuments = () => {
     );
   };
 
-  if (loading) {
-    return (
-      <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-        <Paper
-          elevation={3}
-          sx={{
-            p: 4,
-            textAlign: "center",
-            borderRadius: 2,
-          }}
-        >
-          <CircularProgress size={60} thickness={4} />
-          <Typography variant="h6" sx={{ mt: 3, color: "text.secondary" }}>
-            Loading documents...
-          </Typography>
-        </Paper>
-      </Container>
-    );
-  }
-
-  const filteredDocuments = getFilteredDocuments();
-
-  // Add this component right before the return statement
   // Custom Copies Dialog Component
   const CustomCopiesDialog = () => {
     return (
@@ -1182,7 +907,7 @@ const ViewDocuments = () => {
                         }
                         disabled={currentCopies <= 1}
                       >
-                        <RemoveMuiIcon />
+                        <RemoveIcon />
                       </IconButton>
                       <TextField
                         value={currentCopies}
@@ -1206,7 +931,7 @@ const ViewDocuments = () => {
                         }
                         disabled={currentCopies >= 10}
                       >
-                        <AddMuiIcon />
+                        <AddIcon />
                       </IconButton>
                     </Box>
                   }
@@ -1270,6 +995,28 @@ const ViewDocuments = () => {
     );
   };
 
+  if (loading) {
+    return (
+      <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+        <Paper
+          elevation={3}
+          sx={{
+            p: 4,
+            textAlign: "center",
+            borderRadius: 2,
+          }}
+        >
+          <CircularProgress size={60} thickness={4} />
+          <Typography variant="h6" sx={{ mt: 3, color: "text.secondary" }}>
+            Loading documents...
+          </Typography>
+        </Paper>
+      </Container>
+    );
+  }
+
+  const filteredDocuments = getFilteredDocuments();
+
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
       <Backdrop
@@ -1307,7 +1054,7 @@ const ViewDocuments = () => {
         </Box>
       </Backdrop>
 
-      {/* Simplified Header */}
+      {/* Simplified Header with 3-row mobile layout */}
       <Card
         variant="outlined"
         sx={{
@@ -1317,7 +1064,7 @@ const ViewDocuments = () => {
           transition: "all 0.2s ease",
         }}
       >
-        {/* Client info & Search row */}
+        {/* Row 1: Title, back icon and chips (on mobile) */}
         <Box
           sx={{
             px: { xs: 2, sm: 3 },
@@ -1382,14 +1129,115 @@ const ViewDocuments = () => {
             </Box>
           </Box>
 
-          {/* Right side: Search + Export buttons */}
+          {/* For non-mobile: Search + Export buttons */}
+          {!isMobile && (
+            <Box
+              sx={{
+                display: "flex",
+                gap: 1.5,
+                width: { xs: "100%", md: "auto" },
+                justifyContent: { xs: "space-between", md: "flex-end" },
+                flexWrap: "wrap",
+              }}
+            >
+              <TextField
+                placeholder="Search documents..."
+                variant="outlined"
+                size="small"
+                value={searchTerm}
+                onChange={handleSearchChange}
+                sx={{
+                  minWidth: { xs: "calc(100% - 180px)", sm: 200 },
+                  "& .MuiOutlinedInput-root": {
+                    height: 36,
+                    fontSize: "0.875rem",
+                  },
+                }}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon fontSize="small" color="action" />
+                    </InputAdornment>
+                  ),
+                  endAdornment: searchTerm && (
+                    <InputAdornment position="end">
+                      <IconButton
+                        size="small"
+                        onClick={() => setSearchTerm("")}
+                      >
+                        <ClearIcon fontSize="small" />
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+              />
+
+              <Stack direction="row" spacing={1}>
+                {documents.length > 0 && (
+                  <Tooltip title="Regenerate all documents">
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      startIcon={<AssignmentIcon />}
+                      onClick={() => setOpenRegenerateDialog(true)}
+                      sx={{ height: 36, fontSize: "0.875rem" }}
+                    >
+                      Regenerate
+                    </Button>
+                  </Tooltip>
+                )}
+
+                <Button
+                  variant="contained"
+                  disableElevation
+                  size="small"
+                  color="primary"
+                  startIcon={
+                    documents.length === 0 ? (
+                      <AssignmentIcon />
+                    ) : (
+                      <CloudDownloadIcon />
+                    )
+                  }
+                  onClick={() =>
+                    documents.length === 0
+                      ? setOpenGenerateDialog(true)
+                      : selectedDocuments.length > 0
+                      ? handleOpenCopyDialog()
+                      : null
+                  }
+                  disabled={
+                    documents.length > 0 && selectedDocuments.length === 0
+                  }
+                  sx={{
+                    height: 36,
+                    fontSize: "0.875rem",
+                    "&.Mui-disabled": {
+                      bgcolor: alpha(theme.palette.primary.main, 0.2),
+                      color: alpha(theme.palette.primary.contrastText, 0.5),
+                    },
+                  }}
+                >
+                  {documents.length === 0
+                    ? "Generate"
+                    : selectedDocuments.length > 0
+                    ? `Export (${selectedDocuments.length})`
+                    : "Export"}
+                </Button>
+              </Stack>
+            </Box>
+          )}
+        </Box>
+
+        {/* Row 2: Search bar on mobile */}
+        {isMobile && (
           <Box
             sx={{
-              display: "flex",
-              gap: 1.5,
-              width: { xs: "100%", md: "auto" },
-              justifyContent: { xs: "space-between", md: "flex-end" },
-              flexWrap: "wrap",
+              px: 2,
+              pb: 2,
+              borderBottom: "1px solid",
+              borderColor: "divider",
+              width: "100%",
             }}
           >
             <TextField
@@ -1398,8 +1246,8 @@ const ViewDocuments = () => {
               size="small"
               value={searchTerm}
               onChange={handleSearchChange}
+              fullWidth
               sx={{
-                minWidth: { xs: "calc(100% - 180px)", sm: 200 },
                 "& .MuiOutlinedInput-root": {
                   height: 36,
                   fontSize: "0.875rem",
@@ -1420,63 +1268,71 @@ const ViewDocuments = () => {
                 ),
               }}
             />
-
-            <Stack direction="row" spacing={1}>
-              {documents.length > 0 && (
-                <Tooltip title="Regenerate all documents">
-                  <Button
-                    variant="outlined"
-                    size="small"
-                    startIcon={<AssignmentIcon />}
-                    onClick={() => setOpenRegenerateDialog(true)}
-                    sx={{ height: 36, fontSize: "0.875rem" }}
-                  >
-                    {isMobile ? "" : "Regenerate"}
-                  </Button>
-                </Tooltip>
-              )}
-              {/* We only need one export button that adapts based on selection state */}
-
-              <Button
-                variant="contained"
-                disableElevation
-                size="small"
-                color="primary"
-                startIcon={
-                  documents.length === 0 ? (
-                    <AssignmentIcon />
-                  ) : (
-                    <CloudDownloadIcon />
-                  )
-                }
-                onClick={() =>
-                  documents.length === 0
-                    ? setOpenGenerateDialog(true)
-                    : selectedDocuments.length > 0
-                    ? handleOpenCopyDialog() // Changed to open the dialog instead of direct export
-                    : null
-                }
-                disabled={
-                  documents.length > 0 && selectedDocuments.length === 0
-                }
-                sx={{
-                  height: 36,
-                  fontSize: "0.875rem",
-                  "&.Mui-disabled": {
-                    bgcolor: alpha(theme.palette.primary.main, 0.2),
-                    color: alpha(theme.palette.primary.contrastText, 0.5),
-                  },
-                }}
-              >
-                {documents.length === 0
-                  ? "Generate"
-                  : selectedDocuments.length > 0
-                  ? `Export (${selectedDocuments.length} docs)`
-                  : "Export"}
-              </Button>
-            </Stack>
           </Box>
-        </Box>
+        )}
+
+        {/* Row 3: Buttons on mobile */}
+        {isMobile && (
+          <Box
+            sx={{
+              px: 2,
+              pb: 2,
+              display: "flex",
+              justifyContent: "space-between",
+              width: "100%",
+              borderBottom: "1px solid",
+              borderColor: "divider",
+            }}
+          >
+            {documents.length > 0 && (
+              <Button
+                variant="outlined"
+                size="small"
+                startIcon={<AssignmentIcon />}
+                onClick={() => setOpenRegenerateDialog(true)}
+                sx={{ height: 36, fontSize: "0.875rem" }}
+              >
+                Regenerate
+              </Button>
+            )}
+
+            <Button
+              variant="contained"
+              disableElevation
+              size="small"
+              color="primary"
+              startIcon={
+                documents.length === 0 ? (
+                  <AssignmentIcon />
+                ) : (
+                  <CloudDownloadIcon />
+                )
+              }
+              onClick={() =>
+                documents.length === 0
+                  ? setOpenGenerateDialog(true)
+                  : selectedDocuments.length > 0
+                  ? handleOpenCopyDialog()
+                  : null
+              }
+              disabled={documents.length > 0 && selectedDocuments.length === 0}
+              sx={{
+                height: 36,
+                fontSize: "0.875rem",
+                "&.Mui-disabled": {
+                  bgcolor: alpha(theme.palette.primary.main, 0.2),
+                  color: alpha(theme.palette.primary.contrastText, 0.5),
+                },
+              }}
+            >
+              {documents.length === 0
+                ? "Generate"
+                : selectedDocuments.length > 0
+                ? `Export (${selectedDocuments.length})`
+                : "Export"}
+            </Button>
+          </Box>
+        )}
 
         {/* Tabs & Controls Row */}
         <Box sx={{ bgcolor: alpha(theme.palette.background.paper, 0.5) }}>
@@ -1508,7 +1364,7 @@ const ViewDocuments = () => {
                   color: "primary.main",
                 },
                 width: { xs: "100%", sm: "auto" },
-                maxWidth: "100%",
+                maxWidth: "850px",
               }}
             >
               {categories.map((category, index) => (
@@ -1580,7 +1436,7 @@ const ViewDocuments = () => {
                 </IconButton>
               </Tooltip>
 
-              {/* Sort button with clear label */}
+              {/* Sort button with A-Z/Z-A label */}
               <Button
                 size="small"
                 variant="text"
@@ -1593,12 +1449,12 @@ const ViewDocuments = () => {
                   )
                 }
                 sx={{
-                  minWidth: "auto",
+                  minWidth: "65px",
                   px: 1,
                   fontSize: "0.75rem",
                 }}
               >
-                {sortDirection === "asc" ? "Oldest" : "Newest"}
+                {sortDirection === "asc" ? "A-Z" : "Z-A"}
               </Button>
 
               {/* View toggle group */}
@@ -1736,36 +1592,6 @@ const ViewDocuments = () => {
               }
               sx={{ mr: 2 }}
             />
-
-            {/* We don't need this since we have the main export button */}
-            {false && (
-              <Tooltip title="Export selected documents as a merged PDF file">
-                <Button
-                  variant="contained"
-                  color="primary"
-                  size="small"
-                  startIcon={
-                    generatingPDF ? (
-                      <CircularProgress size={16} color="inherit" />
-                    ) : (
-                      <FileDownloadIcon />
-                    )
-                  }
-                  disabled={selectedDocuments.length === 0 || generatingPDF}
-                  onClick={handleExportSelectedToPDF}
-                  sx={{
-                    "&.Mui-disabled": {
-                      bgcolor: alpha(theme.palette.primary.main, 0.2),
-                      color: alpha(theme.palette.primary.contrastText, 0.5),
-                    },
-                  }}
-                >
-                  {generatingPDF
-                    ? "Generating..."
-                    : `Export (${selectedDocuments.length})`}
-                </Button>
-              </Tooltip>
-            )}
           </Box>
         )}
       </Card>
@@ -1866,7 +1692,7 @@ const ViewDocuments = () => {
       ) : (
         <Box sx={{ mt: 3 }}>
           {viewMode === "list" ? (
-            // List view - More compact
+            // List view
             <Paper
               variant="outlined"
               sx={{ borderRadius: 2, overflow: "hidden" }}
@@ -1884,7 +1710,6 @@ const ViewDocuments = () => {
                         secondaryAction={
                           selectMode ? null : (
                             <Box sx={{ display: "flex", gap: 0.5 }}>
-                              {/* In list view, inside the ListItem secondaryAction prop, add this before the other buttons */}
                               {getDocumentCopies(
                                 document,
                                 categories[tabValue].id
@@ -2016,7 +1841,6 @@ const ViewDocuments = () => {
                                   mt: 0.5,
                                 }}
                               >
-                                {/* Modified to show all categories - List View */}
                                 {renderCategoryChips(document, "small", 2)}
                                 <Typography
                                   variant="caption"
@@ -2043,7 +1867,7 @@ const ViewDocuments = () => {
               </List>
             </Paper>
           ) : (
-            // Grid view - Smaller cards
+            // Grid view
             <Grid container spacing={1.5}>
               {filteredDocuments.map((document) => {
                 // Get primary category for color
@@ -2076,7 +1900,6 @@ const ViewDocuments = () => {
                           : () => handleViewDocument(document._id)
                       }
                     >
-                      {/* In grid view, inside each Card component, add this right after the Card opening tag */}
                       {getDocumentCopies(document, categories[tabValue].id) >
                         1 && (
                         <Chip
@@ -2171,7 +1994,6 @@ const ViewDocuments = () => {
                         sx={{ p: 1.5, flexGrow: 1, pb: "8px !important" }}
                       >
                         <Box sx={{ mb: 1 }}>
-                          {/* Modified to show all categories - Grid View */}
                           {renderCategoryChips(document, "small", 1)}
 
                           <Typography

@@ -24,6 +24,8 @@ import {
   Snackbar,
   styled,
   Chip,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import {
   ArrowBack as ArrowBackIcon,
@@ -93,6 +95,9 @@ const EditForm = () => {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
   const { id } = useParams();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
   const [activeStep, setActiveStep] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -113,9 +118,11 @@ const EditForm = () => {
     if (isNaN(date.getTime())) return ""; // Invalid date
     return date.toISOString().split("T")[0]; // Returns YYYY-MM-DD
   };
-useEffect(() => {
-  document.title = "Edit Intake Form | Pathway Foster Agency";
-}, []);
+
+  useEffect(() => {
+    document.title = "Edit Intake Form | Pathway Foster Agency";
+  }, []);
+
   // Fetch the form data when component mounts
   useEffect(() => {
     const fetchFormData = async () => {
@@ -161,12 +168,14 @@ useEffect(() => {
 
     fetchFormData();
   }, [id]);
-useEffect(() => {
-  // Redirect to login page if user becomes null (logged out)
-  if (!user && !loading) {
-    navigate("/login");
-  }
-}, [user, navigate, loading]);
+
+  useEffect(() => {
+    // Redirect to login page if user becomes null (logged out)
+    if (!user && !loading) {
+      navigate("/login");
+    }
+  }, [user, navigate, loading]);
+
   // Calculate progress based on required fields filled
   const calculateProgress = (data) => {
     const requiredFields = [
@@ -231,7 +240,6 @@ useEffect(() => {
       [name]: value,
     });
 
-    // Handle dependent field updates
     // Handle dependent field updates
     if (name === "office") {
       // Update office number and phone based on office selection
@@ -578,8 +586,14 @@ useEffect(() => {
   const getStepContent = (step) => {
     if (loading) {
       return (
-        <Box sx={{ display: "flex", justifyContent: "center", my: 5 }}>
-          <CircularProgress />
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            my: isMobile ? 3 : 5,
+          }}
+        >
+          <CircularProgress size={isMobile ? 30 : 40} />
         </Box>
       );
     }
@@ -590,6 +604,7 @@ useEffect(() => {
           <Step1Form
             formData={formData}
             handleInputChange={handleInputChange}
+            isMobile={isMobile}
           />
         );
       case 1:
@@ -597,24 +612,38 @@ useEffect(() => {
           <Step2Form
             formData={formData}
             handleInputChange={handleInputChange}
+            isMobile={isMobile}
           />
         );
       case 2:
-        return <Step3Form formData={formData} goToStep={goToStep} />;
+        return (
+          <Step3Form
+            formData={formData}
+            goToStep={goToStep}
+            isMobile={isMobile}
+          />
+        );
       default:
         return "Unknown step";
     }
   };
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, mb: 8 }}>
+    <Container
+      maxWidth="lg"
+      sx={{
+        mt: isMobile ? 2 : 4,
+        mb: isMobile ? 4 : 8,
+        px: isMobile ? 1 : 2, // Reduce horizontal padding on mobile
+      }}
+    >
       {/* Top navigation bar */}
       <Box
         sx={{
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          mb: 3,
+          mb: isMobile ? 1.5 : 3,
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center" }}>
@@ -622,18 +651,33 @@ useEffect(() => {
             <IconButton
               onClick={handleCancel}
               color="primary"
-              sx={{ mr: 2, bgcolor: "primary.light", color: "white" }}
+              sx={{
+                mr: isMobile ? 1 : 2,
+                bgcolor: "primary.light",
+                color: "white",
+                width: isMobile ? 32 : 40,
+                height: isMobile ? 32 : 40,
+              }}
             >
-              <ArrowBackIcon />
+              <ArrowBackIcon fontSize={isMobile ? "small" : "medium"} />
             </IconButton>
           </Tooltip>
           <Box>
-            <Typography variant="h5" color="primary" fontWeight="medium">
+            <Typography
+              variant={isMobile ? "h6" : "h5"}
+              color="primary"
+              fontWeight="medium"
+              sx={{ fontSize: isMobile ? "1.1rem" : undefined }}
+            >
               Edit Intake Form
             </Typography>
-            <Typography variant="body2" color="text.secondary">
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{ fontSize: isMobile ? "0.7rem" : undefined }}
+            >
               {loading ? (
-                <CircularProgress size={12} sx={{ mr: 1 }} />
+                <CircularProgress size={isMobile ? 10 : 12} sx={{ mr: 1 }} />
               ) : (
                 <>
                   {formData.name
@@ -649,12 +693,19 @@ useEffect(() => {
         <Box sx={{ display: "flex", alignItems: "center" }}>
           {changesDetected && (
             <Chip
-              icon={<EditIcon />}
+              icon={<EditIcon fontSize="small" />}
               label="Unsaved changes"
               color="warning"
               size="small"
               variant="outlined"
-              sx={{ mr: 2 }}
+              sx={{
+                mr: 2,
+                fontSize: isMobile ? "0.65rem" : "0.75rem",
+                height: isMobile ? 24 : 32,
+                "& .MuiChip-icon": {
+                  fontSize: isMobile ? "1rem" : "1.2rem",
+                },
+              }}
             />
           )}
 
@@ -662,28 +713,34 @@ useEffect(() => {
             <IconButton
               onClick={() => setShowHelp(!showHelp)}
               color={showHelp ? "primary" : "default"}
-              sx={{ mr: 1 }}
+              sx={{ mr: isMobile ? 0.5 : 1, padding: isMobile ? 0.5 : 1 }}
+              size={isMobile ? "small" : "medium"}
             >
-              <HelpIcon />
+              <HelpIcon fontSize={isMobile ? "small" : "medium"} />
             </IconButton>
           </Tooltip>
           <Tooltip title="Save progress">
             <IconButton
               color="primary"
               onClick={handleManualSave}
-              sx={{ mr: 1 }}
+              sx={{ mr: isMobile ? 0.5 : 1, padding: isMobile ? 0.5 : 1 }}
+              size={isMobile ? "small" : "medium"}
               disabled={!changesDetected}
             >
-              <SaveIcon />
+              <SaveIcon fontSize={isMobile ? "small" : "medium"} />
             </IconButton>
           </Tooltip>
         </Box>
       </Box>
 
       {/* Progress indicator */}
-      <Box sx={{ mb: 3 }}>
+      <Box sx={{ mb: isMobile ? 1.5 : 3 }}>
         <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-          <Typography variant="body2" color="text.secondary" sx={{ mr: 1 }}>
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            sx={{ mr: 1, fontSize: isMobile ? "0.7rem" : "0.75rem" }}
+          >
             Form completion: {Math.round(progress)}%
           </Typography>
           <Typography
@@ -696,6 +753,7 @@ useEffect(() => {
                   ? "primary.dark"
                   : "text.secondary",
               fontWeight: progress === 100 ? "bold" : "medium",
+              fontSize: isMobile ? "0.7rem" : "0.75rem",
             }}
           >
             {progress === 100
@@ -711,7 +769,7 @@ useEffect(() => {
           variant="determinate"
           value={progress}
           sx={{
-            height: 6,
+            height: isMobile ? 4 : 6,
             borderRadius: 3,
             bgcolor: "grey.200",
             "& .MuiLinearProgress-bar": {
@@ -726,7 +784,7 @@ useEffect(() => {
         <Card
           variant="outlined"
           sx={{
-            mb: 3,
+            mb: isMobile ? 1.5 : 3,
             borderColor: "primary.light",
             bgcolor: "#f0f7ff",
             borderRadius: 2,
@@ -738,13 +796,17 @@ useEffect(() => {
               Help & Information
             </Typography>
           </Box>
-          <CardContent>
+          <CardContent sx={{ p: isMobile ? 1.5 : 2 }}>
             <Typography variant="body1" paragraph>
               <strong>
                 Step {activeStep + 1} of 3: {steps[activeStep].label}
               </strong>
             </Typography>
-            <Typography variant="body2" paragraph>
+            <Typography
+              variant="body2"
+              paragraph
+              sx={{ fontSize: isMobile ? "0.75rem" : undefined }}
+            >
               {activeStep === 0
                 ? "This step allows you to update basic information about the office handling the case and the client. Fields marked with an asterisk (*) are required."
                 : activeStep === 1
@@ -752,21 +814,27 @@ useEffect(() => {
                 : "Please review all the changes you've made. You can navigate back to previous steps to make additional edits by clicking the Edit button in each section."}
             </Typography>
 
-            <Divider sx={{ my: 2 }} />
+            <Divider sx={{ my: isMobile ? 1 : 2 }} />
 
             <Typography variant="subtitle2" gutterBottom>
               Tips for editing forms:
             </Typography>
             <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
               <InfoIcon color="primary" fontSize="small" sx={{ mr: 1 }} />
-              <Typography variant="body2">
+              <Typography
+                variant="body2"
+                sx={{ fontSize: isMobile ? "0.75rem" : undefined }}
+              >
                 Changes are tracked automatically and saved when you submit the
                 form.
               </Typography>
             </Box>
             <Box sx={{ display: "flex", alignItems: "center" }}>
               <InfoIcon color="primary" fontSize="small" sx={{ mr: 1 }} />
-              <Typography variant="body2">
+              <Typography
+                variant="body2"
+                sx={{ fontSize: isMobile ? "0.75rem" : undefined }}
+              >
                 You can close this form without saving changes using the Cancel
                 or Back button.
               </Typography>
@@ -775,177 +843,373 @@ useEffect(() => {
         </Card>
       </Collapse>
 
-      {/* Main form paper */}
-      <Paper
-        elevation={3}
-        sx={{
-          p: 0,
-          borderRadius: 2,
-          overflow: "hidden",
-          position: "relative",
-          boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
-        }}
-      >
-        {/* Stepper */}
-        <Box
-          sx={{
-            p: 3,
-            bgcolor: "#f8f9fa",
-            borderBottom: "1px solid",
-            borderColor: "divider",
-          }}
-        >
-          <Stepper
-            activeStep={activeStep}
-            connector={<ColorlibConnector />}
-            alternativeLabel
-          >
-            {steps.map((step, index) => (
-              <Step key={step.label}>
-                <StepLabel
-                  StepIconComponent={() => {
-                    return (
-                      <Box
+      {/* Main form container - responsive */}
+      {isMobile ? (
+        <Box>
+          {/* Loading message */}
+          {loading && !error && (
+            <Box sx={{ p: 3, textAlign: "center" }}>
+              <CircularProgress size={40} thickness={4} />
+              <Typography variant="body1" sx={{ mt: 2, fontSize: "0.9rem" }}>
+                Loading form data...
+              </Typography>
+            </Box>
+          )}
+
+          {/* Error message */}
+          {error && (
+            <Alert
+              severity="error"
+              onClose={() => setError("")}
+              sx={{ mb: 2, borderRadius: 1 }}
+            >
+              {error}
+            </Alert>
+          )}
+
+          {/* Stepper - optimized for mobile */}
+          {!loading && (
+            <Box
+              sx={{
+                px: isMobile ? 0.5 : 3,
+                py: isMobile ? 1 : 3,
+                bgcolor: "#f8f9fa",
+                borderRadius: 2,
+                mb: 2,
+                border: "1px solid",
+                borderColor: "divider",
+              }}
+            >
+              <Stepper
+                activeStep={activeStep}
+                connector={<ColorlibConnector />}
+                alternativeLabel
+              >
+                {steps.map((step, index) => (
+                  <Step key={step.label}>
+                    <StepLabel
+                      StepIconComponent={() => {
+                        return (
+                          <Box
+                            sx={{
+                              backgroundColor:
+                                activeStep === index
+                                  ? "primary.main"
+                                  : activeStep > index
+                                  ? "success.main"
+                                  : "grey.400",
+                              width: isMobile ? 32 : 40,
+                              height: isMobile ? 32 : 40,
+                              display: "flex",
+                              borderRadius: "50%",
+                              justifyContent: "center",
+                              alignItems: "center",
+                              color: "white",
+                              transition: "all 0.3s",
+                              boxShadow:
+                                activeStep === index
+                                  ? "0 4px 10px rgba(0, 0, 0, 0.2)"
+                                  : "none",
+                              transform:
+                                activeStep === index
+                                  ? "scale(1.15)"
+                                  : "scale(1)",
+                            }}
+                          >
+                            {step.icon}
+                          </Box>
+                        );
+                      }}
+                    >
+                      <Typography
+                        variant="body2"
                         sx={{
-                          backgroundColor:
+                          fontWeight: activeStep === index ? "bold" : "normal",
+                          color:
                             activeStep === index
                               ? "primary.main"
-                              : activeStep > index
-                              ? "success.main"
-                              : "grey.400",
-                          width: 40,
-                          height: 40,
-                          display: "flex",
-                          borderRadius: "50%",
-                          justifyContent: "center",
-                          alignItems: "center",
-                          color: "white",
-                          transition: "all 0.3s",
-                          boxShadow:
-                            activeStep === index
-                              ? "0 4px 10px rgba(0, 0, 0, 0.2)"
-                              : "none",
-                          transform:
-                            activeStep === index ? "scale(1.15)" : "scale(1)",
+                              : "text.primary",
+                          fontSize: isMobile ? "0.7rem" : undefined,
                         }}
                       >
-                        {step.icon}
-                      </Box>
-                    );
-                  }}
-                >
-                  <Typography
-                    variant="body2"
+                        {step.label}
+                      </Typography>
+                      {/* Hide description on mobile */}
+                      {!isMobile && (
+                        <Typography
+                          variant="caption"
+                          color="text.secondary"
+                          sx={{ display: "block" }}
+                        >
+                          {step.description}
+                        </Typography>
+                      )}
+                    </StepLabel>
+                  </Step>
+                ))}
+              </Stepper>
+            </Box>
+          )}
+
+          {/* Form content */}
+          {!loading && (
+            <Box sx={{ p: 0 }}>
+              <Grow
+                in={true}
+                style={{ transformOrigin: "0 0 0" }}
+                timeout={300}
+              >
+                <div>{getStepContent(activeStep)}</div>
+              </Grow>
+            </Box>
+          )}
+
+          {/* Form navigation */}
+          {!loading && (
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                py: 2,
+                mt: 2,
+                borderTop: "1px solid",
+                borderColor: "divider",
+              }}
+            >
+              <Button
+                variant="outlined"
+                onClick={activeStep === 0 ? handleCancel : handleBack}
+                disabled={submitting}
+                startIcon={<ArrowBackIcon />}
+                size={isMobile ? "small" : "medium"}
+              >
+                {activeStep === 0 ? "Cancel" : "Back"}
+              </Button>
+
+              <Button
+                variant="contained"
+                onClick={handleNext}
+                disabled={loading || submitting || validating}
+                sx={{
+                  px: isMobile ? 2 : 4,
+                  position: "relative",
+                  minWidth: isMobile ? "100px" : "140px",
+                }}
+                size={isMobile ? "small" : "medium"}
+              >
+                {validating ? (
+                  "Validating..."
+                ) : submitting ? (
+                  <Box sx={{ display: "flex", alignItems: "center" }}>
+                    <CircularProgress
+                      size={isMobile ? 16 : 20}
+                      sx={{ mr: 1 }}
+                      color="inherit"
+                    />
+                    Saving...
+                  </Box>
+                ) : activeStep === steps.length - 1 ? (
+                  "Save Changes"
+                ) : (
+                  "Continue"
+                )}
+
+                {(validating || submitting) && (
+                  <LinearProgress
                     sx={{
-                      fontWeight: activeStep === index ? "bold" : "normal",
-                      color:
-                        activeStep === index ? "primary.main" : "text.primary",
+                      position: "absolute",
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      height: 2,
+                      borderBottomLeftRadius: 4,
+                      borderBottomRightRadius: 4,
                     }}
-                  >
-                    {step.label}
-                  </Typography>
-                  <Typography
-                    variant="caption"
-                    color="text.secondary"
-                    sx={{ display: "block" }}
-                  >
-                    {step.description}
-                  </Typography>
-                </StepLabel>
-              </Step>
-            ))}
-          </Stepper>
+                  />
+                )}
+              </Button>
+            </Box>
+          )}
         </Box>
-
-        {/* Error message */}
-        {error && (
-          <Alert
-            severity="error"
-            onClose={() => setError("")}
-            sx={{ mx: 3, mt: 3, borderRadius: 1 }}
-          >
-            {error}
-          </Alert>
-        )}
-
-        {/* Loading state */}
-        {loading && (
-          <Box sx={{ p: 5, textAlign: "center" }}>
-            <CircularProgress size={60} thickness={4} />
-            <Typography variant="body1" sx={{ mt: 2 }}>
-              Loading form data...
-            </Typography>
-          </Box>
-        )}
-
-        {/* Form content */}
-        {!loading && (
-          <Box sx={{ p: 3 }}>
-            <Grow in={true} style={{ transformOrigin: "0 0 0" }} timeout={300}>
-              <div>{getStepContent(activeStep)}</div>
-            </Grow>
-          </Box>
-        )}
-
-        {/* Form navigation */}
-        <Box
+      ) : (
+        // Regular Paper layout for non-mobile
+        <Paper
+          elevation={3}
           sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            p: 3,
-            bgcolor: "#f8f9fa",
-            borderTop: "1px solid",
-            borderColor: "divider",
+            p: 0,
+            borderRadius: 2,
+            overflow: "hidden",
+            position: "relative",
+            boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
           }}
         >
-          <Button
-            variant="outlined"
-            onClick={activeStep === 0 ? handleCancel : handleBack}
-            disabled={submitting}
-            startIcon={<ArrowBackIcon />}
-          >
-            {activeStep === 0 ? "Cancel" : "Back"}
-          </Button>
-
-          <Button
-            variant="contained"
-            onClick={handleNext}
-            disabled={loading || submitting || validating}
+          {/* Stepper */}
+          <Box
             sx={{
-              px: 4,
-              position: "relative",
-              minWidth: "140px",
+              p: 3,
+              bgcolor: "#f8f9fa",
+              borderBottom: "1px solid",
+              borderColor: "divider",
             }}
           >
-            {validating ? (
-              "Validating..."
-            ) : submitting ? (
-              <Box sx={{ display: "flex", alignItems: "center" }}>
-                <CircularProgress size={20} sx={{ mr: 1 }} color="inherit" />
-                Saving...
-              </Box>
-            ) : activeStep === steps.length - 1 ? (
-              "Save Changes"
-            ) : (
-              "Continue"
-            )}
+            <Stepper
+              activeStep={activeStep}
+              connector={<ColorlibConnector />}
+              alternativeLabel
+            >
+              {steps.map((step, index) => (
+                <Step key={step.label}>
+                  <StepLabel
+                    StepIconComponent={() => {
+                      return (
+                        <Box
+                          sx={{
+                            backgroundColor:
+                              activeStep === index
+                                ? "primary.main"
+                                : activeStep > index
+                                ? "success.main"
+                                : "grey.400",
+                            width: 40,
+                            height: 40,
+                            display: "flex",
+                            borderRadius: "50%",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            color: "white",
+                            transition: "all 0.3s",
+                            boxShadow:
+                              activeStep === index
+                                ? "0 4px 10px rgba(0, 0, 0, 0.2)"
+                                : "none",
+                            transform:
+                              activeStep === index ? "scale(1.15)" : "scale(1)",
+                          }}
+                        >
+                          {step.icon}
+                        </Box>
+                      );
+                    }}
+                  >
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        fontWeight: activeStep === index ? "bold" : "normal",
+                        color:
+                          activeStep === index
+                            ? "primary.main"
+                            : "text.primary",
+                      }}
+                    >
+                      {step.label}
+                    </Typography>
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      sx={{ display: "block" }}
+                    >
+                      {step.description}
+                    </Typography>
+                  </StepLabel>
+                </Step>
+              ))}
+            </Stepper>
+          </Box>
 
-            {(validating || submitting) && (
-              <LinearProgress
-                sx={{
-                  position: "absolute",
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  height: 2,
-                  borderBottomLeftRadius: 4,
-                  borderBottomRightRadius: 4,
-                }}
-              />
-            )}
-          </Button>
-        </Box>
-      </Paper>
+          {/* Error message */}
+          {error && (
+            <Alert
+              severity="error"
+              onClose={() => setError("")}
+              sx={{ mx: 3, mt: 3, borderRadius: 1 }}
+            >
+              {error}
+            </Alert>
+          )}
+
+          {/* Loading state */}
+          {loading && (
+            <Box sx={{ p: 5, textAlign: "center" }}>
+              <CircularProgress size={60} thickness={4} />
+              <Typography variant="body1" sx={{ mt: 2 }}>
+                Loading form data...
+              </Typography>
+            </Box>
+          )}
+
+          {/* Form content */}
+          {!loading && (
+            <Box sx={{ p: 3 }}>
+              <Grow
+                in={true}
+                style={{ transformOrigin: "0 0 0" }}
+                timeout={300}
+              >
+                <div>{getStepContent(activeStep)}</div>
+              </Grow>
+            </Box>
+          )}
+
+          {/* Form navigation */}
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              p: 3,
+              bgcolor: "#f8f9fa",
+              borderTop: "1px solid",
+              borderColor: "divider",
+            }}
+          >
+            <Button
+              variant="outlined"
+              onClick={activeStep === 0 ? handleCancel : handleBack}
+              disabled={submitting}
+              startIcon={<ArrowBackIcon />}
+            >
+              {activeStep === 0 ? "Cancel" : "Back"}
+            </Button>
+
+            <Button
+              variant="contained"
+              onClick={handleNext}
+              disabled={loading || submitting || validating}
+              sx={{
+                px: 4,
+                position: "relative",
+                minWidth: "140px",
+              }}
+            >
+              {validating ? (
+                "Validating..."
+              ) : submitting ? (
+                <Box sx={{ display: "flex", alignItems: "center" }}>
+                  <CircularProgress size={20} sx={{ mr: 1 }} color="inherit" />
+                  Saving...
+                </Box>
+              ) : activeStep === steps.length - 1 ? (
+                "Save Changes"
+              ) : (
+                "Continue"
+              )}
+
+              {(validating || submitting) && (
+                <LinearProgress
+                  sx={{
+                    position: "absolute",
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    height: 2,
+                    borderBottomLeftRadius: 4,
+                    borderBottomRightRadius: 4,
+                  }}
+                />
+              )}
+            </Button>
+          </Box>
+        </Paper>
+      )}
 
       {/* Auto-save message */}
       <Snackbar
@@ -955,9 +1219,16 @@ useEffect(() => {
           <Box sx={{ display: "flex", alignItems: "center" }}>
             {autoSaveMessage === "Saving changes..." ||
             autoSaveMessage === "Saving form changes..." ? (
-              <CircularProgress size={16} sx={{ mr: 1 }} color="inherit" />
+              <CircularProgress
+                size={isMobile ? 14 : 16}
+                sx={{ mr: 1 }}
+                color="inherit"
+              />
             ) : (
-              <CheckCircleIcon fontSize="small" sx={{ mr: 1 }} />
+              <CheckCircleIcon
+                fontSize={isMobile ? "small" : "medium"}
+                sx={{ mr: 1 }}
+              />
             )}
             {autoSaveMessage}
           </Box>

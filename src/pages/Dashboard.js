@@ -172,7 +172,7 @@ const Dashboard = () => {
 
   const handleStartNewForm = () => {
     // If we're on the single documents tab, show document selector
-    if (activeTab === 3) {
+    if (activeTab === 2) {
       setShowDocumentSelector(true);
     } else {
       navigate("/intake-form");
@@ -507,7 +507,7 @@ const Dashboard = () => {
     } else if (activeTab === 1 && isAdmin()) {
       // All Forms tab (admin only) - show all non-archived forms
       filtered = forms.filter((form) => !form.archived);
-    } else if (activeTab === 2) {
+    } else if (activeTab === 3) {
       // Archived Forms tab - show user's archived forms (or all for admin)
       if (isAdmin()) {
         // Admin sees all archived forms
@@ -617,7 +617,7 @@ const Dashboard = () => {
     } else if (activeTab === 1 && isAdmin()) {
       // All Forms tab (admin only)
       filteredForTab = forms.filter((form) => !form.archived);
-    } else if (activeTab === 2) {
+    } else if (activeTab === 3) {
       // Archived Forms tab
       if (isAdmin()) {
         filteredForTab = forms.filter((form) => form.archived);
@@ -1042,7 +1042,7 @@ const Dashboard = () => {
             sx={{ fontSize: { xs: "0.7rem", sm: "0.8rem" } }}
           >
             Need help with{" "}
-            {activeTab === 3 ? "standalone documents" : "intake forms"}?
+            {activeTab === 2 ? "standalone documents" : "intake forms"}?
           </Typography>
           <IconButton onClick={toggleHelp} color="primary" size="small">
             <HelpOutlineIcon fontSize={isMobile ? "small" : "medium"} />
@@ -1057,7 +1057,7 @@ const Dashboard = () => {
             >
               <strong>Quick Guide:</strong>
             </Typography>
-            {activeTab === 3 ? (
+            {activeTab === 2 ? (
               <Typography
                 variant="body2"
                 component="div"
@@ -1134,8 +1134,8 @@ const Dashboard = () => {
                 whiteSpace: "nowrap",
               }}
             >
-              {activeTab === 3 ? "Documents" : "Intake Forms"}
-              {statusFilter && activeTab !== 3 && (
+              {activeTab === 2 ? "Documents" : "Intake Forms"}
+              {statusFilter && activeTab !== 2 && (
                 <Chip
                   label={`Filtered: ${statusFilter}`}
                   size="small"
@@ -1223,7 +1223,7 @@ const Dashboard = () => {
               fullWidth
               variant="outlined"
               placeholder={
-                activeTab === 3
+                activeTab === 2
                   ? "Search documents..."
                   : "Search by name, case number..."
               }
@@ -1279,7 +1279,7 @@ const Dashboard = () => {
                 color="error"
                 startIcon={<DeleteIcon />}
                 onClick={() =>
-                  handleBulkDeleteDialog(activeTab === 3 ? "document" : "form")
+                  handleBulkDeleteDialog(activeTab === 2 ? "document" : "form")
                 }
                 size={isMobile ? "small" : "medium"}
               >
@@ -1297,7 +1297,7 @@ const Dashboard = () => {
               <Table size={isMobile ? "small" : "medium"}>
                 <TableHead>
                   <TableRow>
-                    {activeTab === 3 ? (
+                    {activeTab === 2 ? (
                       // Standalone Documents Table Headers
                       <>
                         <TableCell padding="checkbox">
@@ -1365,7 +1365,7 @@ const Dashboard = () => {
                     ) : (
                       // Intake Forms Table Headers
                       <>
-                        {activeTab === 2 && isAdmin() && (
+                        {activeTab === 3 && isAdmin() && (
                           <TableCell padding="checkbox">
                             <Checkbox
                               indeterminate={
@@ -1535,7 +1535,7 @@ const Dashboard = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {activeTab === 3 ? (
+                  {activeTab === 2 ? (
                     // Standalone Documents Table Body
                     filteredStandaloneDocuments.length > 0 ? (
                       filteredStandaloneDocuments.map((doc) => (
@@ -1726,7 +1726,7 @@ const Dashboard = () => {
                             : "inherit",
                         }}
                       >
-                        {activeTab === 2 && isAdmin() && (
+                        {activeTab === 3 && isAdmin() && (
                           <TableCell
                             padding="checkbox"
                             onClick={(e) => e.stopPropagation()}
@@ -1807,7 +1807,7 @@ const Dashboard = () => {
                   ) : searchTerm || statusFilter ? (
                     <TableRow>
                       <TableCell
-                        colSpan={activeTab === 2 && isAdmin() ? 6 : 5}
+                        colSpan={activeTab === 3 && isAdmin() ? 6 : 5}
                         sx={{ py: 4, textAlign: "center" }}
                       >
                         <Box
@@ -1868,7 +1868,7 @@ const Dashboard = () => {
                     <TableRow>
                       <TableCell
                         colSpan={
-                          isMobile ? 4 : activeTab === 2 && isAdmin() ? 6 : 5
+                          isMobile ? 4 : activeTab === 3 && isAdmin() ? 6 : 5
                         }
                         sx={{ py: 4, textAlign: "center" }}
                       >
@@ -1880,7 +1880,7 @@ const Dashboard = () => {
                             p: 3,
                           }}
                         >
-                          {activeTab === 2 ? (
+                          {activeTab === 3 ? (
                             <>
                               <ArchiveIcon
                                 color="action"
@@ -1943,7 +1943,7 @@ const Dashboard = () => {
         >
           <Fab
             color="secondary"
-            aria-label={activeTab === 3 ? "add new document" : "add new form"}
+            aria-label={activeTab === 2 ? "add new document" : "add new form"}
             sx={{
               position: "fixed",
               bottom: 24,
@@ -1951,7 +1951,7 @@ const Dashboard = () => {
               boxShadow: 3,
             }}
             onClick={
-              activeTab === 3
+              activeTab === 2
                 ? () => setShowDocumentSelector(true)
                 : handleStartNewForm
             }

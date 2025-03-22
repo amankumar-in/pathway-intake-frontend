@@ -18,6 +18,8 @@ import {
   ListItem,
   ListItemText,
   ListItemIcon,
+  useTheme,
+  useMediaQuery,
 } from "@mui/material";
 import {
   ExpandMore as ExpandMoreIcon,
@@ -32,8 +34,10 @@ import {
   KeyboardArrowRight as ArrowRightIcon,
 } from "@mui/icons-material";
 
-const Step3Form = ({ formData, goToStep }) => {
+const Step3Form = ({ formData = {}, goToStep }) => {
   const [expandedSection, setExpandedSection] = useState("office");
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const handleAccordionChange = (panel) => (event, isExpanded) => {
     setExpandedSection(isExpanded ? panel : false);
@@ -215,13 +219,29 @@ const Step3Form = ({ formData, goToStep }) => {
   }, {});
 
   // Function to handle edit button clicks
-  const handleEdit = (sectionIndex) => {
+  const handleEdit = (sectionOrIndex) => {
     // This would navigate back to the appropriate step
     if (goToStep) {
-      if (sectionIndex <= 1) {
-        goToStep(0);
-      } else if (sectionIndex >= 4) {
-        goToStep(1);
+      let sectionId;
+
+      // Handle different ways section can be passed (id string or index)
+      if (typeof sectionOrIndex === "string") {
+        // If directly passed a section id
+        sectionId = sectionOrIndex;
+      } else if (typeof sectionOrIndex === "number") {
+        // If passed an index from sectionsToShow array
+        sectionId = sectionsToShow[sectionOrIndex]?.id;
+      }
+
+      // Determine which step to navigate to based on section id
+      if (
+        ["office", "representative", "client", "mother-baby"].includes(
+          sectionId
+        )
+      ) {
+        goToStep(0); // Navigate to first form step
+      } else if (["Resource-home", "county-worker"].includes(sectionId)) {
+        goToStep(1); // Navigate to second form step
       }
     }
   };
@@ -231,34 +251,55 @@ const Step3Form = ({ formData, goToStep }) => {
       <Card
         variant="outlined"
         sx={{
-          mb: 4,
+          mb: isMobile ? 2 : 4,
           borderRadius: 2,
           bgcolor: "background.paper",
           overflow: "hidden",
         }}
       >
-        <Box sx={{ p: 3, bgcolor: "primary.main", color: "white" }}>
-          <Typography variant="h5" component="h2" gutterBottom>
+        <Box
+          sx={{
+            p: isMobile ? 2 : 3,
+            bgcolor: "primary.main",
+            color: "white",
+          }}
+        >
+          <Typography
+            variant="h5"
+            component="h2"
+            gutterBottom
+            sx={{ fontSize: isMobile ? "1.25rem" : "1.5rem" }}
+          >
             Review Intake Form
           </Typography>
-          <Typography variant="body1">
+          <Typography
+            variant="body1"
+            sx={{ fontSize: isMobile ? "0.875rem" : "1rem" }}
+          >
             Please review all information below before submitting. You can edit
             by clicking on the edit button in each section.
           </Typography>
         </Box>
 
-        <CardContent sx={{ p: 3 }}>
+        <CardContent sx={{ p: isMobile ? 2 : 3 }}>
           {missingFields.length > 0 && (
             <Alert
               severity="warning"
               variant="filled"
               sx={{
-                mb: 3,
+                mb: isMobile ? 2 : 3,
                 borderRadius: 1,
                 fontWeight: "medium",
+                "& .MuiAlert-message": {
+                  fontSize: isMobile ? "0.8rem" : "0.9rem",
+                },
               }}
             >
-              <Typography variant="subtitle2" gutterBottom>
+              <Typography
+                variant="subtitle2"
+                gutterBottom
+                sx={{ fontSize: isMobile ? "0.8rem" : "0.875rem" }}
+              >
                 There are {missingFields.length} required fields that need to be
                 completed:
               </Typography>
@@ -271,7 +312,10 @@ const Step3Form = ({ formData, goToStep }) => {
                         <Box sx={{ display: "flex", alignItems: "center" }}>
                           <Typography
                             variant="body2"
-                            sx={{ fontWeight: "bold" }}
+                            sx={{
+                              fontWeight: "bold",
+                              fontSize: isMobile ? "0.75rem" : "0.875rem",
+                            }}
                           >
                             {sectionData?.title}:
                           </Typography>
@@ -281,8 +325,9 @@ const Step3Form = ({ formData, goToStep }) => {
                             color="inherit"
                             sx={{
                               ml: 1,
-                              fontSize: "0.7rem",
+                              fontSize: isMobile ? "0.65rem" : "0.7rem",
                               borderColor: "rgba(255,255,255,0.5)",
+                              py: isMobile ? 0.3 : 0.5,
                             }}
                             onClick={() => {
                               const sectionIndex = sections.findIndex(
@@ -300,8 +345,15 @@ const Step3Form = ({ formData, goToStep }) => {
                               key={field.name}
                               sx={{ display: "flex", alignItems: "center" }}
                             >
-                              <ArrowRightIcon sx={{ fontSize: 16, mr: 1 }} />
-                              <Typography variant="body2">
+                              <ArrowRightIcon
+                                sx={{ fontSize: isMobile ? 14 : 16, mr: 0.5 }}
+                              />
+                              <Typography
+                                variant="body2"
+                                sx={{
+                                  fontSize: isMobile ? "0.75rem" : "0.875rem",
+                                }}
+                              >
                                 {field.label}
                               </Typography>
                             </Box>
@@ -316,26 +368,37 @@ const Step3Form = ({ formData, goToStep }) => {
           )}
 
           {/* Summary chips for quick reference */}
-          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mb: 3 }}>
+          <Box
+            sx={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: 1,
+              mb: isMobile ? 2 : 3,
+            }}
+          >
             <Chip
-              icon={<PersonIcon />}
+              icon={<PersonIcon sx={{ fontSize: isMobile ? 16 : 20 }} />}
               label={`Client: ${formData.name || "Not specified"}`}
               color="primary"
               variant="outlined"
+              size={isMobile ? "small" : "medium"}
             />
             <Chip
-              icon={<BusinessIcon />}
+              icon={<BusinessIcon sx={{ fontSize: isMobile ? 16 : 20 }} />}
               label={`Case #: ${formData.caseNumber || "Not specified"}`}
               color="secondary"
               variant="outlined"
+              size={isMobile ? "small" : "medium"}
             />
             <Chip
               label={formData.typeOfTransaction || "No transaction type"}
               variant="outlined"
+              size={isMobile ? "small" : "medium"}
             />
             <Chip
               label={`LOC: ${formData.levelOfCare || "Not specified"}`}
               variant="outlined"
+              size={isMobile ? "small" : "medium"}
             />
           </Box>
 
@@ -346,7 +409,7 @@ const Step3Form = ({ formData, goToStep }) => {
               expanded={expandedSection === section.id}
               onChange={handleAccordionChange(section.id)}
               sx={{
-                mb: 2,
+                mb: isMobile ? 1 : 2,
                 border: "1px solid",
                 borderColor: "divider",
                 boxShadow: "none",
@@ -361,8 +424,11 @@ const Step3Form = ({ formData, goToStep }) => {
               }}
             >
               <AccordionSummary
-                expandIcon={<ExpandMoreIcon />}
+                expandIcon={
+                  <ExpandMoreIcon sx={{ fontSize: isMobile ? 20 : 24 }} />
+                }
                 sx={{
+                  minHeight: isMobile ? "48px" : "64px",
                   bgcolor:
                     expandedSection === section.id
                       ? `${section.color}15`
@@ -370,6 +436,8 @@ const Step3Form = ({ formData, goToStep }) => {
                   borderBottom:
                     expandedSection === section.id ? "1px solid" : "none",
                   borderBottomColor: "divider",
+                  py: isMobile ? 0.5 : 1,
+                  px: isMobile ? 1.5 : 2,
                 }}
               >
                 <Box
@@ -380,21 +448,32 @@ const Step3Form = ({ formData, goToStep }) => {
                       display: "flex",
                       bgcolor: section.color,
                       color: "white",
-                      width: 36,
-                      height: 36,
+                      width: isMobile ? 28 : 36,
+                      height: isMobile ? 28 : 36,
                       borderRadius: 2,
                       alignItems: "center",
                       justifyContent: "center",
-                      mr: 2,
+                      mr: isMobile ? 1 : 2,
+                      "& svg": {
+                        fontSize: isMobile ? 16 : 20,
+                      },
                     }}
                   >
                     {section.icon}
                   </Box>
                   <Box sx={{ flexGrow: 1 }}>
-                    <Typography variant="subtitle1" fontWeight="medium">
+                    <Typography
+                      variant="subtitle1"
+                      fontWeight="medium"
+                      sx={{ fontSize: isMobile ? "0.85rem" : "1rem" }}
+                    >
                       {section.title}
                     </Typography>
-                    <Typography variant="caption" color="text.secondary">
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      sx={{ fontSize: isMobile ? "0.7rem" : "0.75rem" }}
+                    >
                       {section.fields.length} items
                     </Typography>
                   </Box>
@@ -402,38 +481,46 @@ const Step3Form = ({ formData, goToStep }) => {
                   {/* If the section has missing fields, show a warning */}
                   {missingFieldsBySection[section.id] && (
                     <Chip
-                      icon={<ErrorIcon />}
+                      icon={<ErrorIcon sx={{ fontSize: isMobile ? 14 : 18 }} />}
                       label={`${
                         missingFieldsBySection[section.id].length
                       } required fields missing`}
                       color="error"
                       size="small"
                       variant="outlined"
-                      sx={{ mr: 2 }}
+                      sx={{
+                        mr: isMobile ? 0.5 : 2,
+                        "& .MuiChip-label": {
+                          px: isMobile ? 0.5 : 1,
+                          fontSize: isMobile ? "0.6rem" : "0.75rem",
+                        },
+                      }}
                     />
                   )}
 
                   <IconButton
-                    size="small"
+                    size={isMobile ? "small" : "medium"}
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleEdit(index);
+                      // Pass the section id directly instead of the index
+                      handleEdit(section.id);
                     }}
                     sx={{
-                      mr: 1,
+                      mr: 0.5,
                       bgcolor: `${section.color}20`,
                       "&:hover": {
                         bgcolor: `${section.color}40`,
                       },
+                      p: isMobile ? 0.5 : 1,
                     }}
                   >
-                    <EditIcon fontSize="small" />
+                    <EditIcon fontSize={isMobile ? "small" : "medium"} />
                   </IconButton>
                 </Box>
               </AccordionSummary>
 
-              <AccordionDetails sx={{ p: 2 }}>
-                <Grid container spacing={3}>
+              <AccordionDetails sx={{ p: isMobile ? 1.5 : 2 }}>
+                <Grid container spacing={isMobile ? 1.5 : 3}>
                   {section.fields.map((field, fIndex) => {
                     const isRequired = requiredFields.some(
                       (reqField) =>
@@ -465,6 +552,7 @@ const Step3Form = ({ formData, goToStep }) => {
                               display: "flex",
                               alignItems: "center",
                               mb: 0.5,
+                              fontSize: isMobile ? "0.65rem" : "0.75rem",
                             }}
                           >
                             {isRequired && (
@@ -484,7 +572,7 @@ const Step3Form = ({ formData, goToStep }) => {
                           </Typography>
                           <Box
                             sx={{
-                              p: 1.5,
+                              p: isMobile ? 1 : 1.5,
                               border: "1px solid",
                               borderColor: isMissing ? "error.main" : "divider",
                               borderRadius: 1,
@@ -493,7 +581,7 @@ const Step3Form = ({ formData, goToStep }) => {
                                 : field.value
                                 ? "background.default"
                                 : "#f5f5f5",
-                              minHeight: "28px",
+                              minHeight: isMobile ? "24px" : "28px",
                               wordBreak: "break-word",
                             }}
                           >
@@ -508,6 +596,7 @@ const Step3Form = ({ formData, goToStep }) => {
                               }
                               sx={{
                                 fontStyle: field.value ? "normal" : "italic",
+                                fontSize: isMobile ? "0.75rem" : "0.875rem",
                               }}
                             >
                               {field.value || "Not provided"}
@@ -527,46 +616,87 @@ const Step3Form = ({ formData, goToStep }) => {
       <Paper
         variant="outlined"
         sx={{
-          p: 3,
+          p: isMobile ? 2 : 3,
           mb: 3,
           borderRadius: 2,
           bgcolor: "background.paper",
         }}
       >
-        <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
+        <Typography
+          variant="subtitle1"
+          fontWeight="bold"
+          gutterBottom
+          sx={{ fontSize: isMobile ? "0.9rem" : "1rem" }}
+        >
           Next Steps:
         </Typography>
         <List>
-          <ListItem sx={{ px: 0, py: 0.5 }}>
-            <ListItemIcon sx={{ minWidth: 32 }}>
-              <CheckIcon color="success" fontSize="small" />
+          <ListItem sx={{ px: 0, py: isMobile ? 0.3 : 0.5 }}>
+            <ListItemIcon sx={{ minWidth: isMobile ? 24 : 32 }}>
+              <CheckIcon
+                color="success"
+                sx={{ fontSize: isMobile ? 16 : 20 }}
+              />
             </ListItemIcon>
             <ListItemText
               primary="Submit this form to create the intake record"
               secondary="You'll be able to edit this information later if needed"
+              primaryTypographyProps={{
+                fontSize: isMobile ? "0.8rem" : "0.9rem",
+              }}
+              secondaryTypographyProps={{
+                fontSize: isMobile ? "0.7rem" : "0.75rem",
+              }}
             />
           </ListItem>
-          <ListItem sx={{ px: 0, py: 0.5 }}>
-            <ListItemIcon sx={{ minWidth: 32 }}>
-              <CheckIcon color="success" fontSize="small" />
+          <ListItem sx={{ px: 0, py: isMobile ? 0.3 : 0.5 }}>
+            <ListItemIcon sx={{ minWidth: isMobile ? 24 : 32 }}>
+              <CheckIcon
+                color="success"
+                sx={{ fontSize: isMobile ? 16 : 20 }}
+              />
             </ListItemIcon>
             <ListItemText
               primary="Collect required signatures"
               secondary="You'll be prompted to collect signatures after submission"
+              primaryTypographyProps={{
+                fontSize: isMobile ? "0.8rem" : "0.9rem",
+              }}
+              secondaryTypographyProps={{
+                fontSize: isMobile ? "0.7rem" : "0.75rem",
+              }}
             />
           </ListItem>
-          <ListItem sx={{ px: 0, py: 0.5 }}>
-            <ListItemIcon sx={{ minWidth: 32 }}>
-              <CheckIcon color="success" fontSize="small" />
+          <ListItem sx={{ px: 0, py: isMobile ? 0.3 : 0.5 }}>
+            <ListItemIcon sx={{ minWidth: isMobile ? 24 : 32 }}>
+              <CheckIcon
+                color="success"
+                sx={{ fontSize: isMobile ? 16 : 20 }}
+              />
             </ListItemIcon>
             <ListItemText
               primary="Generate documentation"
               secondary="All required documents will be automatically generated"
+              primaryTypographyProps={{
+                fontSize: isMobile ? "0.8rem" : "0.9rem",
+              }}
+              secondaryTypographyProps={{
+                fontSize: isMobile ? "0.7rem" : "0.75rem",
+              }}
             />
           </ListItem>
         </List>
 
-        <Alert severity="info" sx={{ mt: 2, borderRadius: 1 }}>
+        <Alert
+          severity="info"
+          sx={{
+            mt: 2,
+            borderRadius: 1,
+            "& .MuiAlert-message": {
+              fontSize: isMobile ? "0.75rem" : "0.875rem",
+            },
+          }}
+        >
           When you click Submit, this information will be saved and you'll be
           prompted to collect necessary signatures.
         </Alert>

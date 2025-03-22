@@ -275,6 +275,150 @@ const Header = () => {
                 >
                   Forms
                 </Button>
+
+                {/* Enhanced Forms Menu */}
+                <Popover
+                  open={Boolean(formsMenuAnchor)}
+                  anchorEl={formsMenuAnchor}
+                  onClose={handleFormsMenuClose}
+                  anchorOrigin={{
+                    vertical: "bottom",
+                    horizontal: "left",
+                  }}
+                  transformOrigin={{
+                    vertical: "top",
+                    horizontal: "left",
+                  }}
+                  PaperProps={{
+                    sx: {
+                      mt: 1,
+                      width: 650,
+                      borderRadius: 2,
+                      overflow: "hidden",
+                      boxShadow: 3,
+                    },
+                  }}
+                >
+                  <Box sx={{ p: 2, bgcolor: "primary.main", color: "white" }}>
+                    <Typography variant="subtitle1" fontWeight="bold">
+                      Create New Form or Document
+                    </Typography>
+                    <Typography variant="body2">
+                      Select the type of form or document you want to create
+                    </Typography>
+                  </Box>
+                  <Box sx={{ p: 2, bgcolor: "#f5f5f5" }}>
+                    <Button
+                      fullWidth
+                      variant="contained"
+                      component={RouterLink}
+                      to="/intake-form"
+                      startIcon={<AssignmentIcon />}
+                      onClick={handleFormsMenuClose}
+                      sx={{ mb: 2 }}
+                    >
+                      Start New Intake Form
+                    </Button>
+
+                    <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                      Create Individual Documents
+                    </Typography>
+
+                    <Button
+                      fullWidth
+                      variant="outlined"
+                      startIcon={<AddCircleOutlineIcon />}
+                      onClick={() => {
+                        setShowDocumentSelector(true);
+                        handleFormsMenuClose();
+                      }}
+                      sx={{ mb: 2 }}
+                    >
+                      Create Standalone Document
+                    </Button>
+                  </Box>
+                  <Divider />
+                  {/* Document reference list - informational only */}
+
+                  <Box sx={{ px: 2, py: 2, bgcolor: "rgba(0, 0, 0, 0.02)" }}>
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{ display: "flex", alignItems: "center", mb: 1.5 }}
+                    >
+                      <InfoIcon fontSize="small" sx={{ mr: 0.5 }} />
+                      Available document types (create using the button above)
+                    </Typography>
+
+                    {/* Masonry layout using CSS columns */}
+                    <Box
+                      sx={{
+                        columnCount: { xs: 1, sm: 2, md: 3 },
+                        columnGap: 2,
+                        columnRule: "1px solid rgba(0, 0, 0, 0.08)", // Adds subtle divider between columns
+                        orphans: 1,
+                        widows: 1,
+                      }}
+                    >
+                      {documentCategories.map((category) => (
+                        <Box
+                          key={category.name}
+                          sx={{
+                            breakInside: "avoid",
+                            pageBreakInside: "avoid",
+                            mb: 2,
+                            pb: 1.5,
+                            display: "inline-block",
+                            width: "100%",
+                            borderBottom: "1px solid rgba(0, 0, 0, 0.05)", // Horizontal divider between categories
+                          }}
+                        >
+                          <Typography
+                            variant="subtitle2"
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              color: category.color,
+                              mb: 0.5,
+                            }}
+                          >
+                            {React.cloneElement(category.icon, {
+                              fontSize: "small",
+                              sx: { mr: 0.5 },
+                            })}
+                            {category.name}
+                          </Typography>
+
+                          {category.documents.map((doc, index) => (
+                            <Typography
+                              key={index}
+                              variant="body2"
+                              sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                pl: 1.5,
+                                py: 0.25,
+                                color: "text.secondary",
+                                borderBottom:
+                                  index < category.documents.length - 1
+                                    ? "1px dotted rgba(0,0,0,0.1)"
+                                    : "none",
+                              }}
+                            >
+                              <span
+                                style={{ fontSize: "8px", marginRight: "6px" }}
+                              >
+                                •
+                              </span>
+                              {doc}
+                            </Typography>
+                          ))}
+                        </Box>
+                      ))}
+                    </Box>
+                  </Box>
+                </Popover>
+
                 {user && user.role === "admin" && (
                   <Button
                     color="inherit"

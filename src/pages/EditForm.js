@@ -161,7 +161,12 @@ useEffect(() => {
 
     fetchFormData();
   }, [id]);
-
+useEffect(() => {
+  // Redirect to login page if user becomes null (logged out)
+  if (!user && !loading) {
+    navigate("/login");
+  }
+}, [user, navigate, loading]);
   // Calculate progress based on required fields filled
   const calculateProgress = (data) => {
     const requiredFields = [

@@ -395,7 +395,48 @@ const Header = () => {
           </Toolbar>
         </Container>
       </AppBar>
+      {/* User Menu - Add this code */}
+      <Menu
+        anchorEl={userMenuAnchor}
+        open={Boolean(userMenuAnchor)}
+        onClose={handleUserMenuClose}
+        onClick={handleUserMenuClose}
+        transformOrigin={{ horizontal: "right", vertical: "top" }}
+        anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+        PaperProps={{
+          sx: {
+            mt: 1.5,
+            width: 200,
+            borderRadius: 2,
+            boxShadow: 3,
+          },
+        }}
+      >
+        <Box sx={{ px: 2, py: 1 }}>
+          <Typography variant="subtitle2">{user?.name}</Typography>
+          <Typography variant="body2" color="text.secondary">
+            {user?.role}
+          </Typography>
+        </Box>
 
+        <Divider />
+
+        <MenuItem component={RouterLink} to="/">
+          <ListItemIcon>
+            <DashboardIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Dashboard</ListItemText>
+        </MenuItem>
+
+        <Divider />
+
+        <MenuItem onClick={handleLogout}>
+          <ListItemIcon>
+            <LogoutIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Logout</ListItemText>
+        </MenuItem>
+      </Menu>
       {/* Mobile Navigation Drawer */}
       <Drawer
         anchor="left"

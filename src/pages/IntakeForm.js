@@ -99,7 +99,7 @@ const IntakeForm = () => {
   const [autoSaveTimerId, setAutoSaveTimerId] = useState(null);
   const [progress, setProgress] = useState(0);
 
-  // Initialize form data with defaults from model
+  // Initialize form data with defaults from model - ensure all county worker fields match office selection
   const [formData, setFormData] = useState({
     // Office Information
     yourName: user?.name || "",
@@ -145,17 +145,17 @@ const IntakeForm = () => {
     ResourceParentsState: "California",
     ResourceParentsZip: "",
 
-    // County Worker Information
+    // County Worker Information - correctly mapped to default office (Santa Maria)
     countyWillPay: "$2,638.00",
     countyWorkerName: "",
     countyWorkerTitle: "CSW",
-    nameOfCounty: "Santa Barbara",
+    nameOfCounty: "Santa Barbara", // Default for Santa Maria
     nameOfDepartment: "DHS",
     countyWorkerTelephone: "805-819-1921",
-    countyWorkerAddress: "2125 S. Centerpoint Prkwy",
-    countyWorkerCity: "Santa Maria",
+    countyWorkerAddress: "2125 S. Centerpoint Prkwy", // Default for Santa Maria
+    countyWorkerCity: "Santa Maria", // Default for Santa Maria
     countyWorkerState: "CA",
-    countyWorkerZip: "93455",
+    countyWorkerZip: "93455", // Default for Santa Maria
 
     // Categories (default to Intake Paperwork)
     categories: ["Intake Paperwork"],
@@ -183,6 +183,7 @@ const IntakeForm = () => {
     setProgress((filledRequiredFields / requiredFields.length) * 100);
   }, [formData]);
 
+  // Update form data
   // Update form data
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -215,22 +216,44 @@ const IntakeForm = () => {
       let officeNumber = "";
       let phoneNumber = "";
 
+      // Update county worker information based on office selection
+      let nameOfCounty = "";
+      let countyWorkerAddress = "";
+      let countyWorkerCity = "";
+      let countyWorkerZip = "";
+
       switch (value) {
         case "Santa Maria":
           officeNumber = "201";
           phoneNumber = "(805) 739-1111";
+          nameOfCounty = "Santa Barbara";
+          countyWorkerAddress = "2125 S. Centerpoint Prkwy";
+          countyWorkerCity = "Santa Maria";
+          countyWorkerZip = "93455";
           break;
         case "Bakersfield":
           officeNumber = "305";
           phoneNumber = "(661) 396-8600";
+          nameOfCounty = "Kern";
+          countyWorkerAddress = "P.O. Box 888";
+          countyWorkerCity = "Bakersfield";
+          countyWorkerZip = "93302";
           break;
         case "Riverside":
           officeNumber = "410";
           phoneNumber = "(951) 686-3706";
+          nameOfCounty = "Riverside";
+          countyWorkerAddress = "547 N San Jacinto St.";
+          countyWorkerCity = "Hemet";
+          countyWorkerZip = "92544";
           break;
         case "San Bernardino":
           officeNumber = "505";
           phoneNumber = "(909) 890-5295";
+          nameOfCounty = "San Bernardino";
+          countyWorkerAddress = "325 W Hospitality Lane Ste 211";
+          countyWorkerCity = "San Bernardino";
+          countyWorkerZip = "92408";
           break;
         default:
           break;
@@ -240,6 +263,10 @@ const IntakeForm = () => {
         ...prev,
         officeNumber,
         phoneNumber,
+        nameOfCounty,
+        countyWorkerAddress,
+        countyWorkerCity,
+        countyWorkerZip,
       }));
     }
 
@@ -343,7 +370,6 @@ const IntakeForm = () => {
 
       switch (value) {
         case "Intake":
-        case "Shelter Placement":
           categories = ["Intake Paperwork"];
           break;
         case "In House Move":

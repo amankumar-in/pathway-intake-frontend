@@ -236,9 +236,22 @@ const Header = () => {
                   src={require("../logo.svg").default}
                   alt="Pathway Logo"
                   style={{
-                    height: 40,
+                    height: 40, // Consistent height across all devices
+                    minHeight: 36, // Ensure minimum size
+                    width: "auto",
                     marginRight: isMobile ? 0 : 16,
                     filter: "brightness(0) invert(1)",
+                    transform: "translateZ(0)" /* Force GPU acceleration */,
+                    WebkitFontSmoothing: "antialiased",
+                    MozOsxFontSmoothing: "grayscale",
+                    /* Fix for iPad Retina displays */
+                    maxWidth: "none", // Prevent unwanted scaling
+                    objectFit: "contain",
+                    WebkitBackfaceVisibility:
+                      "hidden" /* Help with Safari rendering */,
+                    imageRendering: isTablet
+                      ? "-webkit-optimize-contrast"
+                      : "auto" /* Improve iPad rendering */,
                   }}
                 />
               </RouterLink>

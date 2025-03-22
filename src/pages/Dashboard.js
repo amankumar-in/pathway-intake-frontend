@@ -667,17 +667,7 @@ const Dashboard = () => {
                 justifyContent: { xs: "flex-start", md: "flex-end" },
               }}
             >
-              {isAdmin() && (
-                <Button
-                  variant="contained"
-                  color="primary"
-                  startIcon={<PeopleIcon />}
-                  onClick={handleUserManagement}
-                  sx={{ mr: 2 }}
-                >
-                  User Management
-                </Button>
-              )}
+              
               <Tooltip
                 title={"Create new intake form"
                 }

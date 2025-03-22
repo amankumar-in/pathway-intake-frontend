@@ -24,6 +24,7 @@ import HomeIcon from "@mui/icons-material/Home";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import LogoutIcon from "@mui/icons-material/Logout";
+import PeopleIcon from "@mui/icons-material/People";
 
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import DescriptionIcon from "@mui/icons-material/Description";
@@ -244,7 +245,26 @@ const Header = () => {
                 >
                   Forms
                 </Button>
-
+                {user && user.role === "admin" && (
+                  <Button
+                    color="inherit"
+                    component={RouterLink}
+                    to="/user-management"
+                    startIcon={<PeopleIcon />}
+                    sx={{
+                      mx: 1,
+                      opacity:
+                        location.pathname === "/user-management" ? 1 : 0.8,
+                      fontWeight:
+                        location.pathname === "/user-management"
+                          ? "bold"
+                          : "normal",
+                      "&:hover": { opacity: 1 },
+                    }}
+                  >
+                    Users
+                  </Button>
+                )}
                 {/* Enhanced Forms Menu */}
                 <Popover
                   open={Boolean(formsMenuAnchor)}

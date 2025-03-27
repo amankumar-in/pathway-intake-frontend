@@ -469,7 +469,7 @@ const UserManagement = () => {
                   <Chip
                     size="small"
                     icon={<PersonIcon />}
-                    label="Caseworker"
+                    label="Social Worker"
                     color="success"
                   />
                   <Typography
@@ -878,6 +878,9 @@ const UserManagement = () => {
                   "& .MuiOutlinedInput-root": {
                     borderRadius: 1.5,
                   },
+                    "& .MuiInputLabel-root": {
+    marginLeft: 1
+  }
                 }}
               />
             </Grid>
@@ -944,7 +947,7 @@ const UserManagement = () => {
                     </InputAdornment>
                   }
                 >
-                  <MenuItem value="caseworker">Caseworker</MenuItem>
+                  <MenuItem value="caseworker">Social Worker</MenuItem>
                   <MenuItem value="counsellor">Counsellor</MenuItem>
                   <MenuItem value="hr">HR</MenuItem>
                   <MenuItem value="admin">Admin</MenuItem>

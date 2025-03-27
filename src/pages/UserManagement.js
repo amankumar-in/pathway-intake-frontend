@@ -879,7 +879,7 @@ const UserManagement = () => {
                     borderRadius: 1.5,
                   },
                     "& .MuiInputLabel-root": {
-    marginTop: "3px"
+    marginTop: "5px"
   }
                 }}
               />

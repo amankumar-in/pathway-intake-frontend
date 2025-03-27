@@ -75,7 +75,7 @@ const UserManagement = () => {
     username: "",
     password: "",
     name: "",
-    role: "caseworker",
+    role: "socialworker",
   });
   const [formError, setFormError] = useState("");
   const theme = useTheme();
@@ -129,7 +129,7 @@ const UserManagement = () => {
       username: "",
       password: "",
       name: "",
-      role: "caseworker",
+      role: "socialworker",
     });
     setFormError("");
     setOpenAddDialog(true);
@@ -207,7 +207,7 @@ const UserManagement = () => {
         return <CounsellorIcon fontSize="small" />;
       case "hr":
         return <HRIcon fontSize="small" />;
-      case "caseworker":
+      case "socialworker":
       default:
         return <PersonIcon fontSize="small" />;
     }
@@ -222,7 +222,7 @@ const UserManagement = () => {
         return "info";
       case "hr":
         return "warning";
-      case "caseworker":
+      case "socialworker":
       default:
         return "success";
     }
@@ -248,7 +248,7 @@ const UserManagement = () => {
         return theme.palette.info.light;
       case "hr":
         return theme.palette.warning.light;
-      case "caseworker":
+      case "socialworker":
       default:
         return theme.palette.success.light;
     }
@@ -878,9 +878,9 @@ const UserManagement = () => {
                   "& .MuiOutlinedInput-root": {
                     borderRadius: 1.5,
                   },
-                    "& .MuiInputLabel-root": {
-    marginTop: "5px"
-  }
+                  "& .MuiInputLabel-root": {
+                    marginTop: "5px",
+                  },
                 }}
               />
             </Grid>
@@ -947,7 +947,7 @@ const UserManagement = () => {
                     </InputAdornment>
                   }
                 >
-                  <MenuItem value="caseworker">Social Worker</MenuItem>
+                  <MenuItem value="socialworker">Social Worker</MenuItem>
                   <MenuItem value="counsellor">Counsellor</MenuItem>
                   <MenuItem value="hr">HR</MenuItem>
                   <MenuItem value="admin">Admin</MenuItem>
@@ -988,7 +988,7 @@ const UserManagement = () => {
                 "Access to client assessments, therapy notes, and case planning documents."}
               {newUser.role === "hr" &&
                 "Access to personnel records, background checks, and HR documentation."}
-              {newUser.role === "caseworker" &&
+              {newUser.role === "socialworker" &&
                 "Standard access to client records, intakes, and basic document creation."}
             </Typography>
           </Box>

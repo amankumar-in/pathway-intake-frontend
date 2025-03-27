@@ -301,7 +301,7 @@ const EditForm = () => {
     }
 
     if (name === "levelOfCare") {
-      // Update foster parents payment based on level of care
+      // Update resource parents payment based on level of care
       let fosterParentsPayment = "";
 
       switch (value) {

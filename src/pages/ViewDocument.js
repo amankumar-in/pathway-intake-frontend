@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getDocumentComponent } from "../utils/documentMapper";
 import { generatePDF } from "../utils/pdfUtils";
+import DocumentGenerationAnimation from "../components/shared/DocumentGenerationAnimation";
 
 import {
   Container,
@@ -195,7 +196,11 @@ const ViewDocument = () => {
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [signatures, setSignatures] = useState({});
+  const [signatureLabels, setSignatureLabels] = useState({});
+  const [collectedSignatures, setCollectedSignatures] = useState({});
   const [generatingPDF, setGeneratingPDF] = useState(false);
+  const [pdfProgress, setPdfProgress] = useState(0);
+  const [pdfPhase, setPdfPhase] = useState("");
   const [menuAnchorEl, setMenuAnchorEl] = useState(null);
   const [fullscreenMode, setFullscreenMode] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(100);
@@ -253,6 +258,40 @@ const ViewDocument = () => {
             const intakeFormResponse = await getIntakeForm(intakeFormId);
             console.log("Intake form data:", intakeFormResponse);
             setIntakeFormData(intakeFormResponse.data);
+
+            // Extract signature labels if they exist
+            if (intakeFormResponse.data.signatureLabels) {
+              const labels = {};
+              // Handle both Map and plain object formats
+              if (intakeFormResponse.data.signatureLabels.get && typeof intakeFormResponse.data.signatureLabels.get === 'function') {
+                // It's a Map
+                for (const key of ['childSignature', 'parentSignature', 'caseworkerSignature', 'supervisorSignature', 'agencyRepSignature']) {
+                  const label = intakeFormResponse.data.signatureLabels.get(key);
+                  if (label) labels[key] = label;
+                }
+              } else {
+                // It's a plain object
+                Object.assign(labels, intakeFormResponse.data.signatureLabels);
+              }
+              setSignatureLabels(labels);
+            }
+
+            // Extract collected signatures from intake form if they exist
+            if (intakeFormResponse.data.signatures) {
+              const collected = {};
+              // Handle both Map and plain object formats
+              if (intakeFormResponse.data.signatures.get && typeof intakeFormResponse.data.signatures.get === 'function') {
+                // It's a Map
+                for (const key of ['childSignature', 'parentSignature', 'caseworkerSignature', 'supervisorSignature', 'agencyRepSignature']) {
+                  const sig = intakeFormResponse.data.signatures.get(key);
+                  if (sig) collected[key] = sig;
+                }
+              } else {
+                // It's a plain object
+                Object.assign(collected, intakeFormResponse.data.signatures);
+              }
+              setCollectedSignatures(collected);
+            }
           } catch (err) {
             console.error("Error fetching intake form:", err);
           }
@@ -273,50 +312,57 @@ const ViewDocument = () => {
     }
   }, [id, reloading]);
 
-  // Simulate download progress for visual feedback
-  const simulateDownloadProgress = () => {
-    setShowDownloadProgress(true);
-    setDownloadProgress(0);
-
-    const interval = setInterval(() => {
-      setDownloadProgress((prevProgress) => {
-        const newProgress = prevProgress + 15;
-        if (newProgress >= 100) {
-          clearInterval(interval);
-          setTimeout(() => setShowDownloadProgress(false), 500);
-          return 100;
-        }
-        return newProgress;
-      });
-    }, 300);
-
-    return () => clearInterval(interval);
-  };
 
   // Export document as PDF
   const handleExportPDF = async () => {
     try {
       setGeneratingPDF(true);
+      setPdfProgress(0);
       setSuccessMessage("");
       setError("");
-      simulateDownloadProgress();
 
       // Check if documentContentRef exists
       if (!documentContentRef.current) {
         setError("Document content not available for export");
+        setGeneratingPDF(false);
         return;
       }
 
-      // Use generatePDF from pdfUtils with proper styling
-      // The updated pdfUtils.js will handle sending to server properly
+      // Phase 1: Preparing (0-15%)
+      setPdfPhase("Preparing document...");
+      setPdfProgress(5);
+      await new Promise(resolve => setTimeout(resolve, 100));
+      setPdfProgress(15);
+
+      // Phase 2: Rendering content (15-30%)
+      setPdfPhase("Rendering content...");
+      setPdfProgress(20);
+      await new Promise(resolve => setTimeout(resolve, 100));
+      setPdfProgress(30);
+
+      // Phase 3: Generating PDF (30-90%)
+      setPdfPhase("Generating PDF...");
+      setPdfProgress(40);
+
       await generatePDF(documentContentRef.current, `document-${id}.pdf`);
+
+      setPdfProgress(90);
+
+      // Phase 4: Finalizing (90-100%)
+      setPdfPhase("Finalizing...");
+      setPdfProgress(95);
+      await new Promise(resolve => setTimeout(resolve, 200));
+
+      setPdfProgress(100);
+      setPdfPhase("Complete!");
 
       setSuccessMessage("Document exported as PDF successfully!");
     } catch (err) {
       console.error("Error exporting PDF:", err);
       setError("Error exporting PDF: " + err.message);
     } finally {
-      setGeneratingPDF(false);
+      // Let animation complete before hiding
+      setTimeout(() => setGeneratingPDF(false), 500);
     }
   };
 
@@ -1046,7 +1092,7 @@ const ViewDocument = () => {
               {document && formData && (
                 <Box ref={documentContentRef}>
                   {React.cloneElement(
-                    getDocumentComponent(formData.template, formData),
+                    getDocumentComponent(formData.template, formData, signatureLabels),
                     {
                       signatures,
                       onAddSignature: handleAddSignature,
@@ -1057,6 +1103,7 @@ const ViewDocument = () => {
                       deleteButtonClass: "delete-button",
                       placeholderClass: "signature-placeholder",
                       isStandalone: document.standAlone,
+                      collectedSignatures,
                     }
                   )}
                 </Box>
@@ -1525,7 +1572,7 @@ const ViewDocument = () => {
               {document && formData && (
                 <Box ref={documentContentRef}>
                   {React.cloneElement(
-                    getDocumentComponent(formData.template, formData),
+                    getDocumentComponent(formData.template, formData, signatureLabels),
                     {
                       signatures,
                       onAddSignature: handleAddSignature,
@@ -1536,6 +1583,7 @@ const ViewDocument = () => {
                       deleteButtonClass: "delete-button",
                       placeholderClass: "signature-placeholder",
                       isStandalone: document.standAlone,
+                      collectedSignatures,
                     }
                   )}
                 </Box>
@@ -1700,6 +1748,14 @@ const ViewDocument = () => {
         autoHideDuration={3000}
         onClose={handleCloseSuccessMessage}
         message={successMessage}
+      />
+
+      {/* Document generation animation */}
+      <DocumentGenerationAnimation
+        isGenerating={generatingPDF}
+        documentCount={1}
+        realProgress={pdfProgress}
+        currentPhaseText={pdfPhase}
       />
     </Container>
   );

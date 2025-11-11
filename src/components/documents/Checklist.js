@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Menu, MenuItem, Typography, Tooltip, IconButton } from "@mui/material";
 import { AddCircleOutline, Delete } from "@mui/icons-material";
+import SignatureMenu from "../shared/SignatureMenu";
 
 // Base64 encoded logo (actual logo would replace this)
 const LOGO_BASE64 =
@@ -15,6 +16,8 @@ const Checklist = ({
   deleteButtonClass,
   placeholderClass,
   isStandalone = false,
+  signatureLabels = {},
+  collectedSignatures = {},
 }) => {
   // State for signature menu
   const [signatureMenuAnchor, setSignatureMenuAnchor] = useState(null);
@@ -429,30 +432,14 @@ const Checklist = ({
       </div>
 
       {/* Signature selection menu */}
-      <Menu
+      <SignatureMenu
         anchorEl={signatureMenuAnchor}
         open={Boolean(signatureMenuAnchor)}
         onClose={handleMenuClose}
-      >
-        <MenuItem disabled>
-          <Typography variant="subtitle2">Select a signature:</Typography>
-        </MenuItem>
-        <MenuItem onClick={() => handleSignatureSelect("childSignature")}>
-          Foster Child Signature
-        </MenuItem>
-        <MenuItem onClick={() => handleSignatureSelect("parentSignature")}>
-          Resource Mother Signature
-        </MenuItem>
-        <MenuItem onClick={() => handleSignatureSelect("caseworkerSignature")}>
-          Resource Father Signature
-        </MenuItem>
-        <MenuItem onClick={() => handleSignatureSelect("supervisorSignature")}>
-          Pathway Social Worker Signature
-        </MenuItem>
-        <MenuItem onClick={() => handleSignatureSelect("agencyRepSignature")}>
-          County Social Worker Signature
-        </MenuItem>
-      </Menu>
+        onSelect={handleSignatureSelect}
+        signatureLabels={signatureLabels}
+        collectedSignatures={collectedSignatures}
+      />
     </div>
   );
 };

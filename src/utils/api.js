@@ -101,6 +101,19 @@ export const updateSignature = async (id, signatureType, signatureData) => {
   }
 };
 
+export const updateSignatureLabel = async (id, signatureType, label) => {
+  try {
+    const response = await api.put(`/intake-forms/${id}/signature-label`, {
+      signatureType,
+      label,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error updating signature label:", error);
+    throw error;
+  }
+};
+
 // Document API calls
 export const generateDocuments = async (intakeFormId) => {
   const response = await api.post(`/documents/generate/${intakeFormId}`);

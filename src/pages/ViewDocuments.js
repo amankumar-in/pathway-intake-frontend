@@ -13,6 +13,26 @@ import {
 } from "../utils/api";
 import { getDocumentComponent } from "../utils/documentMapper";
 import { generatePDF, generatePDFBlob } from "../utils/pdfUtils";
+import DocumentGenerationAnimation from "../components/shared/DocumentGenerationAnimation";
+
+// Helper functions and config
+import {
+  getDocumentIcon,
+  getDocumentColor,
+  getFormattedDate,
+  getAllDocumentCategories,
+  calculateSignatureStatus,
+  renderCategoryChips,
+} from "../utils/documentHelpers";
+import { getDocumentCopies } from "../constants/documentCopiesConfig";
+
+// Extracted components
+import CustomCopiesDialog from "../components/documents/CustomCopiesDialog";
+import DocumentCard from "../components/documents/DocumentCard";
+import DocumentListItem from "../components/documents/DocumentListItem";
+import GenerateDocumentsDialog from "../components/documents/GenerateDocumentsDialog";
+import RegenerateDocumentsDialog from "../components/documents/RegenerateDocumentsDialog";
+import DocumentActionsMenu from "../components/documents/DocumentActionsMenu";
 
 // MUI components import - consolidated
 import {
@@ -99,6 +119,8 @@ import {
   AccessTime as AccessTimeIcon,
   Archive as ArchiveIcon,
   FilterListIcon,
+  Draw as DrawIcon,
+  Warning as WarningIcon,
 } from "@mui/icons-material";
 
 // Tab panel component
@@ -117,68 +139,6 @@ function TabPanel(props) {
   );
 }
 
-// Document copies configuration
-const documentCopiesConfig = {
-  "Intake Paperwork": {
-    "Notice of Action": 3,
-    "ID-Emergency Information": 1,
-    "Agency to Agency Agreement": 2,
-    "Agency to Foster Parent": 3,
-    "Client Grievance Guidelines": 2,
-    "County Worker Grievance Guidelines": 2,
-    "Consent For Medical Treatment": 2,
-    "CHDP Form": 1,
-    "PRN Authorization Letter": 1,
-    "PRN Page 2": 1,
-    "Client Personal Rights": 3,
-    "Confirmation of T.B. Test": 1,
-    "Confirmation of Ambulatory Status": 1,
-    "Record of Client Cash Resources": 2,
-    "Client Initial Care Plan": 2,
-    "Client Disciplinary Policy & Procedures": 2,
-    "Client Discharge": 2,
-    "Acknowledgement of Prior Information": 3,
-    "Home Placement Log": 1,
-    "Monthly Medication Record": 2,
-    "Medication & Destruction Record": 2,
-    "Dental Treatment Record": 1,
-    "Quarterly Clothing Allowance": 1,
-    "Quarterly Spending Allowance": 2,
-    "Consent to Release Medical/Confidential Information Authorization": 2,
-    "Placement Application": 1,
-    "Foster Parent Checklist": 1,
-    default: 1,
-  },
-  "Shelter Bed Documents": {
-    "Agency to Agency Agreement": 2,
-    "Agency to Foster Parent": 2,
-    "ID-Emergency Information": 1,
-    "Client Grievance Guidelines": 1,
-    "County Worker Grievance Guidelines": 1,
-    "Consent For Medical Treatment": 1,
-    "Client Personal Rights": 1,
-    "Client Initial Care Plan": 2,
-    "Client Disciplinary Policy & Procedures": 1,
-    "Client Discharge": 1,
-    "Acknowledgement of Prior Information": 2,
-    "Consent to Release Medical/Confidential Information Authorization": 1,
-    "Placement Application": 1,
-    default: 2,
-  },
-  "In House Move": {
-    "Agency to Foster Parent": 2,
-    "Consent For Medical Treatment": 1,
-    "Record of Client Cash Resources": 1,
-    "Client Initial Care Plan": 1,
-    "Acknowledgement of Prior Information": 2,
-    "Home Placement Log": 1,
-    "Emergency Information Log": 1,
-    "Quarterly Clothing Allowance": 2,
-    "Quarterly Spending Allowance": 2,
-    default: 1,
-  },
-  default: 1,
-};
 
 const ViewDocuments = () => {
   const { id } = useParams();
@@ -200,12 +160,16 @@ const ViewDocuments = () => {
   const [selectedDocuments, setSelectedDocuments] = useState([]);
   const [selectMode, setSelectMode] = useState(false);
   const [generatingPDF, setGeneratingPDF] = useState(false);
+  const [generatingDocumentCount, setGeneratingDocumentCount] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortDirection, setSortDirection] = useState("asc"); // asc = A-Z (changed from date to alphabetical)
   const [menuAnchorEl, setMenuAnchorEl] = useState(null);
   const [actionDocument, setActionDocument] = useState(null);
   const [showDownloadProgress, setShowDownloadProgress] = useState(false);
   const [downloadProgress, setDownloadProgress] = useState(0);
+  const [pdfProgress, setPdfProgress] = useState(0);
+  const [pdfPhase, setPdfPhase] = useState("");
+  const [currentDocName, setCurrentDocName] = useState("");
   const [viewMode, setViewMode] = useState("grid");
   const [showTips, setShowTips] = useState(false);
   const [openCopyDialog, setOpenCopyDialog] = useState(false);
@@ -257,25 +221,6 @@ const ViewDocuments = () => {
     fetchData();
   }, [id]);
 
-  // Simulate download progress for visual feedback
-  const simulateDownloadProgress = () => {
-    setShowDownloadProgress(true);
-    setDownloadProgress(0);
-
-    const interval = setInterval(() => {
-      setDownloadProgress((prevProgress) => {
-        const newProgress = prevProgress + 15;
-        if (newProgress >= 100) {
-          clearInterval(interval);
-          setTimeout(() => setShowDownloadProgress(false), 500);
-          return 100;
-        }
-        return newProgress;
-      });
-    }, 300);
-
-    return () => clearInterval(interval);
-  };
 
   // Generate documents
   const handleGenerateDocuments = async () => {
@@ -338,11 +283,11 @@ const ViewDocuments = () => {
   };
 
   // Handle select all toggle
-  const handleSelectAllToggle = (event) => {
-    if (event.target.checked) {
-      setSelectedDocuments(getFilteredDocuments().map((doc) => doc._id));
-    } else {
+  const handleSelectAllToggle = () => {
+    if (areAllSelected()) {
       setSelectedDocuments([]);
+    } else {
+      setSelectedDocuments(getFilteredDocuments().map((doc) => doc._id));
     }
   };
 
@@ -389,13 +334,25 @@ const ViewDocuments = () => {
   const handleExportSingleToPDF = async (documentId) => {
     try {
       setGeneratingPDF(true);
+      setGeneratingDocumentCount(1);
+      setPdfProgress(0);
       setError("");
       setSuccessMessage("");
-      simulateDownloadProgress();
+
+      // Phase 1: Fetching (0-20%)
+      setPdfPhase("Fetching document...");
+      setPdfProgress(5);
 
       // Fetch the complete document data including signatures
       const response = await getDocument(documentId);
       const fullDocData = response.data;
+
+      setPdfProgress(20);
+      setCurrentDocName(fullDocData.formData.template || "Document");
+
+      // Phase 2: Preparing (20-40%)
+      setPdfPhase("Preparing document...");
+      setPdfProgress(25);
 
       // Create a temporary container in the DOM
       const tempContainer = document.createElement("div");
@@ -432,12 +389,24 @@ const ViewDocuments = () => {
         );
       };
 
+      setPdfProgress(35);
+
+      // Phase 3: Rendering (40-60%)
+      setPdfPhase("Rendering content...");
+      setPdfProgress(45);
+
       // Render the temporary component
       const root = ReactDOM.createRoot(tempContainer);
       root.render(<TempDocumentComponent />);
 
       // Wait for rendering to complete
       await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      setPdfProgress(60);
+
+      // Phase 4: Generating PDF (60-95%)
+      setPdfPhase("Generating PDF...");
+      setPdfProgress(70);
 
       // Generate PDF
       if (tempDocumentRef.current) {
@@ -447,16 +416,25 @@ const ViewDocuments = () => {
         );
       }
 
+      setPdfProgress(90);
+
+      // Phase 5: Finalizing (95-100%)
+      setPdfPhase("Finalizing...");
+
       // Clean up
       root.unmount();
       document.body.removeChild(tempContainer);
+
+      setPdfProgress(100);
+      setPdfPhase("Complete!");
 
       setSuccessMessage("Document exported successfully!");
     } catch (err) {
       console.error("Error exporting document:", err);
       setError("Error exporting document: " + err.message);
     } finally {
-      setGeneratingPDF(false);
+      // Let animation complete before hiding
+      setTimeout(() => setGeneratingPDF(false), 500);
     }
   };
 
@@ -467,10 +445,19 @@ const ViewDocuments = () => {
     if (selectedDocuments.length === 0) return;
 
     try {
+      // Calculate total document count including copies
+      let totalDocs = 0;
+      for (const docId of selectedDocuments) {
+        const copies = customCopyCounts[docId] || 1;
+        totalDocs += copies;
+      }
+
       setGeneratingPDF(true);
+      setGeneratingDocumentCount(totalDocs);
+      setPdfProgress(0);
+      setPdfPhase("Starting export...");
       setError("");
       setSuccessMessage("");
-      simulateDownloadProgress();
 
       // Array to store PDF blobs
       const pdfBlobs = [];
@@ -497,6 +484,8 @@ const ViewDocuments = () => {
       // Process each document
       for (const docId of selectedDocuments) {
         try {
+          setPdfPhase("Fetching document...");
+
           // Fetch document data
           const response = await getDocument(docId);
           const fullDocData = response.data;
@@ -507,6 +496,10 @@ const ViewDocuments = () => {
 
           // Use custom copy count if available
           const copies = customCopyCounts[docId] || 1;
+
+          // Set current document name
+          setCurrentDocName(fullDocData.formData.template || fullDocData.title || "Document");
+          setPdfPhase("Processing document...");
 
           // Extract signatures
           let signatures = {};
@@ -561,8 +554,10 @@ const ViewDocuments = () => {
               });
               processedPages++;
 
-              // Update progress
-              setDownloadProgress((processedPages / totalPages) * 100);
+              // Update progress (both for animation and backdrop)
+              const progress = (processedPages / totalPages) * 100;
+              setPdfProgress(progress); // Feed to animation
+              setDownloadProgress(progress); // Existing Backdrop progress
             }
           }
 
@@ -608,6 +603,12 @@ const ViewDocuments = () => {
       }
 
       setSuccessMessage(`Documents exported successfully with custom copies!`);
+
+      // Exit selection mode and clear selections after successful export
+      setTimeout(() => {
+        setSelectMode(false);
+        setSelectedDocuments([]);
+      }, 500);
     } catch (err) {
       console.error("Error exporting documents:", err);
       setError("Error exporting documents: " + err.message);
@@ -616,29 +617,6 @@ const ViewDocuments = () => {
     }
   };
 
-  // Function to get the number of copies needed for a document
-  const getDocumentCopies = (document, activeCategory) => {
-    // If "All Documents" tab is selected, always return 1 copy
-    if (activeCategory === "All Documents") {
-      return 1;
-    }
-
-    // For other tabs, use the selected category
-    const category = activeCategory;
-
-    // Check if we have a configuration for this category
-    if (documentCopiesConfig[category]) {
-      // Check if this specific document title has a configured copy count
-      if (documentCopiesConfig[category][document.title]) {
-        return documentCopiesConfig[category][document.title];
-      }
-      // Return the default for this category
-      return documentCopiesConfig[category].default;
-    }
-
-    // Default fallback if no configuration exists
-    return documentCopiesConfig.default;
-  };
 
   // Handle copy count change
   const handleCopyCountChange = (docId, value) => {
@@ -715,22 +693,6 @@ const ViewDocuments = () => {
     return filtered;
   };
 
-  // Get all categories a document belongs to (primary + additional)
-  const getAllDocumentCategories = (document) => {
-    if (!document) return [];
-
-    const allCategories = [document.category];
-
-    if (
-      document.additionalCategories &&
-      document.additionalCategories.length > 0
-    ) {
-      allCategories.push(...document.additionalCategories);
-    }
-
-    return allCategories;
-  };
-
   // Check if all documents in the current view are selected
   const areAllSelected = () => {
     const filteredDocs = getFilteredDocuments();
@@ -740,260 +702,6 @@ const ViewDocuments = () => {
     );
   };
 
-  // Get document icon based on category
-  const getDocumentIcon = (category) => {
-    switch (category) {
-      case "Intake Paperwork":
-        return <AssignmentIcon color="secondary" />;
-      case "Shelter Bed Documents":
-        return <HomeIcon color="info" />;
-      case "In House Move":
-        return <MoveToInboxIcon color="success" />;
-      default:
-        return <DescriptionIcon color="primary" />;
-    }
-  };
-
-  // Get document color based on category
-  const getDocumentColor = (category) => {
-    switch (category) {
-      case "Intake Paperwork":
-        return "secondary";
-      case "Shelter Bed Documents":
-        return "info";
-      case "In House Move":
-        return "success";
-      default:
-        return "primary";
-    }
-  };
-
-  // Get document date display
-  const getFormattedDate = (dateString) => {
-    if (!dateString) return "Unknown date";
-
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  };
-
-  // Render document category chips
-  const renderCategoryChips = (document, size = "small", max = 2) => {
-    const allCategories = getAllDocumentCategories(document);
-
-    // Only show the first 'max' categories with a "+X more" chip if needed
-    const visibleCategories = allCategories.slice(0, max);
-    const hasMoreCategories = allCategories.length > max;
-
-    return (
-      <Stack direction="row" spacing={0.5} sx={{ flexWrap: "wrap" }}>
-        {visibleCategories.map((category, index) => (
-          <Chip
-            key={index}
-            label={category}
-            size={size}
-            color={getDocumentColor(category)}
-            variant="outlined"
-            sx={{
-              height: size === "small" ? 20 : 24,
-              "& .MuiChip-label": {
-                px: 0.75,
-                fontSize: size === "small" ? "0.65rem" : "0.75rem",
-              },
-              mb: 0.5,
-              mr: 0.5,
-            }}
-          />
-        ))}
-
-        {hasMoreCategories && (
-          <Tooltip title={allCategories.slice(max).join(", ")}>
-            <Chip
-              icon={<BurstModeIcon fontSize="small" />}
-              label={`+${allCategories.length - max}`}
-              size={size}
-              variant="outlined"
-              sx={{
-                height: size === "small" ? 20 : 24,
-                "& .MuiChip-label": {
-                  px: 0.75,
-                  fontSize: size === "small" ? "0.65rem" : "0.75rem",
-                },
-                mb: 0.5,
-              }}
-            />
-          </Tooltip>
-        )}
-      </Stack>
-    );
-  };
-
-  // Custom Copies Dialog Component
-  const CustomCopiesDialog = () => {
-    return (
-      <Dialog
-        open={openCopyDialog}
-        onClose={() => setOpenCopyDialog(false)}
-        maxWidth="md"
-        fullWidth
-        PaperProps={{
-          sx: {
-            borderRadius: 2,
-            boxShadow: 3,
-            overflow: "hidden",
-          },
-        }}
-      >
-        <DialogTitle
-          sx={{
-            bgcolor: alpha(theme.palette.primary.main, 0.05),
-            borderBottom: "1px solid",
-            borderColor: alpha(theme.palette.primary.main, 0.1),
-          }}
-        >
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
-          >
-            <Box sx={{ display: "flex", alignItems: "center" }}>
-              <CloudDownloadIcon color="primary" sx={{ mr: 1.5 }} />
-              <Typography variant="h6">Custom Document Copies</Typography>
-            </Box>
-            <Chip
-              label={`Total: ${calculateTotalCustomCopies()} copies`}
-              color="primary"
-              size="small"
-            />
-          </Box>
-        </DialogTitle>
-        <DialogContent sx={{ mt: 2 }}>
-          <Typography variant="body1" paragraph>
-            Customize how many copies of each document to include in the PDF
-            export:
-          </Typography>
-
-          <Alert severity="info" sx={{ mb: 3 }}>
-            The default copy counts are based on document type and category
-            requirements.
-          </Alert>
-
-          <List sx={{ width: "100%" }}>
-            {selectedDocuments.map((docId) => {
-              const doc = documents.find((d) => d._id === docId);
-              if (!doc) return null;
-
-              const defaultCopies = getDocumentCopies(
-                doc,
-                categories[tabValue].id
-              );
-              const currentCopies = customCopyCounts[docId] || defaultCopies;
-
-              return (
-                <ListItem
-                  key={docId}
-                  divider
-                  secondaryAction={
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                      <IconButton
-                        edge="end"
-                        onClick={() =>
-                          handleCopyCountChange(docId, currentCopies - 1)
-                        }
-                        disabled={currentCopies <= 1}
-                      >
-                        <RemoveIcon />
-                      </IconButton>
-                      <TextField
-                        value={currentCopies}
-                        onChange={(e) =>
-                          handleCopyCountChange(docId, e.target.value)
-                        }
-                        variant="outlined"
-                        size="small"
-                        sx={{ width: 60 }}
-                        inputProps={{
-                          min: 1,
-                          max: 10,
-                          type: "number",
-                          style: { textAlign: "center" },
-                        }}
-                      />
-                      <IconButton
-                        edge="end"
-                        onClick={() =>
-                          handleCopyCountChange(docId, currentCopies + 1)
-                        }
-                        disabled={currentCopies >= 10}
-                      >
-                        <AddIcon />
-                      </IconButton>
-                    </Box>
-                  }
-                >
-                  <ListItemIcon>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        width: 32,
-                        height: 32,
-                        borderRadius: 1,
-                        bgcolor: alpha(
-                          theme.palette[getDocumentColor(doc.category)].main,
-                          0.1
-                        ),
-                        color: `${getDocumentColor(doc.category)}.main`,
-                      }}
-                    >
-                      {React.cloneElement(getDocumentIcon(doc.category), {
-                        sx: { fontSize: 18 },
-                      })}
-                    </Box>
-                  </ListItemIcon>
-                  <ListItemText
-                    primary={doc.title}
-                    secondary={
-                      <Stack direction="row" spacing={1} sx={{ mt: 0.5 }}>
-                        {renderCategoryChips(doc, "small", 1)}
-                        <Typography variant="caption" color="text.secondary">
-                          Default: {defaultCopies}{" "}
-                          {defaultCopies === 1 ? "copy" : "copies"}
-                        </Typography>
-                      </Stack>
-                    }
-                  />
-                </ListItem>
-              );
-            })}
-          </List>
-        </DialogContent>
-
-        <DialogActions
-          sx={{ px: 3, py: 2, borderTop: "1px solid", borderColor: "divider" }}
-        >
-          <Button onClick={() => setOpenCopyDialog(false)} variant="outlined">
-            Cancel
-          </Button>
-
-          <Button
-            onClick={handleExportWithCustomCopies}
-            variant="contained"
-            color="primary"
-            startIcon={<CloudDownloadIcon />}
-          >
-            Export {calculateTotalCustomCopies()} Copies
-          </Button>
-        </DialogActions>
-      </Dialog>
-    );
-  };
 
   if (loading) {
     return (
@@ -1426,79 +1134,115 @@ const ViewDocuments = () => {
                 justifyContent: { xs: "space-between", sm: "flex-end" },
               }}
             >
-              <Tooltip title="Show tips">
-                <IconButton
+              {/* Show these controls only when NOT in select mode */}
+              {!selectMode && (
+                <>
+                  <Tooltip title="Show tips">
+                    <IconButton
+                      size="small"
+                      onClick={() => setShowTips(!showTips)}
+                      color={showTips ? "primary" : "default"}
+                    >
+                      <InfoIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+
+                  {/* Sort button with A-Z/Z-A label */}
+                  <Button
+                    size="small"
+                    variant="text"
+                    onClick={handleToggleSort}
+                    startIcon={
+                      sortDirection === "asc" ? (
+                        <ArrowUpwardIcon />
+                      ) : (
+                        <ArrowDownwardIcon />
+                      )
+                    }
+                    sx={{
+                      minWidth: "65px",
+                      px: 1,
+                      fontSize: "0.75rem",
+                    }}
+                  >
+                    {sortDirection === "asc" ? "A-Z" : "Z-A"}
+                  </Button>
+
+                  {/* View toggle group */}
+                  <ToggleButtonGroup
+                    value={viewMode}
+                    exclusive
+                    onChange={handleViewModeChange}
+                    size="small"
+                    aria-label="view mode"
+                    sx={{ height: 36 }}
+                  >
+                    <ToggleButton value="list" aria-label="list view">
+                      <Tooltip title="List view">
+                        <ViewListIcon fontSize="small" />
+                      </Tooltip>
+                    </ToggleButton>
+                    <ToggleButton value="grid" aria-label="grid view">
+                      <Tooltip title="Grid view">
+                        <ViewModuleIcon fontSize="small" />
+                      </Tooltip>
+                    </ToggleButton>
+                  </ToggleButtonGroup>
+                </>
+              )}
+
+              {/* Select mode controls */}
+              {selectMode ? (
+                <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+                  <IconButton
+                    size="small"
+                    color="error"
+                    onClick={() => {
+                      setSelectMode(false);
+                      setSelectedDocuments([]);
+                    }}
+                    sx={{
+                      height: 36,
+                      width: 36,
+                    }}
+                  >
+                    <ClearIcon fontSize="small" />
+                  </IconButton>
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    color="primary"
+                    onClick={handleSelectAllToggle}
+                    startIcon={
+                      areAllSelected() ? <CheckBoxIcon /> : <CheckBoxOutlineBlankIcon />
+                    }
+                    sx={{
+                      height: 36,
+                      fontSize: "0.75rem",
+                      fontWeight: "medium",
+                      px: 1.5,
+                    }}
+                  >
+                    {areAllSelected() ? "Deselect All" : "Select All"}
+                  </Button>
+                </Box>
+              ) : (
+                <Button
+                  variant="outlined"
                   size="small"
-                  onClick={() => setShowTips(!showTips)}
-                  color={showTips ? "primary" : "default"}
+                  color="inherit"
+                  onClick={() => setSelectMode(true)}
+                  startIcon={<CheckBoxOutlineBlankIcon />}
+                  sx={{
+                    height: 36,
+                    fontSize: "0.75rem",
+                    fontWeight: "medium",
+                    px: 1.5,
+                  }}
                 >
-                  <InfoIcon fontSize="small" />
-                </IconButton>
-              </Tooltip>
-
-              {/* Sort button with A-Z/Z-A label */}
-              <Button
-                size="small"
-                variant="text"
-                onClick={handleToggleSort}
-                startIcon={
-                  sortDirection === "asc" ? (
-                    <ArrowUpwardIcon />
-                  ) : (
-                    <ArrowDownwardIcon />
-                  )
-                }
-                sx={{
-                  minWidth: "65px",
-                  px: 1,
-                  fontSize: "0.75rem",
-                }}
-              >
-                {sortDirection === "asc" ? "A-Z" : "Z-A"}
-              </Button>
-
-              {/* View toggle group */}
-              <ToggleButtonGroup
-                value={viewMode}
-                exclusive
-                onChange={handleViewModeChange}
-                size="small"
-                aria-label="view mode"
-                sx={{ height: 36 }}
-              >
-                <ToggleButton value="list" aria-label="list view">
-                  <Tooltip title="List view">
-                    <ViewListIcon fontSize="small" />
-                  </Tooltip>
-                </ToggleButton>
-                <ToggleButton value="grid" aria-label="grid view">
-                  <Tooltip title="Grid view">
-                    <ViewModuleIcon fontSize="small" />
-                  </Tooltip>
-                </ToggleButton>
-              </ToggleButtonGroup>
-
-              {/* Improved select button */}
-              <Button
-                variant={selectMode ? "contained" : "outlined"}
-                size="small"
-                color={selectMode ? "primary" : "inherit"}
-                onClick={() => {
-                  setSelectMode(!selectMode);
-                  if (selectMode) setSelectedDocuments([]);
-                }}
-                startIcon={
-                  selectMode ? <CheckBoxIcon /> : <CheckBoxOutlineBlankIcon />
-                }
-                sx={{
-                  height: 36,
-                  fontSize: "0.75rem",
-                  fontWeight: "medium",
-                  px: 1.5,
-                }}
-              >
-                {selectMode ? `${selectedDocuments.length} Selected` : "Select"}
-              </Button>
+                  Select
+                </Button>
+              )}
             </Box>
           </Box>
         </Box>
@@ -1559,42 +1303,135 @@ const ViewDocuments = () => {
           </Box>
         </Collapse>
 
-        {/* Selection controls when in select mode */}
+        {/* Selection mode indicator */}
         {selectMode && filteredDocuments.length > 0 && (
           <Box
             sx={{
               display: "flex",
-              justifyContent: "space-between",
               alignItems: "center",
+              gap: 1.5,
               px: 3,
               py: 1.5,
-              bgcolor: alpha(theme.palette.primary.light, 0.1),
-              borderColor: alpha(theme.palette.primary.light, 0.2),
-              borderBottomStyle: "solid",
-              borderBottomWidth: 1,
+              bgcolor: alpha(theme.palette.primary.main, 0.08),
+              borderTop: "2px solid",
+              borderColor: "primary.main",
             }}
           >
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={areAllSelected()}
-                  onChange={handleSelectAllToggle}
-                  indeterminate={
-                    selectedDocuments.length > 0 && !areAllSelected()
-                  }
-                  size="small"
-                />
-              }
-              label={
-                <Typography variant="body2">
-                  {`Select All (${filteredDocuments.length})`}
-                </Typography>
-              }
-              sx={{ mr: 2 }}
-            />
+            <CheckBoxIcon color="primary" sx={{ fontSize: 20 }} />
+            <Typography variant="body2" fontWeight="medium" color="primary">
+              {selectedDocuments.length === 0
+                ? "Click on documents to select them"
+                : `${selectedDocuments.length} of ${filteredDocuments.length} document${filteredDocuments.length !== 1 ? "s" : ""} selected`}
+            </Typography>
           </Box>
         )}
       </Card>
+
+      {/* Signature Status Card */}
+      {intakeForm && (() => {
+        const sigStatus = calculateSignatureStatus(intakeForm);
+        const hasAllSignatures = sigStatus.collected === sigStatus.total;
+        const hasSomeSignatures = sigStatus.collected > 0 && sigStatus.collected < sigStatus.total;
+        const hasNoSignatures = sigStatus.collected === 0;
+
+        return (
+          <Card
+            variant="outlined"
+            sx={{
+              mb: 3,
+              borderRadius: 2,
+              overflow: "hidden",
+              borderColor: hasAllSignatures
+                ? "success.main"
+                : hasSomeSignatures
+                ? "warning.main"
+                : "info.main",
+              borderWidth: 1,
+            }}
+          >
+            <Box
+              sx={{
+                px: 3,
+                py: 2,
+                display: "flex",
+                flexDirection: { xs: "column", sm: "row" },
+                alignItems: { xs: "flex-start", sm: "center" },
+                justifyContent: "space-between",
+                gap: 2,
+                bgcolor: hasAllSignatures
+                  ? alpha(theme.palette.success.main, 0.05)
+                  : hasSomeSignatures
+                  ? alpha(theme.palette.warning.main, 0.05)
+                  : alpha(theme.palette.info.main, 0.05),
+              }}
+            >
+              <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    width: 48,
+                    height: 48,
+                    borderRadius: 2,
+                    bgcolor: hasAllSignatures
+                      ? alpha(theme.palette.success.main, 0.1)
+                      : hasSomeSignatures
+                      ? alpha(theme.palette.warning.main, 0.1)
+                      : alpha(theme.palette.info.main, 0.1),
+                  }}
+                >
+                  {hasAllSignatures ? (
+                    <CheckCircleIcon sx={{ fontSize: 28, color: "success.main" }} />
+                  ) : hasSomeSignatures ? (
+                    <WarningIcon sx={{ fontSize: 28, color: "warning.main" }} />
+                  ) : (
+                    <DrawIcon sx={{ fontSize: 28, color: "info.main" }} />
+                  )}
+                </Box>
+                <Box>
+                  <Typography variant="h6" fontWeight="medium" gutterBottom sx={{ mb: 0.5 }}>
+                    {hasAllSignatures
+                      ? "All Signatures Collected"
+                      : hasSomeSignatures
+                      ? "Signatures Incomplete"
+                      : "No Signatures Collected"}
+                  </Typography>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, flexWrap: "wrap" }}>
+                    <Chip
+                      size="small"
+                      label={`${sigStatus.collected} of ${sigStatus.total} signatures`}
+                      color={hasAllSignatures ? "success" : hasSomeSignatures ? "warning" : "default"}
+                      sx={{ fontWeight: "medium" }}
+                    />
+                    {sigStatus.missing > 0 && (
+                      <Typography variant="body2" color="text.secondary">
+                        {sigStatus.missing} signature{sigStatus.missing !== 1 ? "s" : ""} missing
+                      </Typography>
+                    )}
+                  </Box>
+                </Box>
+              </Box>
+              <Button
+                variant={hasAllSignatures ? "outlined" : "contained"}
+                color={hasAllSignatures ? "success" : hasSomeSignatures ? "warning" : "primary"}
+                startIcon={<DrawIcon />}
+                onClick={() => navigate(`/collect-signatures/${id}`)}
+                sx={{
+                  minWidth: { xs: "100%", sm: 200 },
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {hasAllSignatures
+                  ? "Review Signatures"
+                  : hasSomeSignatures
+                  ? "Collect Missing Signatures"
+                  : "Collect Signatures"}
+              </Button>
+            </Box>
+          </Card>
+        );
+      })()}
 
       {error && (
         <Alert
@@ -1773,8 +1610,17 @@ const ViewDocuments = () => {
                         }
                         sx={{
                           transition: "all 0.2s ease",
+                          bgcolor: selectMode && selectedDocuments.includes(document._id)
+                            ? alpha(theme.palette.primary.main, 0.08)
+                            : "transparent",
+                          borderLeft: selectMode && selectedDocuments.includes(document._id)
+                            ? "3px solid"
+                            : "3px solid transparent",
+                          borderColor: "primary.main",
                           "&:hover": {
-                            bgcolor: alpha(theme.palette[docColor].main, 0.05),
+                            bgcolor: selectMode
+                              ? alpha(theme.palette.primary.main, 0.12)
+                              : alpha(theme.palette[docColor].main, 0.05),
                           },
                         }}
                       >
@@ -1786,10 +1632,13 @@ const ViewDocuments = () => {
                               : () => handleViewDocument(document._id)
                           }
                           dense
-                          sx={{ py: 1 }}
+                          sx={{
+                            py: 1,
+                            cursor: selectMode ? "pointer" : "default",
+                          }}
                         >
                           {selectMode && (
-                            <ListItemIcon sx={{ minWidth: 36 }}>
+                            <ListItemIcon sx={{ minWidth: 48 }}>
                               <Checkbox
                                 edge="start"
                                 checked={selectedDocuments.includes(
@@ -1797,7 +1646,12 @@ const ViewDocuments = () => {
                                 )}
                                 tabIndex={-1}
                                 disableRipple
-                                size="small"
+                                size="medium"
+                                sx={{
+                                  "& .MuiSvgIcon-root": {
+                                    fontSize: 24,
+                                  },
+                                }}
                               />
                             </ListItemIcon>
                           )}
@@ -1876,7 +1730,7 @@ const ViewDocuments = () => {
                 return (
                   <Grid item xs={6} sm={4} md={3} lg={2} key={document._id}>
                     <Card
-                      elevation={1}
+                      elevation={selectMode && selectedDocuments.includes(document._id) ? 4 : 1}
                       sx={{
                         height: "100%",
                         display: "flex",
@@ -1884,14 +1738,24 @@ const ViewDocuments = () => {
                         cursor: "pointer",
                         transition: "all 0.2s",
                         "&:hover": {
-                          transform: "translateY(-2px)",
-                          boxShadow: 2,
+                          transform: selectMode ? "scale(1.02)" : "translateY(-2px)",
+                          boxShadow: selectMode ? 4 : 2,
+                          borderColor: selectMode
+                            ? "primary.main"
+                            : alpha(theme.palette[docColor].main, 0.4),
                         },
                         position: "relative",
                         borderRadius: 1.5,
                         overflow: "hidden",
-                        border: "1px solid",
-                        borderColor: alpha(theme.palette[docColor].main, 0.2),
+                        border: "2px solid",
+                        borderColor: selectMode && selectedDocuments.includes(document._id)
+                          ? "primary.main"
+                          : selectMode
+                          ? alpha(theme.palette.primary.main, 0.3)
+                          : alpha(theme.palette[docColor].main, 0.2),
+                        bgcolor: selectMode && selectedDocuments.includes(document._id)
+                          ? alpha(theme.palette.primary.main, 0.08)
+                          : "background.paper",
                         maxWidth: "100%",
                       }}
                       onClick={
@@ -1929,17 +1793,21 @@ const ViewDocuments = () => {
                           checked={selectedDocuments.includes(document._id)}
                           sx={{
                             position: "absolute",
-                            top: 4,
-                            left: 4,
+                            top: 6,
+                            left: 6,
                             bgcolor: "background.paper",
                             borderRadius: "50%",
-                            p: 0.25,
+                            p: 0.5,
                             zIndex: 10,
+                            boxShadow: 2,
                             "& .MuiSvgIcon-root": {
-                              fontSize: 16,
+                              fontSize: 26,
+                            },
+                            "&:hover": {
+                              bgcolor: alpha(theme.palette.primary.main, 0.1),
                             },
                           }}
-                          size="small"
+                          size="medium"
                         />
                       )}
 
@@ -2083,215 +1951,32 @@ const ViewDocuments = () => {
       )}
 
       {/* Document Actions Menu */}
-      <Menu
+      <DocumentActionsMenu
         anchorEl={menuAnchorEl}
         open={Boolean(menuAnchorEl)}
         onClose={handleCloseMenu}
-        PaperProps={{
-          sx: { width: 200, borderRadius: 2, overflow: "hidden" },
-          elevation: 3,
-        }}
-      >
-        <MenuItem
-          onClick={() => {
-            handleViewDocument(actionDocument?._id);
-            handleCloseMenu();
-          }}
-        >
-          <ListItemIcon>
-            <DescriptionIcon fontSize="small" />
-          </ListItemIcon>
-          <ListItemText>View</ListItemText>
-        </MenuItem>
-        <MenuItem
-          onClick={() => {
-            handleEditDocument(actionDocument?._id);
-            handleCloseMenu();
-          }}
-        >
-          <ListItemIcon>
-            <EditIcon fontSize="small" />
-          </ListItemIcon>
-          <ListItemText>Edit</ListItemText>
-        </MenuItem>
-        <MenuItem
-          onClick={() => {
-            handleExportSingleToPDF(actionDocument?._id);
-            handleCloseMenu();
-          }}
-        >
-          <ListItemIcon>
-            <DownloadIcon fontSize="small" />
-          </ListItemIcon>
-          <ListItemText>Download PDF</ListItemText>
-        </MenuItem>
-        <Divider />
-        <MenuItem>
-          <ListItemIcon>
-            <FileCopyIcon fontSize="small" />
-          </ListItemIcon>
-          <ListItemText>Duplicate</ListItemText>
-        </MenuItem>
-        <MenuItem>
-          <ListItemIcon>
-            <ArchiveIcon fontSize="small" />
-          </ListItemIcon>
-          <ListItemText>Archive</ListItemText>
-        </MenuItem>
-        <MenuItem sx={{ color: "error.main" }}>
-          <ListItemIcon>
-            <DeleteIcon fontSize="small" color="error" />
-          </ListItemIcon>
-          <ListItemText>Delete</ListItemText>
-        </MenuItem>
-      </Menu>
+        document={actionDocument}
+        onView={handleViewDocument}
+        onEdit={handleEditDocument}
+        onExport={handleExportSingleToPDF}
+      />
 
       {/* Generate Documents Dialog */}
-      <Dialog
+      <GenerateDocumentsDialog
         open={openGenerateDialog}
-        onClose={() => !generating && setOpenGenerateDialog(false)}
-        maxWidth="sm"
-        fullWidth
-        PaperProps={{
-          sx: {
-            borderRadius: 2,
-            boxShadow: 3,
-            overflow: "hidden",
-          },
-        }}
-      >
-        <DialogTitle
-          sx={{
-            bgcolor: alpha(theme.palette.primary.main, 0.05),
-            borderBottom: "1px solid",
-            borderColor: alpha(theme.palette.primary.main, 0.1),
-          }}
-        >
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            <AssignmentIcon color="primary" sx={{ mr: 1.5 }} />
-            <Typography variant="h6">Generate Documents</Typography>
-          </Box>
-        </DialogTitle>
-        <DialogContent sx={{ mt: 2 }}>
-          <Typography variant="body1" paragraph>
-            No documents have been generated for this intake form yet. Would you
-            like to generate them now?
-          </Typography>
-          <Typography variant="body2" color="text.secondary" paragraph>
-            This will create all required documentation for {intakeForm?.name}'s
-            case including:
-          </Typography>
-          <Box sx={{ ml: 2, mb: 2 }}>
-            <Typography variant="body2" component="div">
-              • Intake forms and assessments
-              <br />
-              • Consent and authorization documents
-              <br />
-              • Placement agreements
-              <br />• Service plans
-            </Typography>
-          </Box>
-          <Alert
-            severity="info"
-            variant="outlined"
-            sx={{ mt: 2, borderRadius: 1 }}
-          >
-            You can edit all documents after they are generated.
-          </Alert>
-          {generating && (
-            <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
-              <CircularProgress />
-            </Box>
-          )}
-        </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 3 }}>
-          <Button
-            onClick={() => setOpenGenerateDialog(false)}
-            disabled={generating}
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={handleGenerateDocuments}
-            variant="contained"
-            disabled={generating}
-            startIcon={
-              generating ? <CircularProgress size={16} /> : <AssignmentIcon />
-            }
-          >
-            {generating ? "Generating..." : "Generate Documents"}
-          </Button>
-        </DialogActions>
-      </Dialog>
+        onClose={() => setOpenGenerateDialog(false)}
+        onGenerate={handleGenerateDocuments}
+        isGenerating={generating}
+        clientName={intakeForm?.name}
+      />
 
       {/* Regenerate Documents Dialog */}
-      <Dialog
+      <RegenerateDocumentsDialog
         open={openRegenerateDialog}
-        onClose={() => !generating && setOpenRegenerateDialog(false)}
-        maxWidth="sm"
-        fullWidth
-        PaperProps={{
-          sx: {
-            borderRadius: 2,
-            boxShadow: 3,
-            overflow: "hidden",
-          },
-        }}
-      >
-        <DialogTitle
-          sx={{
-            bgcolor: alpha(theme.palette.warning.main, 0.05),
-            borderBottom: "1px solid",
-            borderColor: alpha(theme.palette.warning.main, 0.1),
-          }}
-        >
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            <AssignmentIcon color="warning" sx={{ mr: 1.5 }} />
-            <Typography variant="h6">Regenerate Documents</Typography>
-          </Box>
-        </DialogTitle>
-        <DialogContent sx={{ mt: 2 }}>
-          <Typography variant="body1" paragraph>
-            Are you sure you want to regenerate all documents for this intake
-            form?
-          </Typography>
-          <Alert
-            severity="warning"
-            variant="outlined"
-            sx={{ mt: 2, borderRadius: 1 }}
-          >
-            <Typography variant="body2">
-              <strong>Important:</strong> This will replace all existing
-              documents with new ones based on the current form data. Any edits
-              made directly to documents will be lost.
-            </Typography>
-          </Alert>
-          {generating && (
-            <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
-              <CircularProgress />
-            </Box>
-          )}
-        </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 3 }}>
-          <Button
-            onClick={() => setOpenRegenerateDialog(false)}
-            disabled={generating}
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={handleRegenerateDocuments}
-            variant="contained"
-            color="warning"
-            disabled={generating}
-            startIcon={
-              generating ? <CircularProgress size={16} /> : <AssignmentIcon />
-            }
-          >
-            {generating ? "Regenerating..." : "Yes, Regenerate All"}
-          </Button>
-        </DialogActions>
-      </Dialog>
+        onClose={() => setOpenRegenerateDialog(false)}
+        onRegenerate={handleRegenerateDocuments}
+        isGenerating={generating}
+      />
 
       {/* Success message */}
       <Snackbar
@@ -2300,7 +1985,28 @@ const ViewDocuments = () => {
         onClose={() => setSuccessMessage("")}
         message={successMessage}
       />
-      <CustomCopiesDialog />
+      <CustomCopiesDialog
+        open={openCopyDialog}
+        onClose={() => setOpenCopyDialog(false)}
+        selectedDocuments={selectedDocuments}
+        documents={documents}
+        categories={categories}
+        tabValue={tabValue}
+        customCopyCounts={customCopyCounts}
+        onCopyCountChange={handleCopyCountChange}
+        onExport={handleExportWithCustomCopies}
+        calculateTotalCopies={calculateTotalCustomCopies}
+        renderCategoryChips={renderCategoryChips}
+      />
+
+      {/* Document generation animation */}
+      <DocumentGenerationAnimation
+        isGenerating={generatingPDF}
+        documentCount={generatingDocumentCount}
+        realProgress={pdfProgress}
+        currentPhaseText={pdfPhase}
+        currentDocumentName={currentDocName}
+      />
     </Container>
   );
 };

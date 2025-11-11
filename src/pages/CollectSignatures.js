@@ -21,6 +21,10 @@ import {
   TextField,
   Tooltip,
   Avatar,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
 import {
   Person as PersonIcon,
@@ -37,9 +41,10 @@ import {
   SupervisorAccount as SupervisorIcon,
   Group as GroupIcon,
   Work as WorkIcon,
+  Info as InfoIcon,
 } from "@mui/icons-material";
 import SignatureCanvas from "react-signature-canvas";
-import { getIntakeForm, updateSignature } from "../utils/api";
+import { getIntakeForm, updateSignature, updateSignatureLabel } from "../utils/api";
 
 // Signature types with more detailed information and icons
 const signatures = [
@@ -80,6 +85,105 @@ const signatures = [
   },
 ];
 
+// Custom StepIcon component with enhanced colors and icons
+const CustomStepIcon = ({ active, completed, skipped, icon, color, stepNumber }) => {
+  if (skipped) {
+    return (
+      <Box
+        sx={{
+          width: 50,
+          height: 50,
+          borderRadius: "50%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          bgcolor: "grey.300",
+          border: "3px solid",
+          borderColor: "grey.400",
+          color: "grey.600",
+        }}
+      >
+        <CancelIcon sx={{ fontSize: 28 }} />
+      </Box>
+    );
+  }
+
+  if (completed) {
+    return (
+      <Box
+        sx={{
+          width: 50,
+          height: 50,
+          borderRadius: "50%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          bgcolor: color,
+          border: "3px solid",
+          borderColor: color,
+          color: "white",
+          boxShadow: `0 0 0 4px ${color}20`,
+        }}
+      >
+        <CheckCircleIcon sx={{ fontSize: 32 }} />
+      </Box>
+    );
+  }
+
+  if (active) {
+    return (
+      <Box
+        sx={{
+          width: 50,
+          height: 50,
+          borderRadius: "50%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          bgcolor: "white",
+          border: "4px solid",
+          borderColor: color,
+          color: color,
+          boxShadow: `0 0 0 4px ${color}30, 0 4px 12px ${color}40`,
+          animation: "pulse 2s infinite",
+          "@keyframes pulse": {
+            "0%": {
+              boxShadow: `0 0 0 4px ${color}30, 0 4px 12px ${color}40`,
+            },
+            "50%": {
+              boxShadow: `0 0 0 8px ${color}20, 0 6px 16px ${color}50`,
+            },
+            "100%": {
+              boxShadow: `0 0 0 4px ${color}30, 0 4px 12px ${color}40`,
+            },
+          },
+        }}
+      >
+        {React.cloneElement(icon, { sx: { fontSize: 28 } })}
+      </Box>
+    );
+  }
+
+  return (
+    <Box
+      sx={{
+        width: 50,
+        height: 50,
+        borderRadius: "50%",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        bgcolor: "grey.100",
+        border: "3px solid",
+        borderColor: "grey.300",
+        color: "grey.500",
+      }}
+    >
+      {React.cloneElement(icon, { sx: { fontSize: 24 } })}
+    </Box>
+  );
+};
+
 const CollectSignatures = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -89,14 +193,19 @@ const CollectSignatures = () => {
   const [formData, setFormData] = useState(null);
   const [completedSteps, setCompletedSteps] = useState([]);
   const [skippedSteps, setSkippedSteps] = useState([]);
+  const [existingSignatures, setExistingSignatures] = useState({});
   const sigPadRef = useRef({});
-  const [isDrawing, setIsDrawing] = useState(false);
-
-  // Event handlers to track drawing state
-  const handleBeginDrawing = () => {
-    setIsDrawing(true);
-    setError(""); // Clear any previous errors
-  };
+  const [showReplaceDialog, setShowReplaceDialog] = useState(false);
+  const [pendingSignatureData, setPendingSignatureData] = useState(null);
+  const [signatureLabels, setSignatureLabels] = useState({
+    childSignature: "Foster Child",
+    parentSignature: "Resource Mother",
+    caseworkerSignature: "Resource Father",
+    supervisorSignature: "Pathway Social Worker",
+    agencyRepSignature: "County Social Worker",
+  });
+  const [editingLabel, setEditingLabel] = useState(null);
+  const [tempLabel, setTempLabel] = useState("");
 
   useEffect(() => {
       document.title = "Signatures | Pathway Foster Agency";
@@ -107,7 +216,60 @@ const CollectSignatures = () => {
       try {
         setLoading(true);
         const response = await getIntakeForm(id);
-        setFormData(response.data);
+        const form = response.data;
+        setFormData(form);
+
+        // Load saved signature labels if they exist
+        if (form.signatureLabels) {
+          const savedLabels = {};
+          signatures.forEach((sig) => {
+            let labelData = null;
+            if (form.signatureLabels.get && typeof form.signatureLabels.get === 'function') {
+              labelData = form.signatureLabels.get(sig.type);
+            } else if (form.signatureLabels[sig.type]) {
+              labelData = form.signatureLabels[sig.type];
+            }
+
+            if (labelData) {
+              savedLabels[sig.type] = labelData;
+            }
+          });
+
+          // Merge saved labels with defaults
+          setSignatureLabels((prev) => ({
+            ...prev,
+            ...savedLabels,
+          }));
+        }
+
+        // Check for existing signatures and mark as completed
+        if (form.signatures) {
+          const existingSigs = {};
+          const completedIndexes = [];
+
+          signatures.forEach((sig, index) => {
+            // Check if signature exists in the form data
+            let signatureData = null;
+            if (form.signatures.get && typeof form.signatures.get === 'function') {
+              signatureData = form.signatures.get(sig.type);
+            } else if (form.signatures[sig.type]) {
+              signatureData = form.signatures[sig.type];
+            }
+
+            if (signatureData) {
+              // Extract the actual signature image data
+              if (signatureData.signature) {
+                existingSigs[sig.type] = signatureData.signature;
+              } else if (typeof signatureData === 'string') {
+                existingSigs[sig.type] = signatureData;
+              }
+              completedIndexes.push(index);
+            }
+          });
+
+          setExistingSignatures(existingSigs);
+          setCompletedSteps(completedIndexes);
+        }
       } catch (err) {
         setError(
           "Error loading form data: " +
@@ -125,32 +287,19 @@ const CollectSignatures = () => {
   const clearSignature = () => {
     if (sigPadRef.current) {
       sigPadRef.current.clear();
-      setIsDrawing(false);
     }
   };
 
   useEffect(() => {
-    if (sigPadRef.current && sigPadRef.current.on) {
-      // Add event listeners for begin drawing
-      sigPadRef.current.on("beginStroke", handleBeginDrawing);
-
+    if (sigPadRef.current && sigPadRef.current._ctx) {
       // Configure the signature pad for better quality
-      if (sigPadRef.current._ctx) {
-        // Enable high quality rendering with anti-aliasing
-        sigPadRef.current._ctx.imageSmoothingEnabled = true;
-        sigPadRef.current._ctx.imageSmoothingQuality = "high";
+      // Enable high quality rendering with anti-aliasing
+      sigPadRef.current._ctx.imageSmoothingEnabled = true;
+      sigPadRef.current._ctx.imageSmoothingQuality = "high";
 
-        // Adjust line join and cap for smoother signatures
-        sigPadRef.current._ctx.lineJoin = "round";
-        sigPadRef.current._ctx.lineCap = "round";
-      }
-
-      return () => {
-        // Clean up event listeners when component unmounts
-        if (sigPadRef.current && sigPadRef.current.off) {
-          sigPadRef.current.off("beginStroke", handleBeginDrawing);
-        }
-      };
+      // Adjust line join and cap for smoother signatures
+      sigPadRef.current._ctx.lineJoin = "round";
+      sigPadRef.current._ctx.lineCap = "round";
     }
   }, []);
 
@@ -158,7 +307,6 @@ const CollectSignatures = () => {
     // Clear the signature pad whenever the active step changes
     if (sigPadRef.current) {
       sigPadRef.current.clear();
-      setIsDrawing(false); // Reset drawing state for the new signature
     }
   }, [activeStep]); // This will run whenever activeStep changes
 
@@ -175,19 +323,16 @@ const CollectSignatures = () => {
         return;
       }
 
-      setLoading(true);
       setError("");
 
       // Get enhanced signature data with improved quality settings
-      // Use higher quality settings for the PNG and set proper DPI
       const canvas = sigPadRef.current.getCanvas();
-      const devicePixelRatio = window.devicePixelRatio || 1;
 
       // Create a larger canvas for higher resolution output
       const highResCanvas = document.createElement("canvas");
       const ctx = highResCanvas.getContext("2d");
 
-      // Set dimensions 2x larger for better quality (can be adjusted if needed)
+      // Set dimensions 2x larger for better quality
       const width = canvas.width * 2;
       const height = canvas.height * 2;
 
@@ -206,11 +351,43 @@ const CollectSignatures = () => {
       const signatureData = highResCanvas.toDataURL("image/png", 1.0);
       const signatureType = signatures[activeStep].type;
 
+      // Check if signature already exists - if so, show confirmation dialog
+      if (existingSignatures[signatureType]) {
+        setPendingSignatureData({ signatureData, signatureType });
+        setShowReplaceDialog(true);
+        return;
+      }
+
+      // No existing signature, save directly
+      await performSave(signatureData, signatureType);
+    } catch (err) {
+      console.error("Error saving signature:", err);
+      setError(
+        "Error saving signature: " +
+          (err.response?.data?.message || err.message)
+      );
+    }
+  };
+
+  // Perform the actual save operation
+  const performSave = async (signatureData, signatureType) => {
+    try {
+      setLoading(true);
+      setError("");
+
       // Save signature to server
       await updateSignature(id, signatureType, signatureData);
 
-      // Mark step as completed
-      setCompletedSteps((prev) => [...prev, activeStep]);
+      // Update existing signatures state
+      setExistingSignatures((prev) => ({
+        ...prev,
+        [signatureType]: signatureData,
+      }));
+
+      // Mark step as completed if not already
+      if (!completedSteps.includes(activeStep)) {
+        setCompletedSteps((prev) => [...prev, activeStep]);
+      }
 
       // Move to next step or finish
       handleNext();
@@ -223,6 +400,57 @@ const CollectSignatures = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Confirm replacement
+  const handleConfirmReplace = async () => {
+    setShowReplaceDialog(false);
+    if (pendingSignatureData) {
+      await performSave(
+        pendingSignatureData.signatureData,
+        pendingSignatureData.signatureType
+      );
+      setPendingSignatureData(null);
+    }
+  };
+
+  // Cancel replacement and keep original
+  const handleCancelReplace = () => {
+    setShowReplaceDialog(false);
+    setPendingSignatureData(null);
+    // Move to next step without saving
+    handleNext();
+  };
+
+  // Handle label editing
+  const handleStartEditLabel = (signatureType, currentLabel) => {
+    setEditingLabel(signatureType);
+    setTempLabel(currentLabel);
+  };
+
+  const handleSaveLabel = async (signatureType) => {
+    if (tempLabel.trim()) {
+      try {
+        // Update in local state first for immediate UI feedback
+        setSignatureLabels((prev) => ({
+          ...prev,
+          [signatureType]: tempLabel.trim(),
+        }));
+
+        // Save to backend
+        await updateSignatureLabel(id, signatureType, tempLabel.trim());
+      } catch (err) {
+        console.error("Error saving signature label:", err);
+        setError("Error saving label: " + (err.response?.data?.message || err.message));
+      }
+    }
+    setEditingLabel(null);
+    setTempLabel("");
+  };
+
+  const handleCancelEditLabel = () => {
+    setEditingLabel(null);
+    setTempLabel("");
   };
 
   // Skip current signature
@@ -331,33 +559,104 @@ const CollectSignatures = () => {
             {formData?.levelOfCare && (
               <Chip label={`LOC: ${formData.levelOfCare}`} variant="outlined" />
             )}
+            <Chip
+              icon={<CheckCircleIcon />}
+              label={`${completedSteps.length} of ${signatures.length} collected`}
+              color={completedSteps.length === signatures.length ? "success" : "default"}
+              variant="outlined"
+            />
           </Box>
 
           {/* Signature Step Process */}
           <Box sx={{ mb: 4 }}>
-            <Stepper activeStep={activeStep} alternativeLabel>
+            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2 }}>
+              <Typography variant="subtitle2" color="text.secondary">
+                Signature Collection Progress
+              </Typography>
+              <Chip
+                icon={<InfoIcon />}
+                label="Click edit icon to customize labels"
+                size="small"
+                variant="outlined"
+                sx={{ fontSize: "0.7rem", height: 24 }}
+              />
+            </Box>
+            <Stepper
+              activeStep={activeStep}
+              alternativeLabel
+              sx={{
+                "& .MuiStepConnector-line": {
+                  borderColor: "grey.300",
+                  borderTopWidth: 3,
+                },
+                "& .MuiStepConnector-root.Mui-completed .MuiStepConnector-line": {
+                  borderColor: signatures[activeStep]?.color || "primary.main",
+                  borderTopWidth: 3,
+                },
+                "& .MuiStepConnector-root.Mui-active .MuiStepConnector-line": {
+                  borderColor: signatures[activeStep]?.color || "primary.main",
+                  borderTopWidth: 3,
+                },
+              }}
+            >
               {signatures.map((sig, index) => {
-                const stepProps = {};
-                const labelProps = {};
-
                 const isCompleted = completedSteps.includes(index);
                 const isSkipped = skippedSteps.includes(index);
+                const isActive = index === activeStep;
 
                 return (
-                  <Step key={sig.type} {...stepProps} completed={isCompleted}>
+                  <Step key={sig.type} completed={isCompleted}>
                     <StepLabel
-                      {...labelProps}
-                      StepIconProps={{
-                        icon: isSkipped ? <CancelIcon color="action" /> : null,
-                        style: { color: sig.color },
-                      }}
+                      StepIconComponent={() => (
+                        <CustomStepIcon
+                          active={isActive}
+                          completed={isCompleted}
+                          skipped={isSkipped}
+                          icon={sig.icon}
+                          color={sig.color}
+                          stepNumber={index + 1}
+                        />
+                      )}
                     >
-                      <Typography
-                        variant="caption"
-                        fontWeight={index === activeStep ? "medium" : "normal"}
-                      >
-                        {sig.label}
-                      </Typography>
+                      <Box sx={{ mt: 1 }}>
+                        <Typography
+                          variant="body2"
+                          fontWeight={isActive ? "bold" : "medium"}
+                          sx={{
+                            color: isActive ? sig.color : "text.primary",
+                            fontSize: isActive ? "0.9rem" : "0.8rem",
+                          }}
+                        >
+                          {signatureLabels[sig.type]}
+                        </Typography>
+                        {isCompleted && (
+                          <Chip
+                            label="Collected"
+                            size="small"
+                            sx={{
+                              mt: 0.5,
+                              height: 18,
+                              fontSize: "0.65rem",
+                              bgcolor: `${sig.color}20`,
+                              color: sig.color,
+                              fontWeight: "bold",
+                            }}
+                          />
+                        )}
+                        {isSkipped && (
+                          <Chip
+                            label="Skipped"
+                            size="small"
+                            sx={{
+                              mt: 0.5,
+                              height: 18,
+                              fontSize: "0.65rem",
+                              bgcolor: "grey.200",
+                              color: "grey.600",
+                            }}
+                          />
+                        )}
+                      </Box>
                     </StepLabel>
                   </Step>
                 );
@@ -396,34 +695,125 @@ const CollectSignatures = () => {
                 p: 2,
                 display: "flex",
                 alignItems: "center",
+                justifyContent: "space-between",
                 bgcolor: `${currentSignature.color}15`,
                 borderBottom: `1px solid ${currentSignature.color}40`,
               }}
             >
-              <Avatar sx={{ bgcolor: currentSignature.color, mr: 2 }}>
-                {currentSignature.icon}
-              </Avatar>
-              <Box>
-                <Typography variant="h6" fontWeight="500">
-                  {currentSignature.label}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {currentSignature.description}
-                </Typography>
+              <Box sx={{ display: "flex", alignItems: "center", flex: 1 }}>
+                <Avatar sx={{ bgcolor: currentSignature.color, mr: 2 }}>
+                  {currentSignature.icon}
+                </Avatar>
+                <Box sx={{ flex: 1 }}>
+                  {editingLabel === currentSignature.type ? (
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <TextField
+                        value={tempLabel}
+                        onChange={(e) => setTempLabel(e.target.value)}
+                        size="small"
+                        autoFocus
+                        sx={{ flex: 1 }}
+                        onKeyPress={(e) => {
+                          if (e.key === "Enter") {
+                            handleSaveLabel(currentSignature.type);
+                          }
+                        }}
+                      />
+                      <IconButton
+                        size="small"
+                        onClick={() => handleSaveLabel(currentSignature.type)}
+                        color="success"
+                      >
+                        <CheckCircleIcon />
+                      </IconButton>
+                      <IconButton size="small" onClick={handleCancelEditLabel} color="error">
+                        <CancelIcon />
+                      </IconButton>
+                    </Box>
+                  ) : (
+                    <>
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                        <Typography variant="h6" fontWeight="500">
+                          {signatureLabels[currentSignature.type]}
+                        </Typography>
+                        <Tooltip title="Edit label">
+                          <IconButton
+                            size="small"
+                            onClick={() =>
+                              handleStartEditLabel(
+                                currentSignature.type,
+                                signatureLabels[currentSignature.type]
+                              )
+                            }
+                            sx={{
+                              color: currentSignature.color,
+                              "&:hover": { bgcolor: `${currentSignature.color}20` },
+                            }}
+                          >
+                            <EditIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                      </Box>
+                      <Typography variant="body2" color="text.secondary">
+                        {currentSignature.description}
+                      </Typography>
+                    </>
+                  )}
+                </Box>
               </Box>
             </Box>
 
             <CardContent sx={{ p: 3 }}>
+              {/* Show existing signature if available */}
+              {existingSignatures[currentSignature.type] && (
+                <Alert
+                  severity="success"
+                  variant="outlined"
+                  sx={{ mb: 2, borderRadius: 1 }}
+                  icon={<CheckCircleIcon />}
+                >
+                  <Typography variant="body2" fontWeight="medium" gutterBottom>
+                    Signature Already Collected
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary" paragraph>
+                    A signature for {currentSignature.label} is already on file. You can replace it by drawing a new signature below.
+                  </Typography>
+                  <Box
+                    sx={{
+                      mt: 2,
+                      p: 2,
+                      border: "2px solid",
+                      borderColor: "success.light",
+                      borderRadius: 1,
+                      backgroundColor: "background.paper",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      minHeight: 100,
+                    }}
+                  >
+                    <img
+                      src={existingSignatures[currentSignature.type]}
+                      alt={`${currentSignature.label} signature`}
+                      style={{
+                        maxWidth: "100%",
+                        maxHeight: "100px",
+                        objectFit: "contain",
+                      }}
+                    />
+                  </Box>
+                </Alert>
+              )}
+
               <Typography variant="body2" paragraph>
-                Please sign clearly within the signature box below. If this
-                signature is not applicable, you can skip to the next one.
+                {existingSignatures[currentSignature.type]
+                  ? "Draw a new signature below to replace the existing one, or skip to keep the current signature."
+                  : "Please sign clearly within the signature box below. If this signature is not applicable, you can skip to the next one."}
               </Typography>
 
               <Box
                 sx={{
-                  border: `2px solid ${
-                    isDrawing ? currentSignature.color : "#e0e0e0"
-                  }`,
+                  border: "2px solid #e0e0e0",
                   borderRadius: 1,
                   backgroundColor: "#f9f9f9",
                   mb: 3,
@@ -431,7 +821,6 @@ const CollectSignatures = () => {
                   width: "100%",
                   position: "relative",
                   touchAction: "none",
-                  transition: "border-color 0.3s ease",
                 }}
               >
                 <SignatureCanvas
@@ -510,13 +899,154 @@ const CollectSignatures = () => {
             <Alert severity="info" variant="outlined" sx={{ borderRadius: 1 }}>
               <Typography variant="body2">
                 <strong>Note:</strong> All signatures are optional and can be
-                skipped if not applicable. Once all signatures are collected or
-                skipped, you'll be redirected to view the completed documents.
+                skipped if not applicable. You can return to this page anytime to
+                collect missing signatures or replace existing ones. Once finished,
+                you'll be redirected to view the completed documents.
               </Typography>
             </Alert>
           </Box>
         </CardContent>
       </Card>
+
+      {/* Replacement Confirmation Dialog */}
+      <Dialog
+        open={showReplaceDialog}
+        onClose={() => setShowReplaceDialog(false)}
+        maxWidth="md"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 2,
+            boxShadow: 3,
+          },
+        }}
+      >
+        <DialogTitle sx={{ bgcolor: "warning.light", color: "warning.contrastText" }}>
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            <EditIcon sx={{ mr: 1.5 }} />
+            <Typography variant="h6">Replace Existing Signature?</Typography>
+          </Box>
+        </DialogTitle>
+        <DialogContent sx={{ mt: 3 }}>
+          <Alert severity="warning" variant="outlined" sx={{ mb: 3 }}>
+            <Typography variant="body2">
+              You are about to replace the existing signature for <strong>{signatureLabels[signatures[activeStep]?.type]}</strong>.
+              This action will permanently overwrite the current signature.
+            </Typography>
+          </Alert>
+
+          <Typography variant="subtitle2" gutterBottom sx={{ mb: 2 }}>
+            Please review the comparison below:
+          </Typography>
+
+          <Grid container spacing={3}>
+            <Grid item xs={12} sm={6}>
+              <Paper
+                elevation={0}
+                variant="outlined"
+                sx={{
+                  p: 2,
+                  borderRadius: 2,
+                  borderColor: "grey.400",
+                  borderWidth: 2,
+                }}
+              >
+                <Box sx={{ display: "flex", alignItems: "center", mb: 1.5 }}>
+                  <CancelIcon sx={{ color: "text.secondary", mr: 1, fontSize: 20 }} />
+                  <Typography variant="subtitle2" fontWeight="bold" color="text.secondary">
+                    Current Signature (will be replaced)
+                  </Typography>
+                </Box>
+                <Divider sx={{ mb: 2 }} />
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    minHeight: 150,
+                    bgcolor: "grey.50",
+                    borderRadius: 1,
+                    p: 2,
+                    opacity: 0.7,
+                  }}
+                >
+                  <img
+                    src={existingSignatures[signatures[activeStep]?.type]}
+                    alt="Current signature"
+                    style={{
+                      maxWidth: "100%",
+                      maxHeight: "130px",
+                      objectFit: "contain",
+                    }}
+                  />
+                </Box>
+              </Paper>
+            </Grid>
+
+            <Grid item xs={12} sm={6}>
+              <Paper
+                elevation={0}
+                variant="outlined"
+                sx={{
+                  p: 2,
+                  borderRadius: 2,
+                  borderColor: "warning.main",
+                  borderWidth: 2,
+                }}
+              >
+                <Box sx={{ display: "flex", alignItems: "center", mb: 1.5 }}>
+                  <CheckCircleIcon sx={{ color: "warning.main", mr: 1, fontSize: 20 }} />
+                  <Typography variant="subtitle2" fontWeight="bold" color="warning.main">
+                    New Signature (will be saved)
+                  </Typography>
+                </Box>
+                <Divider sx={{ mb: 2 }} />
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    minHeight: 150,
+                    bgcolor: "warning.lighter",
+                    borderRadius: 1,
+                    p: 2,
+                  }}
+                >
+                  <img
+                    src={pendingSignatureData?.signatureData}
+                    alt="New signature"
+                    style={{
+                      maxWidth: "100%",
+                      maxHeight: "130px",
+                      objectFit: "contain",
+                    }}
+                  />
+                </Box>
+              </Paper>
+            </Grid>
+          </Grid>
+        </DialogContent>
+
+        <DialogActions sx={{ px: 3, py: 2, borderTop: "1px solid", borderColor: "divider" }}>
+          <Button
+            onClick={handleCancelReplace}
+            variant="outlined"
+            startIcon={<CancelIcon />}
+            disabled={loading}
+          >
+            Keep Original
+          </Button>
+          <Button
+            onClick={handleConfirmReplace}
+            variant="contained"
+            color="warning"
+            startIcon={<CheckCircleIcon />}
+            disabled={loading}
+          >
+            Replace Signature
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 };

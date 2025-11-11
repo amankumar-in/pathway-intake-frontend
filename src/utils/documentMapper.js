@@ -61,64 +61,64 @@ import Checklist from "../components/documents/Checklist";
 import ChecklistForm from "../components/forms/ChecklistForm";
 
 // todo 2. Map template names to their respective document components - just above - default;
-export const getDocumentComponent = (templateName, documentData) => {
+export const getDocumentComponent = (templateName, documentData, signatureLabels = {}) => {
   switch (templateName) {
     case "N.O.A.":
-      return <NoticeOfAction data={documentData} />;
+      return <NoticeOfAction data={documentData} signatureLabels={signatureLabels} />;
     case "ID-Emergency Info":
-      return <IDEmergencyInfo data={documentData} />;
+      return <IDEmergencyInfo data={documentData} signatureLabels={signatureLabels} />;
     case "Agency to Agency Agreement":
-      return <AgencyToAgencyAgreement data={documentData} />;
+      return <AgencyToAgencyAgreement data={documentData} signatureLabels={signatureLabels} />;
     case "Agency to Foster Parent":
-      return <AgencyToFosterParent data={documentData} />;
+      return <AgencyToFosterParent data={documentData} signatureLabels={signatureLabels} />;
     case "Client Grievance Guidelines":
-      return <ClientGrievanceGuidelines data={documentData} />;
+      return <ClientGrievanceGuidelines data={documentData} signatureLabels={signatureLabels} />;
     case "County Worker Grievance Guidelines":
-      return <CountyWorkerGrievanceGuidelines data={documentData} />;
+      return <CountyWorkerGrievanceGuidelines data={documentData} signatureLabels={signatureLabels} />;
     case "CHPD":
-      return <CHPD data={documentData} />;
+      return <CHPD data={documentData} signatureLabels={signatureLabels} />;
     case "Medical Treatment":
-      return <MedicalTreatment data={documentData} />;
+      return <MedicalTreatment data={documentData} signatureLabels={signatureLabels} />;
     case "PRN Authorization Letter":
-      return <PRNAuthorizationLetter data={documentData} />;
+      return <PRNAuthorizationLetter data={documentData} signatureLabels={signatureLabels} />;
     case "PRN Page 2":
-      return <PRNPage2 data={documentData} />;
+      return <PRNPage2 data={documentData} signatureLabels={signatureLabels} />;
     case "Client Personal Rights":
-      return <ClientPersonalRights data={documentData} />;
+      return <ClientPersonalRights data={documentData} signatureLabels={signatureLabels} />;
     case "Confirm TB Test":
-      return <ConfirmTBTest data={documentData} />;
+      return <ConfirmTBTest data={documentData} signatureLabels={signatureLabels} />;
     case "Confirm Ambulatory Status":
-      return <ConfirmAmbulatoryStatus data={documentData} />;
+      return <ConfirmAmbulatoryStatus data={documentData} signatureLabels={signatureLabels} />;
     case "Record of Client Cash Resources":
-      return <ClientCashResources data={documentData} />;
+      return <ClientCashResources data={documentData} signatureLabels={signatureLabels} />;
     case "Client Initial Care Plan":
-      return <ClientInitialCarePlan data={documentData} />;
+      return <ClientInitialCarePlan data={documentData} signatureLabels={signatureLabels} />;
     case "Client Disciplinary P. & P.":
-      return <ClientDisciplinaryPP data={documentData} />;
+      return <ClientDisciplinaryPP data={documentData} signatureLabels={signatureLabels} />;
     case "Client Discharge":
-      return <ClientDischarge data={documentData} />;
+      return <ClientDischarge data={documentData} signatureLabels={signatureLabels} />;
     case "Acknowledgement of Prior Info":
-      return <AcknowledgementOfPriorInfo data={documentData} />;
+      return <AcknowledgementOfPriorInfo data={documentData} signatureLabels={signatureLabels} />;
     case "Home Placement Log":
-      return <HomePlacementLog data={documentData} />;
+      return <HomePlacementLog data={documentData} signatureLabels={signatureLabels} />;
     case "Emergency Information Log":
-      return <EmergencyInformationLog data={documentData} />;
+      return <EmergencyInformationLog data={documentData} signatureLabels={signatureLabels} />;
     case "Monthly Medication Record":
-      return <MonthlyMedicationRecord data={documentData} />;
+      return <MonthlyMedicationRecord data={documentData} signatureLabels={signatureLabels} />;
     case "Medication & Destruction Record":
-      return <MedicationDestructionRecord data={documentData} />;
+      return <MedicationDestructionRecord data={documentData} signatureLabels={signatureLabels} />;
     case "Dental Treatment Record":
-      return <DentalTreatmentRecord data={documentData} />;
+      return <DentalTreatmentRecord data={documentData} signatureLabels={signatureLabels} />;
     case "CA Form":
-      return <CAForm data={documentData} />;
+      return <CAForm data={documentData} signatureLabels={signatureLabels} />;
     case "Spending Allowance":
-      return <SAForm data={documentData} />;
+      return <SAForm data={documentData} signatureLabels={signatureLabels} />;
     case "CRMCIA":
-      return <CRMCIA data={documentData} />;
+      return <CRMCIA data={documentData} signatureLabels={signatureLabels} />;
     case "Placement Application":
-      return <PlacementApplication data={documentData} />;
+      return <PlacementApplication data={documentData} signatureLabels={signatureLabels} />;
     case "Checklist":
-      return <Checklist data={documentData} />;
+      return <Checklist data={documentData} signatureLabels={signatureLabels} />;
 
     default:
       // Default component for unknown templates

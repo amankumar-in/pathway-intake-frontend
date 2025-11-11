@@ -128,10 +128,10 @@ const PlacementApplicationForm = ({ data, handleInputChange }) => {
             <FormControlLabel
               control={
                 <Checkbox
-                  checked={data?.is300 || false}
+                  checked={data?.clientStatus === "300" || data?.clientStatus === 300}
                   onChange={handleCheckboxChange}
                   name="is300"
-                  disabled={data?.clientStatus === 300}
+                  disabled={true}
                 />
               }
               label="300"
@@ -139,17 +139,18 @@ const PlacementApplicationForm = ({ data, handleInputChange }) => {
             <FormControlLabel
               control={
                 <Checkbox
-                  checked={data?.is601602 || false}
+                  checked={data?.clientStatus === "601" || data?.clientStatus === 601 || data?.clientStatus === "602" || data?.clientStatus === 602}
                   onChange={handleCheckboxChange}
                   name="is601602"
-                  disabled={
-                    data?.clientStatus === 601 || data?.clientStatus === 602
-                  }
+                  disabled={true}
                 />
               }
               label="601/602"
             />
           </FormGroup>
+          <Typography variant="caption" color="textSecondary">
+            Auto-populated from intake form
+          </Typography>
         </Grid>
 
         <Grid item xs={12} md={6}>

@@ -236,24 +236,6 @@ const EditDocument = () => {
   const documentTitle = document?.title || "Document";
   const intakeForm = document?.intakeForm || {};
 
-  // Mobile-friendly container without Paper on mobile
-  const ContentContainer = isMobile
-    ? Box
-    : ({ children }) => (
-        <Paper
-          elevation={3}
-          sx={{
-            p: 0,
-            borderRadius: 2,
-            overflow: "hidden",
-            display: "flex",
-            flexDirection: "column",
-          }}
-        >
-          {children}
-        </Paper>
-      );
-
   return (
     <Container
       maxWidth="lg"
@@ -279,9 +261,9 @@ const EditDocument = () => {
         }
       />
 
-      <ContentContainer>
-        {/* Header - Mobile vs Desktop Layout */}
-        {isMobile ? (
+      {isMobile ? (
+        <Box>
+          {/* Header - Mobile vs Desktop Layout */}
           <>
             {/* Mobile Header: Row 1 - Title and back button */}
             <Box
@@ -400,26 +382,54 @@ const EditDocument = () => {
               </Button>
             </Box>
           </>
-        ) : (
-          /* Desktop/Tablet Header */
+
+          {/* Form content - Mobile */}
+          <Box sx={{ p: 0, mt: 1 }}>
+            {error && (
+              <Alert
+                severity="error"
+                onClose={() => setError("")}
+                sx={{ mb: 3, borderRadius: 1 }}
+              >
+                {error}
+              </Alert>
+            )}
+
+            {hasChanges && (
+              <Alert
+                severity="info"
+                sx={{ mb: 3, borderRadius: 1 }}
+                icon={<EditIcon />}
+              >
+                You have unsaved changes. Be sure to save before leaving this
+                page.
+              </Alert>
+            )}
+
+            {getFormComponent(templateType, formData, handleInputChange)}
+          </Box>
+        </Box>
+      ) : (
+        <Paper
+          elevation={3}
+          sx={{
+            p: 0,
+            borderRadius: 2,
+            overflow: "hidden",
+          }}
+        >
+          {/* Desktop Header */}
           <Box
             sx={{
               display: "flex",
+              justifyContent: "space-between",
               alignItems: "center",
               p: 3,
-              borderBottom: "1px solid",
-              borderColor: "divider",
-              bgcolor: alpha(theme.palette.primary.main, 0.03),
+              borderBottom: `1px solid ${theme.palette.divider}`,
+              bgcolor: alpha(theme.palette.primary.main, 0.02),
             }}
           >
-            {/* Left side - 65% */}
-            <Box
-              sx={{
-                flex: "0 0 65%",
-                display: "flex",
-                alignItems: "center",
-              }}
-            >
+            <Box sx={{ display: "flex", alignItems: "center", flex: 1 }}>
               <IconButton
                 onClick={() => navigate(-1)}
                 sx={{
@@ -431,24 +441,10 @@ const EditDocument = () => {
                 <ArrowBackIcon />
               </IconButton>
               <Box>
-                <Typography
-                  variant="h5"
-                  component="h1"
-                  fontWeight="medium"
-                  color="primary.main"
-                  sx={{ fontSize: isTablet ? "1.25rem" : undefined }}
-                >
+                <Typography variant="h5" gutterBottom sx={{ mb: 0.5 }}>
                   Editing: {documentTitle}
                 </Typography>
-                <Box
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    flexWrap: "wrap",
-                    gap: 1,
-                    mt: 0.5,
-                  }}
-                >
+                <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
                   {intakeForm.name && (
                     <Chip
                       size="small"
@@ -459,202 +455,49 @@ const EditDocument = () => {
                   )}
                   <Chip
                     size="small"
-                    icon={<DescriptionIcon fontSize="small" />}
-                    label={`Type: ${templateType || "Standard"}`}
-                    variant="outlined"
+                    label={templateType}
+                    color="primary"
                   />
-                  {document?.createdAt && (
-                    <Chip
-                      size="small"
-                      icon={<InfoIcon fontSize="small" />}
-                      label={`Created: ${formatDate(document.createdAt)}`}
-                      variant="outlined"
-                      color="default"
-                    />
-                  )}
-                  {hasChanges && (
-                    <Chip
-                      size="small"
-                      icon={<EditIcon fontSize="small" />}
-                      label="Unsaved changes"
-                      color="warning"
-                      variant="outlined"
-                    />
-                  )}
                 </Box>
               </Box>
             </Box>
-
-            {/* Right side - 35% */}
-            <Box
-              sx={{
-                flex: "0 0 35%",
-                display: "flex",
-                justifyContent: "flex-end",
-              }}
+            <Button
+              variant="contained"
+              startIcon={<SaveIcon />}
+              onClick={handleSave}
+              disabled={saving || !hasChanges}
             >
-              <Button
-                variant="outlined"
-                startIcon={<ArrowBackIcon />}
-                onClick={handleCancel}
-                sx={{
-                  mr: 2,
-                  fontSize: isTablet ? "0.8rem" : undefined,
-                }}
-                disabled={saving}
-              >
-                Cancel
-              </Button>
-              <Button
-                variant="contained"
-                startIcon={<SaveIcon />}
-                onClick={handleSave}
-                disabled={saving}
-                color={hasChanges ? "primary" : "success"}
-                sx={{ fontSize: isTablet ? "0.8rem" : undefined }}
-              >
-                {saving ? "Saving..." : "Save Changes"}
-              </Button>
-            </Box>
+              {saving ? "Saving..." : "Save Changes"}
+            </Button>
           </Box>
-        )}
 
-        {/* Show saving progress if saving */}
-        {saving && (
-          <LinearProgress
-            sx={{
-              height: 4,
-              borderRadius: 0,
-            }}
-          />
-        )}
-
-        {/* Error message */}
-        {error && (
-          <Alert
-            severity="error"
-            onClose={() => setError("")}
-            sx={{ mx: isMobile ? 0 : 3, mt: isMobile ? 0 : 3, borderRadius: 1 }}
-          >
-            {error}
-          </Alert>
-        )}
-
-        {/* Form content */}
-        <Box sx={{ p: isMobile ? 0 : 3, mt: isMobile ? 1 : 0 }}>
-          {hasChanges && (
-            <Alert
-              severity="info"
-              sx={{ mb: 3, borderRadius: 1 }}
-              icon={<EditIcon />}
-            >
-              You have unsaved changes. Be sure to save before leaving this
-              page.
-            </Alert>
-          )}
-
-          <Card
-            variant="outlined"
-            sx={{
-              mb: 4,
-              borderRadius: isMobile ? 1 : 2,
-              bgcolor: "background.paper",
-              overflow: "hidden",
-            }}
-          >
-            <Box
-              sx={{
-                p: isMobile ? 1.5 : 2,
-                bgcolor: theme.palette.primary.light,
-                color: "white",
-              }}
-            >
-              <Typography
-                variant="subtitle1"
-                fontWeight="medium"
-                sx={{ fontSize: isMobile ? "0.9rem" : undefined }}
+          {/* Form content - Desktop */}
+          <Box sx={{ p: 3 }}>
+            {error && (
+              <Alert
+                severity="error"
+                onClose={() => setError("")}
+                sx={{ mb: 3, borderRadius: 1 }}
               >
-                Document Information
-              </Typography>
-            </Box>
-            <CardContent sx={{ p: isMobile ? 1.5 : 2 }}>
-              {/* Form for editing document */}
-              <Box component="form">
-                {formData &&
-                  formData.template &&
-                  getFormComponent(
-                    formData.template,
-                    formData,
-                    handleInputChange
-                  )}
-              </Box>
-            </CardContent>
-          </Card>
+                {error}
+              </Alert>
+            )}
 
-          {/* Action buttons (bottom) - Don't show on mobile as we already have them at the top */}
-          {!isMobile && (
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                mt: 4,
-                pt: 3,
-                borderTop: "1px solid",
-                borderColor: "divider",
-              }}
-            >
-              <Button
-                variant="outlined"
-                startIcon={<ArrowBackIcon />}
-                onClick={handleCancel}
-                disabled={saving}
-                sx={{ fontSize: isTablet ? "0.8rem" : undefined }}
+            {hasChanges && (
+              <Alert
+                severity="info"
+                sx={{ mb: 3, borderRadius: 1 }}
+                icon={<EditIcon />}
               >
-                Cancel
-              </Button>
+                You have unsaved changes. Be sure to save before leaving this
+                page.
+              </Alert>
+            )}
 
-              <Button
-                variant="contained"
-                startIcon={<SaveIcon />}
-                onClick={handleSave}
-                disabled={saving}
-                sx={{
-                  position: "relative",
-                  minWidth: "140px",
-                  fontSize: isTablet ? "0.8rem" : undefined,
-                }}
-              >
-                {saving ? (
-                  <Box sx={{ display: "flex", alignItems: "center" }}>
-                    <CircularProgress
-                      size={20}
-                      sx={{ mr: 1 }}
-                      color="inherit"
-                    />
-                    Saving...
-                  </Box>
-                ) : (
-                  "Save Changes"
-                )}
-
-                {saving && (
-                  <LinearProgress
-                    sx={{
-                      position: "absolute",
-                      bottom: 0,
-                      left: 0,
-                      right: 0,
-                      height: 2,
-                      borderBottomLeftRadius: 4,
-                      borderBottomRightRadius: 4,
-                    }}
-                  />
-                )}
-              </Button>
-            </Box>
-          )}
-        </Box>
-      </ContentContainer>
+            {getFormComponent(templateType, formData, handleInputChange)}
+          </Box>
+        </Paper>
+      )}
     </Container>
   );
 };

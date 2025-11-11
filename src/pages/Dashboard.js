@@ -81,6 +81,19 @@ import {
   bulkDeleteDocuments,
 } from "../utils/api";
 import DocumentTypeSelector from "../components/DocumentTypeSelector";
+import DashboardStatsCards from "../components/dashboard/DashboardStatsCards";
+import StatusChangeDialog from "../components/dashboard/StatusChangeDialog";
+import ArchiveConfirmationDialog from "../components/dashboard/ArchiveConfirmationDialog";
+import DeleteConfirmationDialog from "../components/dashboard/DeleteConfirmationDialog";
+import StandaloneDocumentsTableBody from "../components/dashboard/StandaloneDocumentsTableBody";
+import IntakeFormsTableBody from "../components/dashboard/IntakeFormsTableBody";
+import {
+  formatDate,
+  getStatusChip,
+  calculateStats,
+  getFilteredForms,
+  getFilteredStandaloneDocuments,
+} from "../utils/dashboardHelpers";
 
 const Dashboard = () => {
   const { user, isAdmin } = useContext(AuthContext);
@@ -443,213 +456,23 @@ const Dashboard = () => {
     setActiveTab(0); // Switch to My Forms tab
   };
 
-  // Format date function
-  const formatDate = (dateString) => {
-    if (!dateString) return "";
-    const date = new Date(dateString);
-    return isMobile
-      ? date.toLocaleDateString("en-US")
-      : date.toLocaleDateString("en-US", {
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-        });
-  };
-
-  // Get status chip color based on status
-  const getStatusChip = (status) => {
-    let color = "default";
-    let label = status || "Unknown";
-
-    switch (status) {
-      case "Completed":
-        color = "success";
-        break;
-      case "In Progress":
-        color = "primary";
-        break;
-      case "Pending":
-        color = "warning";
-        break;
-      case "Needs Review":
-        color = "error";
-        break;
-      case "Archived":
-        color = "default";
-        break;
-      default:
-        color = "default";
-    }
-
-    return <Chip label={label} color={color} size="small" variant="outlined" />;
-  };
-
-  // Filter forms based on the active tab and search term
-  const getFilteredForms = () => {
-    if (!user) return [];
-
-    let filtered = forms;
-
-    // First filter by tab selection
-    if (activeTab === 0) {
-      // My Forms tab - show only forms created by current user and not archived
-      filtered = forms.filter((form) => {
-        // Handle different ID formats by converting both to strings
-        const formCreatorId =
-          typeof form.createdBy === "object"
-            ? form.createdBy._id || form.createdBy.id
-            : form.createdBy;
-
-        const userId = user._id || user.id;
-
-        return String(formCreatorId) === String(userId) && !form.archived;
-      });
-    } else if (activeTab === 1 && isAdmin()) {
-      // All Forms tab (admin only) - show all non-archived forms
-      filtered = forms.filter((form) => !form.archived);
-    } else if (activeTab === 3) {
-      // Archived Forms tab - show user's archived forms (or all for admin)
-      if (isAdmin()) {
-        // Admin sees all archived forms
-        filtered = forms.filter((form) => form.archived);
-      } else {
-        // Non-admin sees only their archived forms
-        filtered = forms.filter((form) => {
-          const formCreatorId =
-            typeof form.createdBy === "object"
-              ? form.createdBy._id || form.createdBy.id
-              : form.createdBy;
-
-          const userId = user._id || user.id;
-
-          return String(formCreatorId) === String(userId) && form.archived;
-        });
-      }
-    }
-
-    // Apply status filter if set
-    if (statusFilter) {
-      filtered = filtered.filter((form) => form.status === statusFilter);
-    }
-
-    // Apply search filter
-    if (searchTerm !== "") {
-      filtered = filtered.filter(
-        (form) =>
-          (form.name &&
-            form.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
-          (form.caseNumber &&
-            form.caseNumber.toLowerCase().includes(searchTerm.toLowerCase())) ||
-          (form.status &&
-            form.status.toLowerCase().includes(searchTerm.toLowerCase()))
-      );
-    }
-
-    // Apply date sort
-    filtered.sort((a, b) => {
-      const dateA = new Date(a.createdAt);
-      const dateB = new Date(b.createdAt);
-      return dateSort === "asc" ? dateA - dateB : dateB - dateA;
-    });
-
-    return filtered;
-  };
-
-  // Get filtered standalone documents
-  const getFilteredStandaloneDocuments = () => {
-    if (!user) return [];
-
-    let filtered = standaloneDocuments;
-
-    // Filter by user if not admin
-    if (!isAdmin()) {
-      filtered = filtered.filter((doc) => {
-        const docCreatorId =
-          typeof doc.createdBy === "object"
-            ? doc.createdBy._id || doc.createdBy.id
-            : doc.createdBy;
-
-        const userId = user._id || user.id;
-
-        return String(docCreatorId) === String(userId);
-      });
-    }
-
-    // Apply search filter
-    if (searchTerm !== "") {
-      filtered = filtered.filter(
-        (doc) =>
-          (doc.title &&
-            doc.title.toLowerCase().includes(searchTerm.toLowerCase())) ||
-          (doc.createdFor &&
-            doc.createdFor.toLowerCase().includes(searchTerm.toLowerCase())) ||
-          (doc.formData?.template &&
-            doc.formData.template
-              .toLowerCase()
-              .includes(searchTerm.toLowerCase()))
-      );
-    }
-
-    // Apply date sort
-    filtered.sort((a, b) => {
-      const dateA = new Date(a.createdAt);
-      const dateB = new Date(b.createdAt);
-      return dateSort === "asc" ? dateA - dateB : dateB - dateA;
-    });
-
-    return filtered;
-  };
-
-  // Calculate dashboard stats
-  const calculateStats = () => {
-    // Filter forms based on active tab selection but without status filter
-    let filteredForTab = forms;
-    if (activeTab === 0) {
-      // My Forms tab
-      filteredForTab = forms.filter((form) => {
-        const formCreatorId =
-          typeof form.createdBy === "object"
-            ? form.createdBy._id || form.createdBy.id
-            : form.createdBy;
-        const userId = user._id || user.id;
-        return String(formCreatorId) === String(userId) && !form.archived;
-      });
-    } else if (activeTab === 1 && isAdmin()) {
-      // All Forms tab (admin only)
-      filteredForTab = forms.filter((form) => !form.archived);
-    } else if (activeTab === 3) {
-      // Archived Forms tab
-      if (isAdmin()) {
-        filteredForTab = forms.filter((form) => form.archived);
-      } else {
-        filteredForTab = forms.filter((form) => {
-          const formCreatorId =
-            typeof form.createdBy === "object"
-              ? form.createdBy._id || form.createdBy.id
-              : form.createdBy;
-          const userId = user._id || user.id;
-          return String(formCreatorId) === String(userId) && form.archived;
-        });
-      }
-    }
-
-    // Calculate counts by status
-    return {
-      totalForms: filteredForTab.length,
-      inProgressForms: filteredForTab.filter(
-        (form) => form.status === "In Progress"
-      ).length,
-      pendingForms: filteredForTab.filter((form) => form.status === "Pending")
-        .length,
-      needsReviewForms: filteredForTab.filter(
-        (form) => form.status === "Needs Review"
-      ).length,
-    };
-  };
-
-  const stats = calculateStats();
-  const filteredForms = getFilteredForms();
-  const filteredStandaloneDocuments = getFilteredStandaloneDocuments();
+  const stats = calculateStats(forms, activeTab, user, isAdmin);
+  const filteredForms = getFilteredForms(
+    forms,
+    activeTab,
+    user,
+    isAdmin,
+    searchTerm,
+    statusFilter,
+    dateSort
+  );
+  const filteredStandaloneDocuments = getFilteredStandaloneDocuments(
+    standaloneDocuments,
+    user,
+    isAdmin,
+    searchTerm,
+    dateSort
+  );
 
   return (
     <Container maxWidth="lg" sx={{ mt: 2, mb: 8, px: { xs: 1, sm: 2, md: 3 } }}>
@@ -672,7 +495,7 @@ const Dashboard = () => {
             gutterBottom={false}
             color="primary"
             sx={{
-              fontSize: { xs: "0.9rem", sm: "1.25rem", md: "1.5rem" },
+              fontSize: { xs: "1.25rem", sm: "1.5rem", md: "1.75rem" },
               mb: 0,
             }}
           >
@@ -682,7 +505,7 @@ const Dashboard = () => {
             variant="body1"
             color="textSecondary"
             sx={{
-              fontSize: { xs: "0.7rem", sm: "0.85rem", md: "1rem" },
+              fontSize: { xs: "0.875rem", sm: "0.95rem", md: "1rem" },
               display: { xs: "none", sm: "block" },
             }}
           >
@@ -705,10 +528,11 @@ const Dashboard = () => {
             onClick={handleStartNewForm}
             size="small"
             sx={{
-              fontSize: { xs: "0.7rem", sm: "0.8rem", md: "0.875rem" },
+              fontSize: { xs: "0.8rem", sm: "0.85rem", md: "0.875rem" },
+              px: { xs: 1, sm: 1.5 },
             }}
           >
-            {isMobile ? "New Intake" : "New Intake"}
+            New Form
           </Button>
           <Button
             variant="outlined"
@@ -717,314 +541,22 @@ const Dashboard = () => {
             onClick={() => setShowDocumentSelector(true)}
             size="small"
             sx={{
-              fontSize: { xs: "0.7rem", sm: "0.8rem", md: "0.875rem" },
+              fontSize: { xs: "0.8rem", sm: "0.85rem", md: "0.875rem" },
+              px: { xs: 1, sm: 1.5 },
             }}
           >
-            {isMobile ? "New Doc" : "New Single Doc"}
+            {isMobile ? "Doc" : "New Doc"}
           </Button>
         </Stack>
       </Box>
 
-      {/* Stats Cards - Only show on intake form tabs (0,1,2) and make responsive for mobile */}
-      {activeTab < 3 && (
-        <Grid container spacing={1} sx={{ mb: { xs: 2, sm: 3, md: 4 } }}>
-          <Grid item xs={3} sm={3}>
-            <Card
-              elevation={statusFilter === "" ? 6 : 2}
-              onClick={() => handleStatusCardClick("")}
-              sx={{
-                cursor: "pointer",
-                transition: "all 0.2s",
-                height: "100%",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                position: "relative",
-                "&:hover": {
-                  transform: "translateY(-4px)",
-                  boxShadow: 6,
-                },
-                borderLeft: "4px solid",
-                borderColor: "primary.main",
-                ...(statusFilter === "" && {
-                  outline: "2px solid",
-                  outlineColor: "primary.main",
-                  bgcolor: "rgba(25, 118, 210, 0.04)",
-                }),
-                "&::after":
-                  statusFilter === ""
-                    ? {
-                        content: '""',
-                        position: "absolute",
-                        top: 0,
-                        right: 0,
-                        width: 0,
-                        height: 0,
-                        borderStyle: "solid",
-                        borderWidth: "0 16px 16px 0",
-                        borderColor:
-                          "transparent #1976D2 transparent transparent",
-                      }
-                    : {},
-              }}
-            >
-              <CardContent
-                sx={{
-                  textAlign: "center",
-                  py: { xs: 1, sm: 3 },
-                  px: { xs: 0.5, sm: 2 },
-                }}
-              >
-                <Typography
-                  variant="subtitle2"
-                  color={statusFilter === "" ? "primary" : "textSecondary"}
-                  gutterBottom
-                  sx={{ fontSize: { xs: "1rem", sm: "1rem" } }}
-                >
-                  All Forms
-                </Typography>
-                <Typography
-                  variant="h5"
-                  component="div"
-                  color="primary"
-                  sx={{ fontSize: { xs: "1.2rem", sm: "2.125rem" } }}
-                >
-                  {stats.totalForms}
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid item xs={3} sm={3}>
-            <Card
-              elevation={statusFilter === "In Progress" ? 6 : 2}
-              onClick={() => handleStatusCardClick("In Progress")}
-              sx={{
-                cursor: "pointer",
-                transition: "all 0.2s",
-                height: "100%",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                position: "relative",
-                "&:hover": {
-                  transform: "translateY(-4px)",
-                  boxShadow: 6,
-                },
-                bgcolor:
-                  statusFilter === "In Progress"
-                    ? "rgba(25, 118, 210, 0.12)"
-                    : "rgba(25, 118, 210, 0.04)",
-                borderLeft: "4px solid",
-                borderColor: "primary.main",
-                ...(statusFilter === "In Progress" && {
-                  outline: "2px solid",
-                  outlineColor: "primary.main",
-                }),
-                "&::after":
-                  statusFilter === "In Progress"
-                    ? {
-                        content: '""',
-                        position: "absolute",
-                        top: 0,
-                        right: 0,
-                        width: 0,
-                        height: 0,
-                        borderStyle: "solid",
-                        borderWidth: "0 16px 16px 0",
-                        borderColor:
-                          "transparent #1976D2 transparent transparent",
-                      }
-                    : {},
-              }}
-            >
-              <CardContent
-                sx={{
-                  textAlign: "center",
-                  py: { xs: 0.5, sm: 3 },
-                  px: { xs: 0.5, sm: 2 },
-                }}
-              >
-                <Typography
-                  variant="subtitle2"
-                  color="primary.dark"
-                  gutterBottom
-                  fontWeight={
-                    statusFilter === "In Progress" ? "bold" : "medium"
-                  }
-                  sx={{ fontSize: { xs: "1rem", sm: "1rem" } }}
-                >
-                  In Progress
-                </Typography>
-                <Typography
-                  variant="h5"
-                  component="div"
-                  color="primary.dark"
-                  sx={{ fontSize: { xs: "1.2rem", sm: "2.125rem" } }}
-                >
-                  {stats.inProgressForms}
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid item xs={3} sm={3}>
-            <Card
-              elevation={statusFilter === "Pending" ? 6 : 2}
-              onClick={() => handleStatusCardClick("Pending")}
-              sx={{
-                cursor: "pointer",
-                transition: "all 0.2s",
-                height: "100%",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                position: "relative",
-                "&:hover": {
-                  transform: "translateY(-4px)",
-                  boxShadow: 6,
-                },
-                bgcolor:
-                  statusFilter === "Pending"
-                    ? "rgba(237, 108, 2, 0.12)"
-                    : "rgba(237, 108, 2, 0.04)",
-                borderLeft: "4px solid",
-                borderColor: "warning.main",
-                ...(statusFilter === "Pending" && {
-                  outline: "2px solid",
-                  outlineColor: "warning.main",
-                }),
-                "&::after":
-                  statusFilter === "Pending"
-                    ? {
-                        content: '""',
-                        position: "absolute",
-                        top: 0,
-                        right: 0,
-                        width: 0,
-                        height: 0,
-                        borderStyle: "solid",
-                        borderWidth: "0 16px 16px 0",
-                        borderColor:
-                          "transparent #ED6C02 transparent transparent",
-                      }
-                    : {},
-              }}
-            >
-              <CardContent
-                sx={{
-                  textAlign: "center",
-                  py: { xs: 1, sm: 3 },
-                  px: { xs: 0.5, sm: 2 },
-                }}
-              >
-                <Typography
-                  variant="subtitle2"
-                  color="warning.dark"
-                  gutterBottom
-                  fontWeight={statusFilter === "Pending" ? "bold" : "medium"}
-                  sx={{ fontSize: { xs: "1rem", sm: "1rem" } }}
-                >
-                  Pending
-                </Typography>
-                <Typography
-                  variant="h5"
-                  component="div"
-                  color="warning.dark"
-                  sx={{ fontSize: { xs: "1.2rem", sm: "2.125rem" } }}
-                >
-                  {stats.pendingForms}
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid item xs={3} sm={3}>
-            <Card
-              elevation={statusFilter === "Needs Review" ? 6 : 3}
-              onClick={() => handleStatusCardClick("Needs Review")}
-              sx={{
-                cursor: "pointer",
-                transition: "all 0.2s",
-                height: "100%",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                position: "relative",
-                "&:hover": {
-                  transform: "translateY(-4px)",
-                  boxShadow: 6,
-                },
-                bgcolor:
-                  statusFilter === "Needs Review"
-                    ? "rgba(211, 47, 47, 0.12)"
-                    : "rgba(211, 47, 47, 0.04)",
-                borderLeft: "4px solid",
-                borderColor: "error.main",
-                ...(statusFilter === "Needs Review" && {
-                  outline: "2px solid",
-                  outlineColor: "error.main",
-                }),
-                animation:
-                  stats.needsReviewForms > 0 && statusFilter !== "Needs Review"
-                    ? "pulse 2s infinite"
-                    : "none",
-                "@keyframes pulse": {
-                  "0%": {
-                    boxShadow: "0 0 0 0 rgba(211, 47, 47, 0.4)",
-                  },
-                  "70%": {
-                    boxShadow: "0 0 0 10px rgba(211, 47, 47, 0)",
-                  },
-                  "100%": {
-                    boxShadow: "0 0 0 0 rgba(211, 47, 47, 0)",
-                  },
-                },
-                "&::after":
-                  statusFilter === "Needs Review"
-                    ? {
-                        content: '""',
-                        position: "absolute",
-                        top: 0,
-                        right: 0,
-                        width: 0,
-                        height: 0,
-                        borderStyle: "solid",
-                        borderWidth: "0 16px 16px 0",
-                        borderColor:
-                          "transparent #D32F2F transparent transparent",
-                      }
-                    : {},
-              }}
-            >
-              <CardContent
-                sx={{
-                  textAlign: "center",
-                  py: { xs: 1, sm: 3 },
-                  px: { xs: 0.5, sm: 2 },
-                }}
-              >
-                <Typography
-                  variant="subtitle2"
-                  color="error.dark"
-                  gutterBottom
-                  fontWeight={
-                    statusFilter === "Needs Review" ? "bold" : "medium"
-                  }
-                  sx={{ fontSize: { xs: "1rem", sm: "1rem" } }}
-                >
-                  Review
-                </Typography>
-                <Typography
-                  variant="h5"
-                  component="div"
-                  color="error.dark"
-                  sx={{ fontSize: { xs: "1.2rem", sm: "2.125rem" } }}
-                >
-                  {stats.needsReviewForms}
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-        </Grid>
-      )}
+      {/* Stats Cards */}
+      <DashboardStatsCards
+        stats={stats}
+        statusFilter={statusFilter}
+        onStatusCardClick={handleStatusCardClick}
+        activeTab={activeTab}
+      />
 
       {/* Help Section */}
       <Box sx={{ mb: 2 }}>
@@ -1039,7 +571,7 @@ const Dashboard = () => {
           <Typography
             variant="subtitle2"
             color="textSecondary"
-            sx={{ fontSize: { xs: "0.7rem", sm: "0.8rem" } }}
+            sx={{ fontSize: { xs: "0.875rem", sm: "0.95rem" } }}
           >
             Need help with{" "}
             {activeTab === 2 ? "standalone documents" : "intake forms"}?
@@ -1162,12 +694,12 @@ const Dashboard = () => {
                 variant={isMobile || isTablet ? "scrollable" : "standard"}
                 scrollButtons="auto"
                 sx={{
-                  minHeight: { xs: 36, sm: 48 },
+                  minHeight: { xs: 40, sm: 48 },
                   "& .MuiTab-root": {
-                    minHeight: { xs: 36, sm: 48 },
-                    py: 0.5,
-                    fontSize: { xs: "0.75rem", sm: "0.875rem" },
-                    px: { xs: 1, sm: 1.5, md: 2 },
+                    minHeight: { xs: 40, sm: 48 },
+                    py: { xs: 1, sm: 0.5 },
+                    fontSize: { xs: "0.8rem", sm: "0.875rem" },
+                    px: { xs: 0.75, sm: 1.5, md: 2 },
                   },
                   maxWidth: "100%",
                 }}
@@ -1321,12 +853,12 @@ const Dashboard = () => {
                           />
                         </TableCell>
                         <TableCell
-                          sx={{ fontWeight: "bold", whiteSpace: "nowrap" }}
+                          sx={{ fontWeight: "bold", whiteSpace: "nowrap", fontSize: { xs: "0.875rem", sm: "1rem" } }}
                         >
                           Document Title
                         </TableCell>
                         {!isMobile && (
-                          <TableCell sx={{ fontWeight: "bold" }}>
+                          <TableCell sx={{ fontWeight: "bold", fontSize: { xs: "0.875rem", sm: "1rem" } }}>
                             Created For
                           </TableCell>
                         )}
@@ -1335,6 +867,7 @@ const Dashboard = () => {
                             fontWeight: "bold",
                             cursor: "pointer",
                             whiteSpace: "nowrap",
+                            fontSize: { xs: "0.875rem", sm: "1rem" },
                           }}
                           onClick={handleToggleDateSort}
                         >
@@ -1354,11 +887,11 @@ const Dashboard = () => {
                           </Box>
                         </TableCell>
                         {!isMobile && (
-                          <TableCell sx={{ fontWeight: "bold" }}>
+                          <TableCell sx={{ fontWeight: "bold", fontSize: { xs: "0.875rem", sm: "1rem" } }}>
                             Created By
                           </TableCell>
                         )}
-                        <TableCell align="right" sx={{ fontWeight: "bold" }}>
+                        <TableCell align="right" sx={{ fontWeight: "bold", fontSize: { xs: "0.875rem", sm: "1rem" } }}>
                           Actions
                         </TableCell>
                       </>
@@ -1382,12 +915,12 @@ const Dashboard = () => {
                           </TableCell>
                         )}
                         <TableCell
-                          sx={{ fontWeight: "bold", whiteSpace: "nowrap" }}
+                          sx={{ fontWeight: "bold", whiteSpace: "nowrap", fontSize: { xs: "0.875rem", sm: "1rem" } }}
                         >
                           Client Name
                         </TableCell>
                         {!isMobile && (
-                          <TableCell sx={{ fontWeight: "bold" }}>
+                          <TableCell sx={{ fontWeight: "bold", fontSize: { xs: "0.875rem", sm: "1rem" } }}>
                             Case #
                           </TableCell>
                         )}
@@ -1396,6 +929,7 @@ const Dashboard = () => {
                             fontWeight: "bold",
                             cursor: "pointer",
                             whiteSpace: "nowrap",
+                            fontSize: { xs: "0.875rem", sm: "1rem" },
                           }}
                           onClick={handleToggleDateSort}
                         >
@@ -1414,7 +948,7 @@ const Dashboard = () => {
                             )}
                           </Box>
                         </TableCell>
-                        <TableCell sx={{ fontWeight: "bold" }}>
+                        <TableCell sx={{ fontWeight: "bold", fontSize: { xs: "0.875rem", sm: "1rem" } }}>
                           <Box
                             sx={{
                               display: "flex",
@@ -1527,407 +1061,47 @@ const Dashboard = () => {
                             </Box>
                           </Popover>
                         </TableCell>
-                        <TableCell align="right" sx={{ fontWeight: "bold" }}>
+                        <TableCell align="right" sx={{ fontWeight: "bold", fontSize: { xs: "0.875rem", sm: "1rem" } }}>
                           Actions
                         </TableCell>
                       </>
                     )}
                   </TableRow>
                 </TableHead>
-                <TableBody>
-                  {activeTab === 2 ? (
-                    // Standalone Documents Table Body
-                    filteredStandaloneDocuments.length > 0 ? (
-                      filteredStandaloneDocuments.map((doc) => (
-                        <TableRow
-                          key={doc._id}
-                          hover
-                          onClick={(e) => {
-                            // Prevent row click if clicking on checkbox or actions
-                            if (
-                              e.target.closest('input[type="checkbox"]') ||
-                              e.target.closest("button")
-                            ) {
-                              return;
-                            }
-                            handleViewDocument(doc._id);
-                          }}
-                          sx={{
-                            "&:hover": {
-                              bgcolor: "rgba(0, 0, 0, 0.04)",
-                              cursor: "pointer",
-                            },
-                          }}
-                        >
-                          <TableCell
-                            padding="checkbox"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <Checkbox
-                              checked={selectedItems.includes(doc._id)}
-                              onChange={() => handleSelectItem(doc._id)}
-                              inputProps={{ "aria-label": "select document" }}
-                            />
-                          </TableCell>
-                          <TableCell>
-                            <Box sx={{ display: "flex", alignItems: "center" }}>
-                              <DescriptionIcon
-                                color="action"
-                                fontSize="small"
-                                sx={{
-                                  mr: 1,
-                                  opacity: 0.7,
-                                  display: { xs: "none", sm: "block" },
-                                }}
-                              />
-                              <Typography
-                                variant="body2"
-                                sx={{
-                                  fontSize: { xs: "0.75rem", sm: "0.875rem" },
-                                }}
-                              >
-                                {doc.title || "Untitled Document"}
-                              </Typography>
-                            </Box>
-                          </TableCell>
-                          {!isMobile && (
-                            <TableCell>
-                              {doc.createdFor || "Not specified"}
-                            </TableCell>
-                          )}
-                          <TableCell>{formatDate(doc.createdAt)}</TableCell>
-                          {!isMobile && (
-                            <TableCell>
-                              {doc.createdBy?.name || "Unknown"}
-                            </TableCell>
-                          )}
-                          <TableCell
-                            align="right"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <Box
-                              sx={{
-                                display: "flex",
-                                justifyContent: "flex-end",
-                                flexWrap: "nowrap",
-                                gap: 0.5,
-                              }}
-                            >
-                              {!(isMobile || isTablet) && (
-                                <Button
-                                  variant="contained"
-                                  size="small"
-                                  color="primary"
-                                  onClick={() => handleViewDocument(doc._id)}
-                                >
-                                  View
-                                </Button>
-                              )}
-                              {isMobile || isTablet ? (
-                                <IconButton
-                                  size="small"
-                                  color="primary"
-                                  onClick={() =>
-                                    handleEditDocument(doc._id, true)
-                                  }
-                                >
-                                  <EditIcon fontSize="small" />
-                                </IconButton>
-                              ) : (
-                                <Button
-                                  variant="outlined"
-                                  size="small"
-                                  color="primary"
-                                  startIcon={<EditIcon />}
-                                  onClick={() =>
-                                    handleEditDocument(doc._id, true)
-                                  }
-                                >
-                                  Edit
-                                </Button>
-                              )}
-                              <IconButton
-                                size="small"
-                                color="error"
-                                onClick={() =>
-                                  handlePermanentDeleteDialog(doc, "document")
-                                }
-                              >
-                                <DeleteIcon fontSize="small" />
-                              </IconButton>
-                            </Box>
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    ) : (
-                      <TableRow>
-                        <TableCell
-                          colSpan={isMobile ? 4 : 6}
-                          sx={{ py: 4, textAlign: "center" }}
-                        >
-                          <Box
-                            sx={{
-                              display: "flex",
-                              flexDirection: "column",
-                              alignItems: "center",
-                              p: 3,
-                            }}
-                          >
-                            <DescriptionIcon
-                              color="action"
-                              sx={{ fontSize: 60, mb: 2, opacity: 0.3 }}
-                            />
-                            <Typography variant="h6" gutterBottom>
-                              No standalone documents found
-                            </Typography>
-                            <Typography
-                              variant="body2"
-                              color="textSecondary"
-                              sx={{ mb: 2 }}
-                            >
-                              Create standalone documents without going through
-                              the full intake process
-                            </Typography>
-                            <Button
-                              variant="contained"
-                              startIcon={<AddIcon />}
-                              onClick={() => setShowDocumentSelector(true)}
-                              size={isMobile ? "small" : "medium"}
-                            >
-                              Create Document
-                            </Button>
-                          </Box>
-                        </TableCell>
-                      </TableRow>
-                    )
-                  ) : // Intake Forms Table Body
-                  filteredForms.length > 0 ? (
-                    filteredForms.map((form) => (
-                      <TableRow
-                        key={form._id}
-                        hover
-                        onClick={(e) => {
-                          // Prevent row click if clicking on checkbox or actions
-                          if (
-                            e.target.closest('input[type="checkbox"]') ||
-                            e.target.closest("button")
-                          ) {
-                            return;
-                          }
-                          handleViewForm(form._id);
-                        }}
-                        sx={{
-                          "&:hover": {
-                            bgcolor: "rgba(0, 0, 0, 0.04)",
-                            cursor: "pointer",
-                          },
-                          bgcolor: form.archived
-                            ? "rgba(0, 0, 0, 0.04)"
-                            : "inherit",
-                        }}
-                      >
-                        {activeTab === 3 && isAdmin() && (
-                          <TableCell
-                            padding="checkbox"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <Checkbox
-                              checked={selectedItems.includes(form._id)}
-                              onChange={() => handleSelectItem(form._id)}
-                              inputProps={{ "aria-label": "select form" }}
-                            />
-                          </TableCell>
-                        )}
-                        <TableCell
-                          sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
-                        >
-                          {form.name}
-                        </TableCell>
-                        {!isMobile && <TableCell>{form.caseNumber}</TableCell>}
-                        <TableCell
-                          sx={{
-                            fontSize: { xs: "0.75rem", sm: "0.875rem" },
-                            whiteSpace: "nowrap",
-                          }}
-                        >
-                          {formatDate(form.createdAt)}
-                        </TableCell>
-                        <TableCell>{getStatusChip(form.status)}</TableCell>
-                        <TableCell
-                          align="right"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <Box
-                            sx={{
-                              display: "flex",
-                              justifyContent: "flex-end",
-                              flexWrap: "nowrap",
-                              gap: 0.5,
-                            }}
-                          >
-                            {!(isMobile || isTablet) && (
-                              <Button
-                                variant="contained"
-                                size="small"
-                                color="primary"
-                                onClick={() => handleViewForm(form._id)}
-                              >
-                                View
-                              </Button>
-                            )}
-                            {isMobile || isTablet ? (
-                              <IconButton
-                                size="small"
-                                color="primary"
-                                onClick={() => handleEditForm(form._id)}
-                              >
-                                <EditIcon fontSize="small" />
-                              </IconButton>
-                            ) : (
-                              <Button
-                                variant="outlined"
-                                size="small"
-                                color="primary"
-                                startIcon={<EditIcon />}
-                                onClick={() => handleEditForm(form._id)}
-                              >
-                                Edit
-                              </Button>
-                            )}
-                            <IconButton
-                              size="small"
-                              onClick={(event) => handleMenuOpen(event, form)}
-                            >
-                              <MoreVertIcon fontSize="small" />
-                            </IconButton>
-                          </Box>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  ) : searchTerm || statusFilter ? (
-                    <TableRow>
-                      <TableCell
-                        colSpan={activeTab === 3 && isAdmin() ? 6 : 5}
-                        sx={{ py: 4, textAlign: "center" }}
-                      >
-                        <Box
-                          sx={{
-                            display: "flex",
-                            flexDirection: "column",
-                            alignItems: "center",
-                            p: 3,
-                          }}
-                        >
-                          <SearchIcon
-                            color="action"
-                            sx={{ fontSize: 60, mb: 2, opacity: 0.3 }}
-                          />
-                          <Typography variant="h6" gutterBottom>
-                            No matching forms found
-                          </Typography>
-                          <Typography
-                            variant="body2"
-                            color="textSecondary"
-                            sx={{ mb: 2 }}
-                          >
-                            Try adjusting your search criteria or filters
-                          </Typography>
-                          <Box
-                            sx={{
-                              display: "flex",
-                              gap: 2,
-                              flexWrap: "wrap",
-                              justifyContent: "center",
-                            }}
-                          >
-                            {searchTerm && (
-                              <Button
-                                variant="outlined"
-                                onClick={() => setSearchTerm("")}
-                                startIcon={<ClearIcon />}
-                                size={isMobile ? "small" : "medium"}
-                              >
-                                Clear Search
-                              </Button>
-                            )}
-                            {statusFilter && (
-                              <Button
-                                variant="outlined"
-                                onClick={() => setStatusFilter("")}
-                                startIcon={<ClearIcon />}
-                                size={isMobile ? "small" : "medium"}
-                              >
-                                Clear Filter
-                              </Button>
-                            )}
-                          </Box>
-                        </Box>
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    <TableRow>
-                      <TableCell
-                        colSpan={
-                          isMobile ? 4 : activeTab === 3 && isAdmin() ? 6 : 5
-                        }
-                        sx={{ py: 4, textAlign: "center" }}
-                      >
-                        <Box
-                          sx={{
-                            display: "flex",
-                            flexDirection: "column",
-                            alignItems: "center",
-                            p: 3,
-                          }}
-                        >
-                          {activeTab === 3 ? (
-                            <>
-                              <ArchiveIcon
-                                color="action"
-                                sx={{ fontSize: 60, mb: 2, opacity: 0.3 }}
-                              />
-                              <Typography variant="h6" gutterBottom>
-                                No archived forms found
-                              </Typography>
-                              <Typography
-                                variant="body2"
-                                color="textSecondary"
-                                sx={{ mb: 2 }}
-                              >
-                                Archived forms will appear here
-                              </Typography>
-                            </>
-                          ) : (
-                            <>
-                              <AssignmentIcon
-                                color="action"
-                                sx={{ fontSize: 60, mb: 2, opacity: 0.3 }}
-                              />
-                              <Typography variant="h6" gutterBottom>
-                                No forms found
-                              </Typography>
-                              <Typography
-                                variant="body2"
-                                color="textSecondary"
-                                sx={{ mb: 2 }}
-                              >
-                                Get started by creating your first intake form
-                              </Typography>
-                              <Button
-                                variant="contained"
-                                startIcon={<AddIcon />}
-                                onClick={handleStartNewForm}
-                                size={isMobile ? "small" : "medium"}
-                              >
-                                Create New Form
-                              </Button>
-                            </>
-                          )}
-                        </Box>
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
+                {activeTab === 2 ? (
+                  <StandaloneDocumentsTableBody
+                    documents={filteredStandaloneDocuments}
+                    isMobile={isMobile}
+                    isTablet={isTablet}
+                    selectedItems={selectedItems}
+                    formatDate={formatDate}
+                    onViewDocument={handleViewDocument}
+                    onEditDocument={handleEditDocument}
+                    onSelectItem={handleSelectItem}
+                    onPermanentDeleteDialog={handlePermanentDeleteDialog}
+                    onCreateDocument={() => setShowDocumentSelector(true)}
+                  />
+                ) : (
+                  <IntakeFormsTableBody
+                    forms={filteredForms}
+                    activeTab={activeTab}
+                    isMobile={isMobile}
+                    isTablet={isTablet}
+                    isAdmin={isAdmin()}
+                    selectedItems={selectedItems}
+                    searchTerm={searchTerm}
+                    statusFilter={statusFilter}
+                    formatDate={formatDate}
+                    getStatusChip={getStatusChip}
+                    onViewForm={handleViewForm}
+                    onEditForm={handleEditForm}
+                    onSelectItem={handleSelectItem}
+                    onMenuOpen={handleMenuOpen}
+                    onStartNewForm={handleStartNewForm}
+                    onClearSearch={() => setSearchTerm("")}
+                    onClearStatusFilter={() => setStatusFilter("")}
+                  />
+                )}
               </Table>
             </TableContainer>
           )}
@@ -1995,94 +1169,31 @@ const Dashboard = () => {
       </Menu>
 
       {/* Status Change Dialog */}
-      <Dialog open={statusDialogOpen} onClose={handleStatusDialogClose}>
-        <DialogTitle>Update Form Status</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            Select a new status for this form:
-          </DialogContentText>
-          <FormControl fullWidth sx={{ mt: 2 }}>
-            <InputLabel id="status-select-label">Status</InputLabel>
-            <Select
-              labelId="status-select-label"
-              value={newStatus}
-              label="Status"
-              onChange={handleStatusChange}
-            >
-              <MenuItem value="In Progress">In Progress</MenuItem>
-              <MenuItem value="Pending">Pending</MenuItem>
-              <MenuItem value="Needs Review">Needs Review</MenuItem>
-              <MenuItem value="Completed">Completed</MenuItem>
-            </Select>
-          </FormControl>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleStatusDialogClose}>Cancel</Button>
-          <Button onClick={handleStatusUpdate} variant="contained">
-            Update Status
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <StatusChangeDialog
+        open={statusDialogOpen}
+        onClose={handleStatusDialogClose}
+        newStatus={newStatus}
+        onStatusChange={handleStatusChange}
+        onStatusUpdate={handleStatusUpdate}
+      />
 
       {/* Archive Confirmation Dialog */}
-      <Dialog open={archiveDialogOpen} onClose={handleArchiveDialogClose}>
-        <DialogTitle>
-          {archiveAction === "archive" ? "Archive Form" : "Unarchive Form"}
-        </DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            {archiveAction === "archive"
-              ? "Are you sure you want to archive this form? Archived forms will be moved to the Archive tab."
-              : "Are you sure you want to unarchive this form? It will be restored to its original location."}
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleArchiveDialogClose}>Cancel</Button>
-          <Button
-            onClick={handleToggleArchive}
-            variant="contained"
-            color={archiveAction === "archive" ? "warning" : "primary"}
-          >
-            {archiveAction === "archive" ? "Archive" : "Unarchive"}
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <ArchiveConfirmationDialog
+        open={archiveDialogOpen}
+        onClose={handleArchiveDialogClose}
+        archiveAction={archiveAction}
+        onConfirm={handleToggleArchive}
+      />
 
       {/* Delete Confirmation Dialog */}
-      <Dialog
+      <DeleteConfirmationDialog
         open={showDeleteDialog}
         onClose={() => setShowDeleteDialog(false)}
-      >
-        <DialogTitle sx={{ color: "error.main" }}>
-          {permanentDeleteItem
-            ? "Permanently Delete Item"
-            : "Permanently Delete Selected Items"}
-        </DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            {permanentDeleteItem
-              ? `Are you sure you want to permanently delete ${
-                  selectedItemType === "form" ? "this form" : "this document"
-                }? This action cannot be undone.`
-              : `Are you sure you want to permanently delete ${
-                  selectedItems.length
-                } selected ${
-                  selectedItemType === "form" ? "forms" : "documents"
-                }? This action cannot be undone.`}
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setShowDeleteDialog(false)}>Cancel</Button>
-          <Button
-            onClick={handleConfirmDelete}
-            variant="contained"
-            color="error"
-            startIcon={<DeleteIcon />}
-          >
-            Permanently Delete
-          </Button>
-        </DialogActions>
-      </Dialog>
+        permanentDeleteItem={permanentDeleteItem}
+        selectedItemType={selectedItemType}
+        selectedItemsCount={selectedItems.length}
+        onConfirm={handleConfirmDelete}
+      />
 
       {/* Document Type Selector Dialog */}
       <DocumentTypeSelector

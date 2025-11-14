@@ -46,7 +46,7 @@ const IntakeFormsTableBody = ({
         <TableBody>
           <TableRow>
             <TableCell
-              colSpan={activeTab === 3 && isAdmin ? 6 : 5}
+              colSpan={activeTab === 3 && isAdmin ? 7 : isAdmin ? 6 : 5}
               sx={{ py: 4, textAlign: "center" }}
             >
               <Box
@@ -112,7 +112,7 @@ const IntakeFormsTableBody = ({
       <TableBody>
         <TableRow>
           <TableCell
-            colSpan={isMobile ? 4 : activeTab === 3 && isAdmin ? 6 : 5}
+            colSpan={isMobile ? 4 : activeTab === 3 && isAdmin ? 7 : isAdmin ? 6 : 5}
             sx={{ py: 4, textAlign: "center" }}
           >
             <Box
@@ -219,6 +219,11 @@ const IntakeFormsTableBody = ({
             {formatDate(form.createdAt)}
           </TableCell>
           <TableCell>{getStatusChip(form.status)}</TableCell>
+          {isAdmin && !isMobile && (
+            <TableCell sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}>
+              {form.createdBy?.name || "Unknown"}
+            </TableCell>
+          )}
           <TableCell align="right" onClick={(e) => e.stopPropagation()}>
             <Box
               sx={{

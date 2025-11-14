@@ -43,8 +43,40 @@ export const registerUser = async (userData) => {
   return response.data;
 };
 
-export const deleteUser = async (userId) => {
-  const response = await api.delete(`/auth/users/${userId}`);
+export const deleteUser = async (userId, reassignToUserId = null) => {
+  const response = await api.delete(`/auth/users/${userId}`, {
+    data: { reassignToUserId },
+  });
+  return response.data;
+};
+
+export const updatePassword = async (currentPassword, newPassword) => {
+  const response = await api.put("/auth/updatepassword", {
+    currentPassword,
+    newPassword,
+  });
+  return response.data;
+};
+
+export const resetUserPassword = async (userId, newPassword) => {
+  const response = await api.put(`/auth/users/${userId}/resetpassword`, {
+    newPassword,
+  });
+  return response.data;
+};
+
+export const updateUserRole = async (userId, role) => {
+  const response = await api.put(`/auth/users/${userId}/role`, { role });
+  return response.data;
+};
+
+export const getUserData = async (userId) => {
+  const response = await api.get(`/auth/users/${userId}/data`);
+  return response.data;
+};
+
+export const canDeleteUser = async (userId) => {
+  const response = await api.get(`/auth/users/${userId}/can-delete`);
   return response.data;
 };
 

@@ -14,6 +14,8 @@ import PrivateRoute from "./components/PrivateRoute";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import UserManagement from "./pages/UserManagement";
+import UserProfile from "./pages/UserProfile";
+import Settings from "./pages/Settings";
 import IntakeForm from "./pages/IntakeForm";
 import CollectSignatures from "./pages/CollectSignatures";
 import ViewDocuments from "./pages/ViewDocuments";
@@ -60,6 +62,22 @@ function App() {
               element={
                 <PrivateRoute adminOnly={true}>
                   <UserManagement />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/user-profile/:id"
+              element={
+                <PrivateRoute adminOnly={true}>
+                  <UserProfile />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/settings"
+              element={
+                <PrivateRoute>
+                  <Settings />
                 </PrivateRoute>
               }
             />

@@ -57,8 +57,9 @@ import {
   Info as InfoIcon,
   ArrowBack as ArrowBackIcon,
 } from "@mui/icons-material";
-import { getUsers, registerUser, deleteUser } from "../utils/api";
+import { getUsers, registerUser, deleteUser, canDeleteUser } from "../utils/api";
 import { useNavigate } from "react-router-dom";
+import { Visibility as VisibilityIcon } from "@mui/icons-material";
 
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
@@ -68,7 +69,10 @@ const UserManagement = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [openAddDialog, setOpenAddDialog] = useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [openReassignDialog, setOpenReassignDialog] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [reassignToUserId, setReassignToUserId] = useState("");
+  const [userDataInfo, setUserDataInfo] = useState(null);
   const [showHelp, setShowHelp] = useState(false);
   const [success, setSuccess] = useState("");
   const [newUser, setNewUser] = useState({
@@ -139,11 +143,6 @@ const UserManagement = () => {
     setOpenAddDialog(false);
   };
 
-  const handleOpenDeleteDialog = (user) => {
-    setSelectedUser(user);
-    setOpenDeleteDialog(true);
-  };
-
   const handleCloseDeleteDialog = () => {
     setOpenDeleteDialog(false);
     setSelectedUser(null);
@@ -184,6 +183,28 @@ const UserManagement = () => {
     }
   };
 
+  const handleOpenDeleteDialog = async (user) => {
+    setSelectedUser(user);
+    try {
+      // Check if user has associated data
+      const response = await canDeleteUser(user.id);
+      setUserDataInfo(response.data);
+
+      if (response.requiresReassignment) {
+        // User has data, show reassignment dialog
+        setOpenReassignDialog(true);
+      } else {
+        // User has no data, show simple delete confirmation
+        setOpenDeleteDialog(true);
+      }
+    } catch (err) {
+      setError(
+        "Error checking user data: " + (err.response?.data?.message || err.message)
+      );
+      console.error(err);
+    }
+  };
+
   const handleDeleteUser = async () => {
     try {
       await deleteUser(selectedUser.id);
@@ -196,6 +217,34 @@ const UserManagement = () => {
       );
       console.error(err);
     }
+  };
+
+  const handleDeleteUserWithReassignment = async () => {
+    if (!reassignToUserId) {
+      setError("Please select a user to reassign data to");
+      return;
+    }
+
+    try {
+      await deleteUser(selectedUser.id, reassignToUserId);
+      handleCloseReassignDialog();
+      setSuccess(
+        `User "${selectedUser.name}" has been deleted and data reassigned`
+      );
+      fetchUsers();
+    } catch (err) {
+      setError(
+        "Error deleting user: " + (err.response?.data?.message || err.message)
+      );
+      console.error(err);
+    }
+  };
+
+  const handleCloseReassignDialog = () => {
+    setOpenReassignDialog(false);
+    setSelectedUser(null);
+    setReassignToUserId("");
+    setUserDataInfo(null);
   };
 
   // Get appropriate icon for role
@@ -688,39 +737,56 @@ const UserManagement = () => {
                       />
                     </TableCell>
                     <TableCell align="right">
-                      {user.username !== "admin" ? (
-                        <Tooltip title="Delete User">
+                      <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 0.5 }}>
+                        <Tooltip title="View Profile">
                           <IconButton
-                            color="error"
+                            color="primary"
                             size={isMobile ? "small" : "small"}
-                            onClick={() => handleOpenDeleteDialog(user)}
+                            onClick={() => navigate(`/user-profile/${user.id}`)}
                             sx={{
-                              ml: 1,
                               "&:hover": {
-                                bgcolor: alpha(theme.palette.error.main, 0.1),
+                                bgcolor: alpha(theme.palette.primary.main, 0.1),
                               },
                             }}
                           >
-                            <DeleteIcon
+                            <VisibilityIcon
                               fontSize={isMobile ? "small" : "small"}
                             />
                           </IconButton>
                         </Tooltip>
-                      ) : (
-                        <Chip
-                          label="System Admin"
-                          size="small"
-                          color="default"
-                          variant="outlined"
-                          sx={{
-                            height: isMobile ? 24 : 32,
-                            "& .MuiChip-label": {
-                              fontSize: isMobile ? "0.65rem" : "0.75rem",
-                              px: isMobile ? 0.5 : 1,
-                            },
-                          }}
-                        />
-                      )}
+                        {user.username !== "admin" ? (
+                          <Tooltip title="Delete User">
+                            <IconButton
+                              color="error"
+                              size={isMobile ? "small" : "small"}
+                              onClick={() => handleOpenDeleteDialog(user)}
+                              sx={{
+                                "&:hover": {
+                                  bgcolor: alpha(theme.palette.error.main, 0.1),
+                                },
+                              }}
+                            >
+                              <DeleteIcon
+                                fontSize={isMobile ? "small" : "small"}
+                              />
+                            </IconButton>
+                          </Tooltip>
+                        ) : (
+                          <Chip
+                            label="System Admin"
+                            size="small"
+                            color="default"
+                            variant="outlined"
+                            sx={{
+                              height: isMobile ? 24 : 32,
+                              "& .MuiChip-label": {
+                                fontSize: isMobile ? "0.65rem" : "0.75rem",
+                                px: isMobile ? 0.5 : 1,
+                              },
+                            }}
+                          />
+                        )}
+                      </Box>
                     </TableCell>
                   </TableRow>
                 ))
@@ -1118,6 +1184,164 @@ const UserManagement = () => {
             size={isMobile ? "small" : "medium"}
           >
             Delete User
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Reassignment Dialog */}
+      <Dialog
+        open={openReassignDialog}
+        onClose={handleCloseReassignDialog}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 2,
+            boxShadow: 3,
+            overflow: "hidden",
+          },
+        }}
+      >
+        <DialogTitle
+          sx={{
+            bgcolor: alpha(theme.palette.warning.main, 0.1),
+            borderBottom: "1px solid",
+            borderColor: alpha(theme.palette.warning.main, 0.2),
+            pb: 2,
+          }}
+        >
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            <InfoIcon color="warning" sx={{ mr: 1.5 }} />
+            <Typography
+              variant="h6"
+              sx={{ fontSize: isMobile ? "1rem" : undefined }}
+            >
+              User Has Associated Data
+            </Typography>
+          </Box>
+        </DialogTitle>
+        <DialogContent sx={{ mt: 2, p: isMobile ? 1.5 : 3 }}>
+          {selectedUser && (
+            <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
+              <Avatar
+                sx={{
+                  bgcolor: getAvatarColor(selectedUser.role),
+                  width: isMobile ? 40 : 56,
+                  height: isMobile ? 40 : 56,
+                  mr: 2,
+                }}
+              >
+                {getInitials(selectedUser.name)}
+              </Avatar>
+              <Box>
+                <Typography
+                  variant="h6"
+                  sx={{ fontSize: isMobile ? "1rem" : undefined }}
+                >
+                  {selectedUser.name}
+                </Typography>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ fontSize: isMobile ? "0.75rem" : undefined }}
+                >
+                  {selectedUser.username} • {selectedUser.role}
+                </Typography>
+              </Box>
+            </Box>
+          )}
+
+          <Alert severity="warning" variant="outlined" sx={{ mb: 3 }}>
+            <Typography
+              variant="body2"
+              sx={{ fontSize: isMobile ? "0.75rem" : undefined, mb: 1 }}
+            >
+              This user has created data that needs to be reassigned:
+            </Typography>
+            {userDataInfo && (
+              <Box sx={{ pl: 2 }}>
+                <Typography
+                  variant="body2"
+                  sx={{ fontSize: isMobile ? "0.75rem" : undefined }}
+                >
+                  • {userDataInfo.intakeFormsCount} intake form(s)
+                </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{ fontSize: isMobile ? "0.75rem" : undefined }}
+                >
+                  • {userDataInfo.documentsCount} document(s)
+                </Typography>
+              </Box>
+            )}
+          </Alert>
+
+          <DialogContentText
+            sx={{ fontSize: isMobile ? "0.85rem" : undefined, mb: 2 }}
+          >
+            Before deleting this user, you must select another user to whom all
+            their forms and documents will be reassigned.
+          </DialogContentText>
+
+          <FormControl fullWidth sx={{ mt: 2 }}>
+            <InputLabel>Reassign Data To</InputLabel>
+            <Select
+              value={reassignToUserId}
+              onChange={(e) => setReassignToUserId(e.target.value)}
+              label="Reassign Data To"
+            >
+              {users
+                .filter((u) => u.id !== selectedUser?.id)
+                .map((user) => (
+                  <MenuItem key={user.id} value={user.id}>
+                    <Box sx={{ display: "flex", alignItems: "center" }}>
+                      <Avatar
+                        sx={{
+                          bgcolor: getAvatarColor(user.role),
+                          width: 32,
+                          height: 32,
+                          mr: 1.5,
+                          fontSize: "0.875rem",
+                        }}
+                      >
+                        {getInitials(user.name)}
+                      </Avatar>
+                      <Box>
+                        <Typography variant="body2">{user.name}</Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          {user.username} • {user.role}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  </MenuItem>
+                ))}
+            </Select>
+          </FormControl>
+        </DialogContent>
+        <DialogActions
+          sx={{
+            p: isMobile ? 2 : 3,
+            pt: isMobile ? 1 : 2,
+            borderTop: "1px solid",
+            borderColor: "divider",
+          }}
+        >
+          <Button
+            onClick={handleCloseReassignDialog}
+            variant="outlined"
+            size={isMobile ? "small" : "medium"}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleDeleteUserWithReassignment}
+            variant="contained"
+            color="error"
+            startIcon={<DeleteIcon />}
+            size={isMobile ? "small" : "medium"}
+            disabled={!reassignToUserId}
+          >
+            Delete & Reassign
           </Button>
         </DialogActions>
       </Dialog>

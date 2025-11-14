@@ -30,6 +30,7 @@ import AssignmentIcon from "@mui/icons-material/Assignment";
 import LogoutIcon from "@mui/icons-material/Logout";
 import PeopleIcon from "@mui/icons-material/People";
 import MenuIcon from "@mui/icons-material/Menu";
+import SettingsIcon from "@mui/icons-material/Settings";
 
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import DescriptionIcon from "@mui/icons-material/Description";
@@ -578,11 +579,18 @@ const Header = () => {
 
         <Divider />
 
-        <MenuItem component={RouterLink} to="/">
+        <MenuItem component={RouterLink} to="/" onClick={handleUserMenuClose}>
           <ListItemIcon>
             <DashboardIcon fontSize="small" />
           </ListItemIcon>
           <ListItemText>Dashboard</ListItemText>
+        </MenuItem>
+
+        <MenuItem component={RouterLink} to="/settings" onClick={handleUserMenuClose}>
+          <ListItemIcon>
+            <SettingsIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Settings</ListItemText>
         </MenuItem>
 
         <Divider />
@@ -689,6 +697,19 @@ const Header = () => {
                   <ListItemText primary="User Management" />
                 </ListItem>
               )}
+
+              <ListItem
+                button
+                component={RouterLink}
+                to="/settings"
+                onClick={closeMobileMenu}
+                selected={location.pathname === "/settings"}
+              >
+                <ListItemIcon>
+                  <SettingsIcon />
+                </ListItemIcon>
+                <ListItemText primary="Settings" />
+              </ListItem>
             </List>
 
             <Divider />

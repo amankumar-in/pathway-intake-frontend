@@ -1061,6 +1061,11 @@ const Dashboard = () => {
                             </Box>
                           </Popover>
                         </TableCell>
+                        {isAdmin() && !isMobile && (
+                          <TableCell sx={{ fontWeight: "bold", fontSize: { xs: "0.875rem", sm: "1rem" } }}>
+                            Created By
+                          </TableCell>
+                        )}
                         <TableCell align="right" sx={{ fontWeight: "bold", fontSize: { xs: "0.875rem", sm: "1rem" } }}>
                           Actions
                         </TableCell>

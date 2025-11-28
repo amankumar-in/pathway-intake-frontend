@@ -1,10 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { Menu, MenuItem, Typography, Tooltip, IconButton } from "@mui/material";
+import { Tooltip, IconButton } from "@mui/material";
 import { AddCircleOutline, Delete } from "@mui/icons-material";
 import SignatureMenu from "../shared/SignatureMenu";
-
-// Base64 encoded logo (actual logo would replace this)
-const LOGO_BASE64 = "image-placeholder";
 
 // ClientPersonalRights component using proper field mapping
 const ClientPersonalRights = ({

@@ -50,6 +50,7 @@ const Step3Form = ({ formData = {}, goToStep }) => {
       year: "numeric",
       month: "long",
       day: "numeric",
+      timeZone: "UTC",
     });
   };
 

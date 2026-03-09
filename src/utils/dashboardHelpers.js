@@ -6,11 +6,12 @@ export const formatDate = (dateString, isMobile = false) => {
   if (!dateString) return "";
   const date = new Date(dateString);
   return isMobile
-    ? date.toLocaleDateString("en-US")
+    ? date.toLocaleDateString("en-US", { timeZone: "UTC" })
     : date.toLocaleDateString("en-US", {
         year: "numeric",
         month: "long",
         day: "numeric",
+        timeZone: "UTC",
       });
 };
 

@@ -207,7 +207,7 @@ const ViewDocument = () => {
                 <Typography variant="subtitle2">Placement Date:</Typography>
                 <Typography variant="body2">
                   {formData.transactionDate &&
-                    new Date(formData.transactionDate).toLocaleDateString()}
+                    new Date(formData.transactionDate).toLocaleDateString("en-US", { timeZone: "UTC" })}
                 </Typography>
               </Grid>
             </Grid>

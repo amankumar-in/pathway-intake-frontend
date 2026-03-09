@@ -726,7 +726,7 @@ const CHPD = ({
               <strong>BLOOD PRESSURE:</strong> {data?.bloodPressure || ""}
             </td>
             <td style={{ fontSize: "9px" }}>
-              {renderCheckbox(data?.isFosterChild)} Foster Child
+              {renderCheckbox(data?.isFosterChild)} Resource Child
             </td>
           </tr>
           <tr>
@@ -1243,7 +1243,7 @@ const CHPD = ({
       <div style={{ marginBottom: "10px" }}>
         <p style={{ fontSize: "9px", margin: "5px 0" }}>
           I certify that the screening information is true and complete, and the
-          results explained to the child or his/her foster parent or guardian.
+          results explained to the child or his/her resource parent or guardian.
         </p>
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <tbody>

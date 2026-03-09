@@ -80,7 +80,7 @@ const steps = [
     icon: <PersonIcon />,
   },
   {
-    label: "Foster Home & County Details",
+    label: "Resource Home & County Details",
     description: "Modify placement and county contact information",
     icon: <HomeIcon />,
   },
@@ -120,7 +120,7 @@ const EditForm = () => {
   };
 
   useEffect(() => {
-    document.title = "Edit Intake Form | Pathway Foster Agency";
+    document.title = "Edit Intake Form | Pathway Family Services";
   }, []);
 
   // Fetch the form data when component mounts
@@ -814,7 +814,7 @@ const EditForm = () => {
               {activeStep === 0
                 ? "This step allows you to update basic information about the office handling the case and the client. Fields marked with an asterisk (*) are required."
                 : activeStep === 1
-                ? "This step lets you modify information about the foster home and county worker involved in this case. Foster parent and county payment amounts are automatically calculated based on the Level of Care selected in Step 1."
+                ? "This step lets you modify information about the resource home and county worker involved in this case. Resource parent and county payment amounts are automatically calculated based on the Level of Care selected in Step 1."
                 : "Please review all the changes you've made. You can navigate back to previous steps to make additional edits by clicking the Edit button in each section."}
             </Typography>
 

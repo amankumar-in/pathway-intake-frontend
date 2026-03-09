@@ -84,8 +84,8 @@ const ClientDischargeForm = ({ data, handleInputChange }) => {
             <MenuItem value="Guardianship or Adoption">
               Guardianship or Adoption
             </MenuItem>
-            <MenuItem value="Change in Foster Family Circumstances">
-              Change in Foster Family Circumstances
+            <MenuItem value="Change in Resource Family Circumstances">
+              Change in Resource Family Circumstances
             </MenuItem>
             <MenuItem value="Client Request">Client Request</MenuItem>
             <MenuItem value="Placement Agency Request">

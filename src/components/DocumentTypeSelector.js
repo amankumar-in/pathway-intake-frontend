@@ -70,11 +70,11 @@ const documentTemplates = [
   },
   {
     id: "agency-foster",
-    title: "Agency to Foster Parent",
+    title: "Agency to Resource Parent",
     template: "Agency to Foster Parent",
     category: "Shelter Bed Documents",
     icon: <PersonIcon />,
-    description: "Agreement between agency and foster parents for placement",
+    description: "Agreement between agency and resource parents for placement",
   },
   {
     id: "client-grievance",
@@ -159,7 +159,7 @@ const documentTemplates = [
     category: "Intake Paperwork",
     icon: <AttachMoneyIcon />,
     description:
-      "Tracks client's cash transactions and resources while in foster care",
+      "Tracks client's cash transactions and resources while in care",
   },
   {
     id: "client-initial-care-plan",
@@ -177,7 +177,7 @@ const documentTemplates = [
     category: "Shelter Bed Documents",
     icon: <GavelIcon />,
     description:
-      "Outlines disciplinary policies and procedures for clients in foster care",
+      "Outlines disciplinary policies and procedures for clients in care",
   },
   {
     id: "client-discharge",
@@ -274,12 +274,12 @@ const documentTemplates = [
   },
   {
     id: "checklist",
-    title: "Foster Parent Checklist",
+    title: "Resource Parent Checklist",
     template: "Checklist",
     category: "Intake Paperwork",
     icon: <AssignmentIcon />,
     description:
-      "Checklist of required tasks for foster parents after new placement",
+      "Checklist of required tasks for resource parents after new placement",
   },
   {
     id: "client-personal-property",

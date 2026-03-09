@@ -664,7 +664,7 @@ const SAForm = ({
         </h3>
       </div>
 
-      {/* Client and foster home information */}
+      {/* Client and resource home information */}
       <table
         style={{
           width: "100%",

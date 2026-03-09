@@ -304,7 +304,7 @@ const PlacementApplicationForm = ({ data, handleInputChange }) => {
         <Grid item xs={12}>
           <TextField
             fullWidth
-            label="Reason for Foster Placement"
+            label="Reason for Resource Placement"
             name="reasonForPlacement"
             value={data?.reasonForPlacement || ""}
             onChange={handleInputChange}

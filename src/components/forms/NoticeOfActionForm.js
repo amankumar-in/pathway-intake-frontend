@@ -236,15 +236,15 @@ const NoticeOfActionForm = ({ data, handleInputChange }) => {
         </Grid>
       </Grid>
 
-      {/* Foster Home Information - READ ONLY fields from intake */}
+      {/* Resource Home Information - READ ONLY fields from intake */}
       <Typography variant="h6" gutterBottom>
-        Foster Home Information
+        Resource Home Information
       </Typography>
       <Grid container spacing={3} sx={{ mb: 3 }}>
         <Grid item xs={12} md={6}>
           <TextField
             fullWidth
-            label="Name of Foster Parents"
+            label="Name of Resource Parents"
             name="nameOfFosterParents"
             value={data?.nameOfFosterParents || ""}
             onChange={handleInputChange}

@@ -87,7 +87,7 @@ const UserManagement = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   useEffect(() => {
-    document.title = "User Management | Pathway Foster Agency";
+    document.title = "User Management | Pathway Family Services";
   }, []);
   // Fetch users on component mount
   useEffect(() => {

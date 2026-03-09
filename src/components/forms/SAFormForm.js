@@ -706,7 +706,7 @@ const SAFormForm = ({ data, handleInputChange, isStandalone = false }) => {
         Quarterly Spending Allowance
       </Typography>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-        This form tracks the quarterly spending allowance for the foster child.
+        This form tracks the quarterly spending allowance for the resource child.
       </Typography>
       <Alert severity="info" sx={{ mb: 3 }}>
         <Typography variant="body2">
@@ -763,7 +763,7 @@ const SAFormForm = ({ data, handleInputChange, isStandalone = false }) => {
         <Grid item xs={12} md={6}>
           <TextField
             fullWidth
-            label="Foster Home"
+            label="Resource Home"
             name="nameOfFosterParents"
             value={data?.nameOfFosterParents || ""}
             onChange={handleFormInputChange}

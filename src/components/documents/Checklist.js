@@ -229,7 +229,7 @@ const Checklist = ({
             fontSize: "14px",
           }}
         >
-          Foster Parent Checklist
+          Resource Parent Checklist
         </h2>
       </div>
 
@@ -423,7 +423,7 @@ const Checklist = ({
         <div style={{ display: "flex", justifyContent: "space-between" }}>
           <div style={{ width: "40%" }}>
             {renderSignatureArea(
-              "Foster Parent Signature",
+              "Resource Parent Signature",
               "fosterParentSignature"
             )}
           </div>

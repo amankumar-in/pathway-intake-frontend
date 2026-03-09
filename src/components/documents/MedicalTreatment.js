@@ -247,7 +247,7 @@ const MedicalTreatment = ({
           >
             {data?.name || ""}
           </span>
-          , a minor placed in foster care by the county of{" "}
+          , a minor placed in care by the county of{" "}
           <span
             style={{
               borderBottom: "1px solid #000",
@@ -260,7 +260,7 @@ const MedicalTreatment = ({
             {data?.nameOfCounty || ""}
           </span>{" "}
           I hereby give consent to Pathway Family Services, Inc. and their
-          assigned certified foster parents who provide direct care for this
+          assigned certified resource parents who provide direct care for this
           client, to provide all medical and dental care prescribed by a duly
           licensed physician or other health care professional.
         </div>
@@ -282,7 +282,7 @@ const MedicalTreatment = ({
           It is understood that this authorization is given in advance to any
           specific diagnosis, treatment or hospital care being required but is
           being given to provide authority to Pathway Family Services and their
-          certified foster parent to seek and initiate the above described
+          certified resource parent to seek and initiate the above described
           medical care and grant approval of care for which the attending
           physician(s), surgeon(s), dentist(s) and other licensed medical
           professional(s) deem appropriate for the well being of the above named

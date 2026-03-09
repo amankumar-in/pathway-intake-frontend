@@ -171,7 +171,7 @@ const ClientPersonalPropertyForm = ({ data, handleInputChange }) => {
       </Typography>
       <Alert severity="info" sx={{ mb: 3 }}>
         <Typography variant="body2">
-          <strong>Note:</strong> Client name, foster parent, date, and type are
+          <strong>Note:</strong> Client name, resource parent, date, and type are
           automatically populated from the intake form.
         </Typography>
       </Alert>
@@ -198,7 +198,7 @@ const ClientPersonalPropertyForm = ({ data, handleInputChange }) => {
         <Grid item xs={12} md={6}>
           <TextField
             fullWidth
-            label="Foster Parent"
+            label="Resource Parent"
             name="nameOfFosterParents"
             value={data?.nameOfFosterParents || ""}
             onChange={handleInputChange}

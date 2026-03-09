@@ -26,7 +26,7 @@ const ClientDisciplinaryPPForm = ({
       </Typography>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
         This document outlines the disciplinary policies and procedures for
-        clients in foster care.
+        clients in care.
       </Typography>
       <Alert severity="info" sx={{ mb: 3 }}>
         <Typography variant="body2">

@@ -36,7 +36,7 @@ const AgencyToFosterParentForm = ({ data, handleInputChange }) => {
   return (
     <Box sx={{ mb: 4 }}>
       <Typography variant="h5" gutterBottom>
-        Agency to Foster Parent Agreement
+        Agency to Resource Parent Agreement
       </Typography>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
         This agreement will be initiated when the child is placed in the
@@ -136,14 +136,14 @@ const AgencyToFosterParentForm = ({ data, handleInputChange }) => {
         <Grid item xs={12} md={6}>
           <TextField
             fullWidth
-            label="Resource Parent (Foster Parents)"
+            label="Resource Parent"
             name="nameOfFosterParents"
             value={data?.nameOfFosterParents || ""}
             onChange={handleInputChange}
             InputProps={{
               readOnly: true,
             }}
-            helperText="Auto-populated from intake form (Name of Foster Parents)"
+            helperText="Auto-populated from intake form (Name of Resource Parents)"
             disabled
           />
         </Grid>
@@ -305,7 +305,7 @@ const AgencyToFosterParentForm = ({ data, handleInputChange }) => {
                   name="canBeUnsupervised"
                 />
               }
-              label="Child 15 years or older has permission to remain without adult supervision during temporary absences of the foster parents(s), not to exceed six (6) hours in any one 72-hour period"
+              label="Child 15 years or older has permission to remain without adult supervision during temporary absences of the resource parents(s), not to exceed six (6) hours in any one 72-hour period"
             />
             <FormControlLabel
               control={

@@ -216,7 +216,7 @@ const CRMCIAForm = ({ data, handleInputChange }) => {
             - Persons or organizations authorized to use and disclose the
             minor's information:
           </strong>{" "}
-          Pathway's staff, Certified foster parents and respite providers for
+          Pathway's staff, Certified resource parents and respite providers for
           the Minor (as needed).
         </Typography>
 
@@ -225,7 +225,7 @@ const CRMCIAForm = ({ data, handleInputChange }) => {
             - Persons or organizations authorized to receive the Minor's
             information:
           </strong>{" "}
-          Pathway staff, Certified foster parents and respite providers for the
+          Pathway staff, Certified resource parents and respite providers for the
           Minor, the Minor's health and mental health care providers, the
           Minor's school, day care providers for the Minor, and
           extra-curricular/recreational program providers for the Minor and

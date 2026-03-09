@@ -525,7 +525,7 @@ const PlacementApplication = ({
                   verticalAlign: "top",
                 }}
               >
-                Reason for Foster Placement:
+                Reason for Resource Placement:
               </td>
               <td
                 colSpan={3}

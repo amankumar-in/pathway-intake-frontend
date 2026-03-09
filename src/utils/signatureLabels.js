@@ -1,6 +1,6 @@
 // Default signature labels
 export const DEFAULT_SIGNATURE_LABELS = {
-  childSignature: "Foster Child",
+  childSignature: "Resource Child",
   parentSignature: "Resource Mother",
   caseworkerSignature: "Resource Father",
   supervisorSignature: "Pathway Social Worker",

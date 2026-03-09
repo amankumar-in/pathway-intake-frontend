@@ -220,7 +220,7 @@ const AgencyToFosterParent = ({
             fontSize: "11px",
           }}
         >
-          (Child Placed by Agency into Foster Home)
+          (Child Placed by Agency into Resource Home)
         </h4>
         <p style={{ margin: "8px 0", fontSize: "9px" }}>
           This agreement will be initiated when the child is placed in the
@@ -474,7 +474,7 @@ const AgencyToFosterParent = ({
             }}
           >
             Child 15 years or older has permission to remain without adult
-            supervision during temporary absences of the foster parents(s), not
+            supervision during temporary absences of the resource parents(s), not
             to exceed six (6) hours in any one 72 - hour period
           </label>
         </div>
@@ -602,7 +602,7 @@ const AgencyToFosterParent = ({
                   </li>
                   <li>
                     Provide training to ensure culturally relevant and trauma
-                    informed care of foster child.
+                    informed care of resource child.
                   </li>
                   <li>
                     Not remove the child without appropriate notice unless: the
@@ -616,7 +616,7 @@ const AgencyToFosterParent = ({
                     every 6 months in cooperations with CFT meetings.
                   </li>
                   <li>
-                    Assist the child in his use of foster care services
+                    Assist the child in his use of care services
                     including mental health services.
                   </li>
                   <li>
@@ -644,7 +644,7 @@ const AgencyToFosterParent = ({
                     permitted to meet initial clothing needs.
                   </li>
                   <li>
-                    In cooperation with resource parents, assure that foster
+                    In cooperation with resource parents, assure that resource
                     child will be available and transported to visits with
                     natural family members and other service appointments.
                   </li>
@@ -762,7 +762,7 @@ const AgencyToFosterParent = ({
                   </li>
                   <li>
                     Remit to Department of Public Services any income received
-                    on behalf of this child while in foster care up to the full
+                    on behalf of this child while in care up to the full
                     cost of board and care plus medical cost. In addition, I
                     will cooperate to have the Social Security Administration,
                     or the appropriate agency, make the Department of Public

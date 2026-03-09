@@ -50,7 +50,7 @@ import { getIntakeForm, updateSignature, updateSignatureLabel } from "../utils/a
 const signatures = [
   {
     type: "childSignature",
-    label: "Foster Child",
+    label: "Resource Child",
     description: "Signature of the child client (if age-appropriate)",
     icon: <ChildIcon />,
     color: "#1976d2", // primary blue
@@ -198,7 +198,7 @@ const CollectSignatures = () => {
   const [showReplaceDialog, setShowReplaceDialog] = useState(false);
   const [pendingSignatureData, setPendingSignatureData] = useState(null);
   const [signatureLabels, setSignatureLabels] = useState({
-    childSignature: "Foster Child",
+    childSignature: "Resource Child",
     parentSignature: "Resource Mother",
     caseworkerSignature: "Resource Father",
     supervisorSignature: "Pathway Social Worker",
@@ -208,7 +208,7 @@ const CollectSignatures = () => {
   const [tempLabel, setTempLabel] = useState("");
 
   useEffect(() => {
-      document.title = "Signatures | Pathway Foster Agency";
+      document.title = "Signatures | Pathway Family Services";
     }, []);
   // Fetch form data on component mount
   useEffect(() => {

@@ -43,7 +43,7 @@ const Login = () => {
   // Added animation effect for the login card
   const [showCard, setShowCard] = useState(false);
 useEffect(() => {
-  document.title = "Sign in | Pathway Foster Agency";
+  document.title = "Sign in | Pathway Family Services";
 }, []);
   useEffect(() => {
     // Delay to allow for a smooth animation
@@ -105,7 +105,7 @@ useEffect(() => {
           >
             <img
               src={logo}
-              alt="Pathway Foster Agency Logo"
+              alt="Pathway Family Services Logo"
               style={{ height: "80px" }}
             />
           </Box>

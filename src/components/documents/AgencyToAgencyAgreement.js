@@ -429,7 +429,7 @@ const AgencyToAgencyAgreement = ({
                 borderBottom: "1px solid #000",
               }}
             >
-              Foster Family Agency Agrees To
+              Resource Family Agency Agrees To
             </th>
           </tr>
         </thead>
@@ -535,13 +535,13 @@ const AgencyToAgencyAgreement = ({
             >
               <ol style={{ margin: "3px 0 0 15px", paddingLeft: "0" }}>
                 <li style={styles.listItem}>
-                  Provide this child with foster parent(s) who have been
+                  Provide this child with resource parent(s) who have been
                   certified to care for the child's needs in accordance with
                   applicable laws and regulations.
                 </li>
                 <li style={styles.listItem}>
                   Conform to Title 22, Division 6 regulations and all laws
-                  governing foster care.
+                  governing resource care.
                 </li>
                 <li style={styles.listItem}>
                   Notify the placing agency within 24 hours (unless there is a
@@ -587,14 +587,14 @@ const AgencyToAgencyAgreement = ({
                 <li style={styles.listItem}>
                   Give placing agency 7 day notice of intent to discharge or
                   move this child. Notify the placing agency of any intended
-                  move of this child between certified foster homes prior to the
+                  move of this child between certified resource homes prior to the
                   move. The FFA has the authority to move a child in the case of
                   imminent risk to the child or family. The FFA shall notify the
                   placing agency within 24 hours of such move.
                 </li>
                 <li style={styles.listItem}>
                   FFA social worker shall visit this child in private in their
-                  foster home at least once per calendar month and provide
+                  resource home at least once per calendar month and provide
                   documentation of these visits to the placing agency
                   caseworker/probation officer on a flow basis every month as
                   visits are completed.

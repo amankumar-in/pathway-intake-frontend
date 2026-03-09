@@ -223,9 +223,9 @@ const AgencyToAgencyAgreementForm = ({ data, handleInputChange }) => {
         </Grid>
       </Grid>
 
-      {/* Foster Agency Information */}
+      {/* Resource Family Agency Information */}
       <Typography variant="h6" gutterBottom>
-        Foster Family Agency Information
+        Resource Family Agency Information
       </Typography>
       <Grid container spacing={3}>
         <Grid item xs={12} md={6}>

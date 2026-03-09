@@ -234,7 +234,7 @@ const PRNPage2 = ({
       {/* Regulations text */}
       <div style={{ marginBottom: "10px" }}>
         <p style={{ margin: "0", fontSize: "13px" }}>
-          Regulations preclude foster parents from administering medication on a
+          Regulations preclude resource parents from administering medication on a
           PRN basis without prior approval and instruction from a medical
           professional. This includes Over The Counter (OTC) medications. The
           following form is provided to indicate those medications that are not

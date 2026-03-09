@@ -197,7 +197,7 @@ const ClientCashResourcesForm = ({
 
       <Divider sx={{ mb: 3 }} />
 
-      {/* Client and Foster Home Information */}
+      {/* Client and Resource Home Information */}
       <Typography variant="h6" gutterBottom>
         Client Information
       </Typography>
@@ -243,7 +243,7 @@ const ClientCashResourcesForm = ({
         <Grid item xs={12} md={6}>
           <TextField
             fullWidth
-            label="Foster Home"
+            label="Resource Home"
             name="nameOfFosterParents"
             value={data?.nameOfFosterParents || ""}
             onChange={handleInputChange}
@@ -252,7 +252,7 @@ const ClientCashResourcesForm = ({
             }}
             helperText={
               isStandalone
-                ? "Enter foster parent's name"
+                ? "Enter resource parent's name"
                 : "Auto-populated from intake form"
             }
             disabled={!isStandalone}
@@ -428,7 +428,7 @@ const ClientCashResourcesForm = ({
       <Alert severity="warning" sx={{ mt: 3 }}>
         <Typography variant="body2">
           Signatures for transactions will be collected in the document view.
-          Each transaction can be signed by both the foster parent and the
+          Each transaction can be signed by both the resource parent and the
           client or their representative.
         </Typography>
       </Alert>

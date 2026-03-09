@@ -827,7 +827,7 @@ const ClientInitialCarePlan = ({
               <td style={{ width: "60%" }}>
                 <div>
                   {renderSignatureArea(
-                    "Foster Parent Signature",
+                    "Resource Parent Signature",
                     "fosterParentSignature"
                   )}
                 </div>

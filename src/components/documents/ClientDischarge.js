@@ -255,15 +255,15 @@ const ClientDischarge = ({
             margin: "10px 0 5px 0",
           }}
         >
-          Moving a Child in Placement to another Foster Home
+          Moving a Child in Placement to another Resource Home
         </h4>
 
         <p
           style={{ fontSize: "12px", lineHeight: "1.3", textAlign: "justify" }}
         >
           A child may be moved when it obvious the child is not benefiting from
-          the placement due to being incompatible with the foster family; or the
-          child is completely noncompliant with the foster family's structure or
+          the placement due to being incompatible with the resource family; or the
+          child is completely noncompliant with the resource family's structure or
           the child's health and safety are threatened. A child may also be
           moved, when it is requested by the Placing Agency to accommodate
           visitation/services which are apart of a plan to reunify the child to
@@ -283,7 +283,7 @@ const ClientDischarge = ({
         <p
           style={{ fontSize: "12px", lineHeight: "1.3", textAlign: "justify" }}
         >
-          There are many reasons why a child might leave a foster home. They
+          There are many reasons why a child might leave a resource home. They
           include:
         </p>
 
@@ -299,22 +299,22 @@ const ClientDischarge = ({
             Achievement of Treatment Plan goals, reunification with family of
             origin, guardianship or adoption, These departures are planned well
             in advance, with the participation of all interested parties—
-            children, foster family, natural family and social workers.
+            children, resource family, natural family and social workers.
           </li>
           <li style={{ marginBottom: "5px" }}>
-            Change in foster family circumstances. Many things can happen that
-            affect a family's ability to foster. Examples are serious illness or
+            Change in resource family circumstances. Many things can happen that
+            affect a family's ability to provide care. Examples are serious illness or
             death, divorce or separation, or a transfer out of the community.
           </li>
           <li style={{ marginBottom: "5px" }}>
             The child in care requested. Children sometimes ask to be moved to
-            another home, or run away from a foster family and refuse to go
+            another home, or run away from a resource family and refuse to go
             back. The child's Agency social worker discusses the situation with
-            the child and foster patent before deciding what should be done.
+            the child and resource parent before deciding what should be done.
           </li>
           <li style={{ marginBottom: "5px" }}>
             Request by the Placement Agency. A child may be moved for a variety
-            of reasons, from concerns about the foster family to the preference
+            of reasons, from concerns about the resource family to the preference
             for placing brothers and sisters together.
           </li>
           <li style={{ marginBottom: "5px" }}>
@@ -348,7 +348,7 @@ const ClientDischarge = ({
         >
           Terminations are to be approved by an Agency Supervisor. The Agency
           Supervisor is immediately notified by the Agency social worker or
-          foster parents when a removal is pending or has occurred. All
+          resource parents when a removal is pending or has occurred. All
           terminations will be addressed with the Placement Agency. Other than
           in extreme emergency situations, the child's placement worker is
           offered the opportunity to participate in the termination process.

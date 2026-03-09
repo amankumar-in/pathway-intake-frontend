@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getDocumentComponent } from "../utils/documentMapper";
+import { getDocumentComponent, getDisplayName } from "../utils/documentMapper";
 import { generatePDF } from "../utils/pdfUtils";
 import DocumentGenerationAnimation from "../components/shared/DocumentGenerationAnimation";
 
@@ -975,7 +975,7 @@ const ViewDocument = () => {
                   </Box>
                   <Box sx={{ mt: 1, ml: 4 }}>
                     <Typography variant="body2" color="text.secondary">
-                      Type: {formData.template || "Standard"}
+                      Type: {getDisplayName(formData.template) || "Standard"}
                     </Typography>
 
                     {/* Categories display */}
@@ -1455,7 +1455,7 @@ const ViewDocument = () => {
                 </Box>
                 <Box sx={{ mt: 1, ml: 4 }}>
                   <Typography variant="body2" color="text.secondary">
-                    Type: {formData.template || "Standard"}
+                    Type: {getDisplayName(formData.template) || "Standard"}
                   </Typography>
 
                   {/* Categories display */}

@@ -405,7 +405,7 @@ const NoticeOfAction = ({
         </div>
       </div>
 
-      {/* Foster Home Information */}
+      {/* Resource Home Information */}
       <div style={{ marginBottom: "15px" }}>
         <div
           style={{
@@ -415,13 +415,13 @@ const NoticeOfAction = ({
             borderBottom: "1px solid #000",
           }}
         >
-          Foster Home Information
+          Resource Home Information
         </div>
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <tbody>
             <tr>
               <td style={{ fontSize: "9px", width: "150px" }}>
-                <strong>Name of Foster Parents:</strong>
+                <strong>Name of Resource Parents:</strong>
               </td>
               <td style={{ fontSize: "9px", borderBottom: "1px solid #000" }}>
                 {data?.nameOfFosterParents || ""}
@@ -439,7 +439,7 @@ const NoticeOfAction = ({
 
         <div style={{ marginTop: "10px" }}>
           <div style={{ fontSize: "9px" }}>
-            <strong>Address of Foster Home:</strong>
+            <strong>Address of Resource Home:</strong>
           </div>
           <div
             style={{

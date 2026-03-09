@@ -62,6 +62,16 @@ import ChecklistForm from "../components/forms/ChecklistForm";
 import ClientPersonalProperty from "../components/documents/ClientPersonalProperty";
 import ClientPersonalPropertyForm from "../components/forms/ClientPersonalPropertyForm";
 
+// Map backend template names to user-facing display names (Foster → Resource)
+const DISPLAY_NAME_MAP = {
+  "Agency to Foster Parent": "Agency to Resource Parent",
+  "Foster Parent Checklist": "Resource Parent Checklist",
+};
+
+export const getDisplayName = (templateName) => {
+  return DISPLAY_NAME_MAP[templateName] || templateName;
+};
+
 // todo 2. Map template names to their respective document components - just above - default;
 export const getDocumentComponent = (templateName, documentData, signatureLabels = {}) => {
   switch (templateName) {

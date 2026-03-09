@@ -467,7 +467,7 @@ const CHPDForm = ({ data, handleInputChange }) => {
                 name="isFosterChild"
               />
             }
-            label="Patient is a Foster Child"
+            label="Patient is a Resource Child"
           />
         </Grid>
       </Grid>
@@ -787,7 +787,7 @@ const CHPDForm = ({ data, handleInputChange }) => {
         <Grid item xs={12}>
           <Typography variant="body2">
             I certify that the screening information is true and complete, and
-            the results explained to the child or his/her foster parent or
+            the results explained to the child or his/her resource parent or
             guardian.
           </Typography>
         </Grid>

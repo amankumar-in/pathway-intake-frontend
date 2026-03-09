@@ -41,7 +41,7 @@ const ChecklistForm = ({ data, handleInputChange }) => {
   return (
     <Box sx={{ mb: 4 }}>
       <Typography variant="h5" gutterBottom>
-        Foster Parent Checklist
+        Resource Parent Checklist
       </Typography>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
         This checklist must be completed when you have a new placement. Your

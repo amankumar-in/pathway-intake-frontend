@@ -318,7 +318,7 @@ const ClientPersonalProperty = ({
           </span>
         </div>
         <div>
-          <strong>Foster Parent:</strong>{" "}
+          <strong>Resource Parent:</strong>{" "}
           <span style={{ borderBottom: "1px solid #000", minWidth: "150px", display: "inline-block", paddingBottom: "1px" }}>
             {data?.nameOfFosterParents || ""}
           </span>
@@ -406,7 +406,7 @@ const ClientPersonalProperty = ({
         </div>
         <div style={{ flex: 1, textAlign: "center" }}>
           {renderSignatureArea("", "fosterParentSignature")}
-          <div style={{ fontSize: "9px", marginTop: "4px" }}>Foster Parent Signature</div>
+          <div style={{ fontSize: "9px", marginTop: "4px" }}>Resource Parent Signature</div>
         </div>
         <div style={{ flex: 1, textAlign: "center" }}>
           {renderSignatureArea("", "socialWorkerSignature")}

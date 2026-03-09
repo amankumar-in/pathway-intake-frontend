@@ -89,7 +89,7 @@ const StandaloneSignatures = () => {
   };
 
   useEffect(() => {
-    document.title = "Signatures | Pathway Foster Agency";
+    document.title = "Signatures | Pathway Family Services";
   }, []);
   // Fetch document data on component mount
   useEffect(() => {

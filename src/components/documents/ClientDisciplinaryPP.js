@@ -246,7 +246,7 @@ const ClientDisciplinaryPP = ({
         </p>
 
         <p style={{ margin: "8px 0 8px 20px", fontSize: "12px" }}>
-          Each foster child is to be free from corporal or unusual punishment,
+          Each resource child is to be free from corporal or unusual punishment,
           infliction of pain, humiliation, intimidation, ridicule, coercion,
           threat, mental abuse, or other actions of a punitive nature, including
           but not limited to: interference with the daily living functions,
@@ -272,17 +272,17 @@ const ClientDisciplinaryPP = ({
             fontSize: "12px",
           }}
         >
-          Discipline versus Punishment – Pathway Foster Parent Directives
+          Discipline versus Punishment – Pathway Resource Parent Directives
         </h3>
         <p style={{ margin: "8px 0", fontSize: "12px" }}>
-          Pathway foster parents are instructed to know and model the difference
+          Pathway resource parents are instructed to know and model the difference
           between discipline and punishment. Training materials include focus on
           how discipline teaches children how to develop self-control and be
           responsible for their own actions.
         </p>
         <p style={{ margin: "8px 0", fontSize: "12px" }}>
           State regulations and Pathway policy, explicitly forbids the use of
-          corporal punishment for any child in care. Foster parent are taught
+          corporal punishment for any child in care. Resource parent are taught
           that corporal punishment means the use of any physical force that may
           inflict pain, such as spanking, slapping or hitting.
         </p>
@@ -291,7 +291,7 @@ const ClientDisciplinaryPP = ({
       {/* Inappropriate Punishments Section */}
       <div style={{ marginBottom: "16px" }}>
         <p style={{ margin: "8px 0", fontSize: "12px" }}>
-          Pathway Foster parents are instructed about other inappropriate
+          Pathway Resource parents are instructed about other inappropriate
           punishments include but are not limited to:
         </p>
         <p style={{ margin: "8px 0 8px 20px", fontSize: "12px" }}>
@@ -299,7 +299,7 @@ const ClientDisciplinaryPP = ({
           shelter, bedding, or access to their parents or guardians denying
           visits, or phone or mail contacts, with family members not identified
           in the child's Treatment Plan. Other inappropriate punishment
-          includes; threats of removal from the foster home, assignment of
+          includes; threats of removal from the resource home, assignment of
           inappropriate or excessive exercise or work, undue influence over the
           child's religious or personal beliefs, physical punishment including
           shaking or forcefully pushing the child, degrading actions including
@@ -322,7 +322,7 @@ const ClientDisciplinaryPP = ({
           Discipline and Parenting Methods
         </h3>
         <p style={{ margin: "8px 0", fontSize: "12px" }}>
-          Pathway foster parents are provided training regarding appropriate
+          Pathway resource parents are provided training regarding appropriate
           discipline techniques include:
         </p>
 
@@ -334,22 +334,22 @@ const ClientDisciplinaryPP = ({
         </p>
 
         <p style={{ margin: "12px 0", fontSize: "12px" }}>
-          Foster parents are encouraged to talk to their assigned Agency social
+          Resource parents are encouraged to talk to their assigned Agency social
           workers about discipline techniques, training needs or any other
-          issues relating to the care of foster child(ren) placed in their home.
+          issues relating to the care of resource child(ren) placed in their home.
         </p>
 
         <p style={{ margin: "12px 0", fontSize: "12px" }}>
-          Foster parents must report all discipline techniques used toward a
-          foster child(ren) and include the circumstances, which, resulted in
+          Resource parents must report all discipline techniques used toward a
+          resource child(ren) and include the circumstances, which, resulted in
           disciplinary consequences. The assigned Pathway social worker will
           regularly review disciplinary actions during home visits. Discipline
           techniques that are not in alignment with agency guidelines and
           policies are reviewed by the Supervisor or Supervisor's designee.
           Discipline techniques used that are contrary to Agency policy are
           reported to Community Care Licensing. Depending on the severity of the
-          infraction, Pathway could also place the foster parent on a
-          probationary status or de-certify the foster home.
+          infraction, Pathway could also place the resource parent on a
+          probationary status or de-certify the resource home.
         </p>
       </div>
 

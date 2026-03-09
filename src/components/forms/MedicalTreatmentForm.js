@@ -28,7 +28,7 @@ const MedicalTreatmentForm = ({ data, handleInputChange }) => {
         Consent For Medical Treatment Of Client
       </Typography>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-        This form authorizes Pathway Family Services and foster parents to
+        This form authorizes Pathway Family Services and resource parents to
         provide medical and dental care for the client.
       </Typography>
       <Alert severity="info" sx={{ mb: 3 }}>

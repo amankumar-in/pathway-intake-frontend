@@ -236,14 +236,14 @@ const ClientGrievanceGuidelines = ({
         <p style={{ textAlign: "justify", lineHeight: "1.5" }}>
           Pathway is very interested in and committed to maintaining
           professional, effective and accountable relationships regarding
-          clients placed in PFS homes. If a child, foster family member or
+          clients placed in PFS homes. If a child, resource family member or
           county representative has a concern they need to address, they may
           initiate action in the following way:
         </p>
 
         <div style={{ margin: "15px 0 15px 50px" }}>
           <p style={{ margin: "12px 0" }}>
-            Address the concern with the Pathway foster parent. If the matter is
+            Address the concern with the Pathway resource parent. If the matter is
             not resolved then:
           </p>
           <p style={{ margin: "12px 0" }}>

@@ -11,7 +11,7 @@ import {
   generateDocuments,
   getDocument,
 } from "../utils/api";
-import { getDocumentComponent } from "../utils/documentMapper";
+import { getDocumentComponent, getDisplayName } from "../utils/documentMapper";
 import { generatePDF, generatePDFBlob } from "../utils/pdfUtils";
 import DocumentGenerationAnimation from "../components/shared/DocumentGenerationAnimation";
 
@@ -188,8 +188,8 @@ const ViewDocuments = () => {
     document.title = intakeForm
       ? `${
           intakeForm.name || "Unknown Client"
-        } Documents | Pathway Foster Agency`
-      : "View Documents | Pathway Foster Agency";
+        } Documents | Pathway Family Services`
+      : "View Documents | Pathway Family Services";
   }, [intakeForm]);
 
   // Fetch documents on component mount
@@ -348,7 +348,7 @@ const ViewDocuments = () => {
       const fullDocData = response.data;
 
       setPdfProgress(20);
-      setCurrentDocName(fullDocData.formData.template || "Document");
+      setCurrentDocName(getDisplayName(fullDocData.formData.template) || "Document");
 
       // Phase 2: Preparing (20-40%)
       setPdfPhase("Preparing document...");
@@ -498,7 +498,7 @@ const ViewDocuments = () => {
           const copies = customCopyCounts[docId] || 1;
 
           // Set current document name
-          setCurrentDocName(fullDocData.formData.template || fullDocData.title || "Document");
+          setCurrentDocName(getDisplayName(fullDocData.formData.template) || fullDocData.title || "Document");
           setPdfPhase("Processing document...");
 
           // Extract signatures
@@ -576,7 +576,7 @@ const ViewDocuments = () => {
 
         // Set metadata
         mergedPdf.setTitle(`${intakeForm?.name || "Client"} - Documents`);
-        mergedPdf.setAuthor("Pathway Foster Agency");
+        mergedPdf.setAuthor("Pathway Family Services");
         mergedPdf.setCreator("Pathway Intake System");
 
         // Add pages from each PDF

@@ -213,9 +213,9 @@ const IDEmergencyInfoForm = ({ data, handleInputChange }) => {
             >
               <MenuItem value="Natural Parent">Natural Parent</MenuItem>
               <MenuItem value="County Facility">County Facility</MenuItem>
-              <MenuItem value="County Foster Home">County Foster Home</MenuItem>
+              <MenuItem value="County Resource Home">County Resource Home</MenuItem>
               <MenuItem value="County Hospital">County Hospital</MenuItem>
-              <MenuItem value="Foster Care Agency">Foster Care Agency</MenuItem>
+              <MenuItem value="Resource Family Agency">Resource Family Agency</MenuItem>
               <MenuItem value="Friend of Family">Friend of Family</MenuItem>
               <MenuItem value="Group Home">Group Home</MenuItem>
               <MenuItem value="Jamison Center">Jamison Center</MenuItem>

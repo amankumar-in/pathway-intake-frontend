@@ -839,13 +839,13 @@ const CAFormForm = ({ data, handleInputChange, isStandalone = false }) => {
         Quarterly Clothing Allowance
       </Typography>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-        Form to track clothing allowance funds for foster children on a
+        Form to track clothing allowance funds for resource children on a
         quarterly basis.
       </Typography>
       <Alert severity="info" sx={{ mb: 3 }}>
         <Typography variant="body2">
           <strong>Note:</strong> Client name, date of birth, transaction date,
-          and foster parent fields are automatically populated from the intake
+          and resource parent fields are automatically populated from the intake
           form and are read-only. Fields that are calculated from other entries
           (like To Date, Age, Days, Amount Due, and Balance) are also read-only.
         </Typography>
@@ -893,7 +893,7 @@ const CAFormForm = ({ data, handleInputChange, isStandalone = false }) => {
         <Grid item xs={12} md={6}>
           <TextField
             fullWidth
-            label="Foster Home"
+            label="Resource Home"
             name="nameOfFosterParents"
             value={data?.nameOfFosterParents || ""}
             onChange={handleInputChange}
@@ -942,7 +942,7 @@ const CAFormForm = ({ data, handleInputChange, isStandalone = false }) => {
         <Grid item xs={12} md={6}>
           <TextField
             fullWidth
-            label="Foster Parent Signature Date"
+            label="Resource Parent Signature Date"
             name="fosterParentSignatureDate"
             type="date"
             value={data?.fosterParentSignatureDate || ""}

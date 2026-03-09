@@ -167,7 +167,7 @@ const IntakeForm = () => {
   });
 
   useEffect(() => {
-    document.title = "New Intake | Pathway Foster Agency";
+    document.title = "New Intake | Pathway Family Services";
   }, []);
 
   // Calculate progress based on required fields filled

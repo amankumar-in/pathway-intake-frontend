@@ -136,7 +136,7 @@ const Dashboard = () => {
   const [successMessage, setSuccessMessage] = useState("");
 
   useEffect(() => {
-    document.title = "Dashboard | Pathway Foster Agency";
+    document.title = "Dashboard | Pathway Family Services";
   }, []);
 
   // Fetch intake forms and standalone documents
@@ -509,7 +509,7 @@ const Dashboard = () => {
               display: { xs: "none", sm: "block" },
             }}
           >
-            Foster Care Intake Management
+            Intake Management
           </Typography>
         </Box>
 

@@ -162,7 +162,7 @@ const Header = () => {
       color: "#26a69a",
       icon: <HomeIcon fontSize="small" />,
       documents: [
-        "Agency to Foster Parent",
+        "Agency to Resource Parent",
         "Client Personal Rights",
         "Record of Client Cash Resources",
         "Client Initial Care Plan",
@@ -195,7 +195,7 @@ const Header = () => {
         "Client Grievance Guidelines",
         "Client Disciplinary P. & P.",
         "Emergency Information Log",
-        "Foster Parent Checklist",
+        "Resource Parent Checklist",
         "Client Personal Property",
       ],
     },

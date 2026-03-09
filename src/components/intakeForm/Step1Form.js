@@ -257,6 +257,10 @@ const Step1Form = ({ formData = {}, handleInputChange }) => {
               <MenuItem value="Termination">Termination</MenuItem>
               <MenuItem value="Shelter Placement">Shelter Placement</MenuItem>
               <MenuItem value="LOC Change">LOC Change</MenuItem>
+              <MenuItem value="Placement">Placement</MenuItem>
+              <MenuItem value="Annual">Annual</MenuItem>
+              <MenuItem value="Transfer">Transfer</MenuItem>
+              <MenuItem value="Discharge">Discharge</MenuItem>
             </TextField>
           </Grid>
         </Grid>

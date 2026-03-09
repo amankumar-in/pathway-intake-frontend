@@ -281,6 +281,15 @@ const documentTemplates = [
     description:
       "Checklist of required tasks for foster parents after new placement",
   },
+  {
+    id: "client-personal-property",
+    title: "Client Personal Property",
+    template: "Client Personal Property",
+    category: "Intake Paperwork",
+    icon: <AssignmentIcon />,
+    description:
+      "Inventory of personal property for the client at placement",
+  },
 ];
 
 // Document categories with colors

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Tooltip, IconButton } from "@mui/material";
 import { AddCircleOutline, Delete } from "@mui/icons-material";
 import SignatureMenu from "../shared/SignatureMenu";
+import { LOGO_BASE64 } from "../../constants/logo";
 
 // ClientPersonalRights component using proper field mapping
 const ClientPersonalRights = ({
@@ -28,6 +29,7 @@ const ClientPersonalRights = ({
       year: "numeric",
       month: "long",
       day: "numeric",
+      timeZone: "UTC",
     });
   };
 
@@ -208,8 +210,18 @@ const ClientPersonalRights = ({
         margin: "0 auto",
       }}
     >
-      {/* Header with no logo */}
+      {/* Header with logo */}
       <div style={{ textAlign: "center", marginBottom: "10px" }}>
+        <img
+          src={LOGO_BASE64}
+          alt="Pathway Family Services Logo"
+          style={{
+            height: "35px",
+            marginBottom: "8px",
+            display: "block",
+            margin: "0 auto 8px auto",
+          }}
+        />
         <h1
           style={{
             fontSize: "16px",

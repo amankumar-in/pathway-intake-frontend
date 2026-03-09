@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { Menu, MenuItem, Typography, Tooltip, IconButton } from "@mui/material";
 import { AddCircleOutline, Delete } from "@mui/icons-material";
 
-// Base64 encoded logo (actual logo would replace this)
 const LOGO_BASE64 = "image-placeholder";
 // AgencyToFosterParent component using proper field mapping
 const AgencyToFosterParent = ({
@@ -27,6 +26,7 @@ const AgencyToFosterParent = ({
       year: "numeric",
       month: "long",
       day: "numeric",
+      timeZone: "UTC",
     });
   };
 

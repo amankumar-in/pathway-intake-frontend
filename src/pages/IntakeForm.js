@@ -388,6 +388,10 @@ const IntakeForm = () => {
           categories = ["Shelter Bed Documents"];
           break;
         case "LOC Change":
+        case "Placement":
+        case "Annual":
+        case "Transfer":
+        case "Discharge":
           categories = ["Intake Paperwork"];
           break;
         default:

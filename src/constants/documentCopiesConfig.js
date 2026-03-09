@@ -28,6 +28,7 @@ export const documentCopiesConfig = {
     "Consent to Release Medical/Confidential Information Authorization": 2,
     "Placement Application": 1,
     "Foster Parent Checklist": 1,
+    "Client Personal Property": 1,
     default: 1,
   },
   "Shelter Bed Documents": {

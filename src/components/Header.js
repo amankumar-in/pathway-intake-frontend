@@ -196,6 +196,7 @@ const Header = () => {
         "Client Disciplinary P. & P.",
         "Emergency Information Log",
         "Foster Parent Checklist",
+        "Client Personal Property",
       ],
     },
   ];

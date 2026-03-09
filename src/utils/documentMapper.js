@@ -59,6 +59,8 @@ import PlacementApplication from "../components/documents/PlacementApplication";
 import PlacementApplicationForm from "../components/forms/PlacementApplicationForm";
 import Checklist from "../components/documents/Checklist";
 import ChecklistForm from "../components/forms/ChecklistForm";
+import ClientPersonalProperty from "../components/documents/ClientPersonalProperty";
+import ClientPersonalPropertyForm from "../components/forms/ClientPersonalPropertyForm";
 
 // todo 2. Map template names to their respective document components - just above - default;
 export const getDocumentComponent = (templateName, documentData, signatureLabels = {}) => {
@@ -119,6 +121,8 @@ export const getDocumentComponent = (templateName, documentData, signatureLabels
       return <PlacementApplication data={documentData} signatureLabels={signatureLabels} />;
     case "Checklist":
       return <Checklist data={documentData} signatureLabels={signatureLabels} />;
+    case "Client Personal Property":
+      return <ClientPersonalProperty data={documentData} signatureLabels={signatureLabels} />;
 
     default:
       // Default component for unknown templates
@@ -318,6 +322,13 @@ export const getFormComponent = (
     case "Checklist":
       return (
         <ChecklistForm
+          data={documentData}
+          handleInputChange={handleInputChange}
+        />
+      );
+    case "Client Personal Property":
+      return (
+        <ClientPersonalPropertyForm
           data={documentData}
           handleInputChange={handleInputChange}
         />

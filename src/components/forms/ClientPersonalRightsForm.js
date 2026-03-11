@@ -17,7 +17,12 @@ const ClientPersonalRightsForm = ({
   // Format date for input fields
   const formatDateForInput = (dateString) => {
     if (!dateString) return "";
-    return new Date(dateString).toISOString().split("T")[0];
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return "";
+    const year = date.getUTCFullYear();
+    const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+    const day = String(date.getUTCDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
   };
 
   return (
@@ -121,7 +126,7 @@ const ClientPersonalRightsForm = ({
             name="childSignatureDate"
             type="date"
             value={formatDateForInput(
-              data?.childSignatureDate || data?.transactionDate || new Date()
+              data?.childSignatureDate || data?.transactionDate || new Date().toISOString()
             )}
             onChange={handleInputChange}
             InputLabelProps={{ shrink: true }}
@@ -135,7 +140,7 @@ const ClientPersonalRightsForm = ({
             name="signatureDate"
             type="date"
             value={formatDateForInput(
-              data?.signatureDate || data?.transactionDate || new Date()
+              data?.signatureDate || data?.transactionDate || new Date().toISOString()
             )}
             onChange={handleInputChange}
             InputLabelProps={{ shrink: true }}

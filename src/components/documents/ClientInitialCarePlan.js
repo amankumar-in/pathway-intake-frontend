@@ -840,7 +840,7 @@ const ClientInitialCarePlan = ({
                     textAlign: "center",
                   }}
                 >
-                  {formatDate(data?.signatureDate) || formatDate(new Date())}
+                  {formatDate(data?.signatureDate) || formatDate(new Date().toISOString())}
                 </div>
                 <div
                   style={{
@@ -871,7 +871,7 @@ const ClientInitialCarePlan = ({
                     textAlign: "center",
                   }}
                 >
-                  {formatDate(data?.signatureDate) || formatDate(new Date())}
+                  {formatDate(data?.signatureDate) || formatDate(new Date().toISOString())}
                 </div>
                 <div
                   style={{
@@ -902,7 +902,7 @@ const ClientInitialCarePlan = ({
                     textAlign: "center",
                   }}
                 >
-                  {formatDate(data?.signatureDate) || formatDate(new Date())}
+                  {formatDate(data?.signatureDate) || formatDate(new Date().toISOString())}
                 </div>
                 <div
                   style={{

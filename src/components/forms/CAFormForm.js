@@ -27,7 +27,10 @@ const CAFormForm = ({ data, handleInputChange, isStandalone = false }) => {
     if (!dateString) return "";
     const date = new Date(dateString);
     if (isNaN(date.getTime())) return ""; // Handle invalid dates
-    return date.toISOString().split("T")[0];
+    const year = date.getUTCFullYear();
+    const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+    const day = String(date.getUTCDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
   };
 
   // Calculate "to date" based on "from date"
@@ -38,12 +41,15 @@ const CAFormForm = ({ data, handleInputChange, isStandalone = false }) => {
     if (isNaN(date.getTime())) return ""; // Handle invalid dates
 
     // Get last day of the same month (similar to DATE(YEAR(C16),MONTH(C16)+1,0))
-    const year = date.getFullYear();
-    const month = date.getMonth(); // 0-based
+    const year = date.getUTCFullYear();
+    const month = date.getUTCMonth(); // 0-based
 
     // Create a date for the first day of the next month, then subtract 1 day
-    const lastDayOfMonth = new Date(year, month + 1, 0);
-    return lastDayOfMonth.toISOString().split("T")[0];
+    const lastDayOfMonth = new Date(Date.UTC(year, month + 1, 0));
+    const ly = lastDayOfMonth.getUTCFullYear();
+    const lm = String(lastDayOfMonth.getUTCMonth() + 1).padStart(2, "0");
+    const ld = String(lastDayOfMonth.getUTCDate()).padStart(2, "0");
+    return `${ly}-${lm}-${ld}`;
   };
 
   // Calculate age based on DOB and to date
@@ -56,15 +62,15 @@ const CAFormForm = ({ data, handleInputChange, isStandalone = false }) => {
     if (isNaN(dobDate.getTime()) || isNaN(toDateTime.getTime())) return "";
 
     // DATEDIF($L$7,D16,"Y") equivalent
-    const dobYear = dobDate.getFullYear();
-    const toYear = toDateTime.getFullYear();
+    const dobYear = dobDate.getUTCFullYear();
+    const toYear = toDateTime.getUTCFullYear();
     let age = toYear - dobYear;
 
     // Adjust age if birthday hasn't occurred yet in the year
-    const dobMonth = dobDate.getMonth();
-    const toMonth = toDateTime.getMonth();
-    const dobDay = dobDate.getDate();
-    const toDay = toDateTime.getDate();
+    const dobMonth = dobDate.getUTCMonth();
+    const toMonth = toDateTime.getUTCMonth();
+    const dobDay = dobDate.getUTCDate();
+    const toDay = toDateTime.getUTCDate();
 
     if (toMonth < dobMonth || (toMonth === dobMonth && toDay < dobDay)) {
       age--;
@@ -89,11 +95,9 @@ const CAFormForm = ({ data, handleInputChange, isStandalone = false }) => {
 
     // Check if to date is the last day of the month
     const lastDayOfMonth = new Date(
-      toDateTime.getFullYear(),
-      toDateTime.getMonth() + 1,
-      0
+      Date.UTC(toDateTime.getUTCFullYear(), toDateTime.getUTCMonth() + 1, 0)
     );
-    const isLastDayOfMonth = toDateTime.getDate() === lastDayOfMonth.getDate();
+    const isLastDayOfMonth = toDateTime.getUTCDate() === lastDayOfMonth.getUTCDate();
 
     return (daysDiff + (isLastDayOfMonth ? 1 : 0)).toString();
   };

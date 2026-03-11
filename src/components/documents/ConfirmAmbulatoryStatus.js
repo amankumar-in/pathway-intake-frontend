@@ -180,8 +180,8 @@ const ConfirmAmbulatoryStatus = ({
     if (data?.examinationDate) {
       const date = new Date(data.examinationDate);
       return `${
-        date.getMonth() + 1
-      } / ${date.getDate()} / ${date.getFullYear()}`;
+        date.getUTCMonth() + 1
+      } / ${date.getUTCDate()} / ${date.getUTCFullYear()}`;
     }
     return "_______ / _______ / _______";
   };

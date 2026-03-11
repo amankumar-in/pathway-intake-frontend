@@ -146,8 +146,8 @@ const Step2Form = ({ formData = {}, handleInputChange }) => {
               <TextField
                 fullWidth
                 label="Resource Parents Payment"
-                name="ResourceParentsPayment"
-                value={formData.ResourceParentsPayment || ""}
+                name="fosterParentsPayment"
+                value={formData.fosterParentsPayment || ""}
                 onChange={handleInputChange}
                 helperText="Monthly payment to Resource parents"
                 InputProps={{
@@ -166,8 +166,8 @@ const Step2Form = ({ formData = {}, handleInputChange }) => {
               <TextField
                 fullWidth
                 label="Name of Resource Parents"
-                name="nameOfResourceParents"
-                value={formData.nameOfResourceParents || ""}
+                name="nameOfFosterParents"
+                value={formData.nameOfFosterParents || ""}
                 onChange={handleInputChange}
                 helperText="Full names of Resource parents"
                 InputProps={{
@@ -185,8 +185,8 @@ const Step2Form = ({ formData = {}, handleInputChange }) => {
               <TextField
                 fullWidth
                 label="Telephone Number"
-                name="ResourceParentsTelephone"
-                value={formData.ResourceParentsTelephone || ""}
+                name="fosterParentsTelephone"
+                value={formData.fosterParentsTelephone || ""}
                 onChange={handleInputChange}
                 helperText="Primary contact number for Resource parents"
                 InputProps={{
@@ -220,8 +220,8 @@ const Step2Form = ({ formData = {}, handleInputChange }) => {
               <TextField
                 fullWidth
                 label="Address"
-                name="ResourceParentsAddress"
-                value={formData.ResourceParentsAddress || ""}
+                name="fosterParentsAddress"
+                value={formData.fosterParentsAddress || ""}
                 onChange={handleInputChange}
                 helperText="Street address of Resource home"
                 InputProps={{
@@ -239,8 +239,8 @@ const Step2Form = ({ formData = {}, handleInputChange }) => {
               <TextField
                 fullWidth
                 label="Mailing Address (if different from above)"
-                name="ResourceParentsMailingAddress"
-                value={formData.ResourceParentsMailingAddress || ""}
+                name="fosterParentsMailingAddress"
+                value={formData.fosterParentsMailingAddress || ""}
                 onChange={handleInputChange}
                 helperText="Leave blank if same as physical address"
                 InputProps={{
@@ -258,8 +258,8 @@ const Step2Form = ({ formData = {}, handleInputChange }) => {
               <TextField
                 fullWidth
                 label="City"
-                name="ResourceParentsCity"
-                value={formData.ResourceParentsCity || ""}
+                name="fosterParentsCity"
+                value={formData.fosterParentsCity || ""}
                 onChange={handleInputChange}
                 helperText="City of Resource home"
                 InputProps={{
@@ -277,8 +277,8 @@ const Step2Form = ({ formData = {}, handleInputChange }) => {
               <TextField
                 fullWidth
                 label="State"
-                name="ResourceParentsState"
-                value={formData.ResourceParentsState || ""}
+                name="fosterParentsState"
+                value={formData.fosterParentsState || ""}
                 onChange={handleInputChange}
                 helperText="State of Resource home"
                 InputProps={textFieldProps.InputProps}
@@ -289,8 +289,8 @@ const Step2Form = ({ formData = {}, handleInputChange }) => {
               <TextField
                 fullWidth
                 label="Zip"
-                name="ResourceParentsZip"
-                value={formData.ResourceParentsZip || ""}
+                name="fosterParentsZip"
+                value={formData.fosterParentsZip || ""}
                 onChange={handleInputChange}
                 helperText="Zip code of Resource home"
                 InputProps={textFieldProps.InputProps}

@@ -31,7 +31,12 @@ const ClientCashResourcesForm = ({
   // Format date for input fields
   const formatDateForInput = (dateString) => {
     if (!dateString) return "";
-    return new Date(dateString).toISOString().split("T")[0];
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return "";
+    const year = date.getUTCFullYear();
+    const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+    const day = String(date.getUTCDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
   };
 
   // Initialize transactions from data or create a default empty one

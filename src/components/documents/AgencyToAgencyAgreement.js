@@ -295,7 +295,7 @@ const AgencyToAgencyAgreement = ({
 
   // Format signature date or use current date if not available
   const formattedSignatureDate =
-    formatDate(data?.signatureDate) || formatDate(new Date());
+    formatDate(data?.signatureDate) || formatDate(new Date().toISOString());
 
   return (
     <div style={styles.document}>

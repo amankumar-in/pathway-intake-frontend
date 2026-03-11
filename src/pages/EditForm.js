@@ -40,6 +40,7 @@ import {
 } from "@mui/icons-material";
 import { getIntakeForm, updateIntakeForm } from "../utils/api";
 import { AuthContext } from "../context/AuthContext";
+import { toUTCDateString, calculateAgeUTC, formatDateForInput as formatDateForInputUtil } from "../utils/dateUtils";
 
 // Import step components
 import Step1Form from "../components/intakeForm/Step1Form";
@@ -111,13 +112,8 @@ const EditForm = () => {
   const [changesDetected, setChangesDetected] = useState(false);
   const [progress, setProgress] = useState(0);
 
-  // Format date for input fields
-  const formatDateForInput = (dateString) => {
-    if (!dateString) return "";
-    const date = new Date(dateString);
-    if (isNaN(date.getTime())) return ""; // Invalid date
-    return date.toISOString().split("T")[0]; // Returns YYYY-MM-DD
-  };
+  // Format date for input fields — uses UTC to avoid timezone shift
+  const formatDateForInput = formatDateForInputUtil;
 
   useEffect(() => {
     document.title = "Edit Intake Form | Pathway Family Services";
@@ -356,41 +352,17 @@ const EditForm = () => {
 
     // Calculate age from date of birth if dateOfBirth changes
     if (name === "dateOfBirth" && value) {
-      const birthDate = new Date(value);
-      const today = new Date();
-      let age = today.getFullYear() - birthDate.getFullYear();
-      const monthDiff = today.getMonth() - birthDate.getMonth();
-
-      if (
-        monthDiff < 0 ||
-        (monthDiff === 0 && today.getDate() < birthDate.getDate())
-      ) {
-        age--;
-      }
-
       setFormData((prev) => ({
         ...prev,
-        age,
+        age: calculateAgeUTC(value),
       }));
     }
 
     // Same for infant date of birth
     if (name === "infantDateOfBirth" && value) {
-      const birthDate = new Date(value);
-      const today = new Date();
-      let age = today.getFullYear() - birthDate.getFullYear();
-      const monthDiff = today.getMonth() - birthDate.getMonth();
-
-      if (
-        monthDiff < 0 ||
-        (monthDiff === 0 && today.getDate() < birthDate.getDate())
-      ) {
-        age--;
-      }
-
       setFormData((prev) => ({
         ...prev,
-        infantAge: age,
+        infantAge: calculateAgeUTC(value),
       }));
     }
 
@@ -511,37 +483,21 @@ const EditForm = () => {
       formToSubmit.updatedBy = user.id;
       formToSubmit.updatedAt = new Date().toISOString();
 
-      // Ensure dates are in ISO format
+      // Ensure dates are in ISO format (UTC midnight)
       if (formToSubmit.dateSubmitted) {
-        formToSubmit.dateSubmitted = new Date(
-          formToSubmit.dateSubmitted
-        ).toISOString();
+        formToSubmit.dateSubmitted = toUTCDateString(formToSubmit.dateSubmitted);
       }
       if (formToSubmit.transactionDate) {
-        formToSubmit.transactionDate = new Date(
-          formToSubmit.transactionDate
-        ).toISOString();
+        formToSubmit.transactionDate = toUTCDateString(formToSubmit.transactionDate);
       }
       if (formToSubmit.dateOfBirth) {
-        formToSubmit.dateOfBirth = new Date(
-          formToSubmit.dateOfBirth
-        ).toISOString();
+        formToSubmit.dateOfBirth = toUTCDateString(formToSubmit.dateOfBirth);
       }
-      if (
-        formToSubmit.infantDateOfBirth &&
-        formToSubmit.infantDateOfBirth !== ""
-      ) {
-        formToSubmit.infantDateOfBirth = new Date(
-          formToSubmit.infantDateOfBirth
-        ).toISOString();
+      if (formToSubmit.infantDateOfBirth && formToSubmit.infantDateOfBirth !== "") {
+        formToSubmit.infantDateOfBirth = toUTCDateString(formToSubmit.infantDateOfBirth);
       }
-      if (
-        formToSubmit.infantIntakeDate &&
-        formToSubmit.infantIntakeDate !== ""
-      ) {
-        formToSubmit.infantIntakeDate = new Date(
-          formToSubmit.infantIntakeDate
-        ).toISOString();
+      if (formToSubmit.infantIntakeDate && formToSubmit.infantIntakeDate !== "") {
+        formToSubmit.infantIntakeDate = toUTCDateString(formToSubmit.infantIntakeDate);
       }
 
       // Ensure clientStatus is a number

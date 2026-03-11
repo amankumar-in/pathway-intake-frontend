@@ -31,7 +31,12 @@ const SAFormForm = ({ data, handleInputChange, isStandalone = false }) => {
   // Format date for input fields
   const formatDateForInput = (dateString) => {
     if (!dateString) return "";
-    return new Date(dateString).toISOString().split("T")[0];
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return "";
+    const year = date.getUTCFullYear();
+    const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+    const day = String(date.getUTCDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
   };
 
   // Calculate "to" date based on "from" date (last day of month)
@@ -39,8 +44,11 @@ const SAFormForm = ({ data, handleInputChange, isStandalone = false }) => {
     if (!fromDate) return "";
     try {
       const from = new Date(fromDate);
-      const to = new Date(from.getFullYear(), from.getMonth() + 1, 0);
-      return to.toISOString().split("T")[0];
+      const to = new Date(Date.UTC(from.getUTCFullYear(), from.getUTCMonth() + 1, 0));
+      const y = to.getUTCFullYear();
+      const m = String(to.getUTCMonth() + 1).padStart(2, "0");
+      const d = String(to.getUTCDate()).padStart(2, "0");
+      return `${y}-${m}-${d}`;
     } catch (e) {
       console.error("Error calculating to date:", e);
       return "";
@@ -815,7 +823,7 @@ const SAFormForm = ({ data, handleInputChange, isStandalone = false }) => {
             label="Signature Date"
             name="signatureDate"
             type="date"
-            value={formatDateForInput(data?.signatureDate || new Date())}
+            value={formatDateForInput(data?.signatureDate || new Date().toISOString())}
             onChange={handleFormInputChange}
             onFocus={(e) => setLastFocusedField(e.target.name)}
             ref={(el) => (inputRefs.current["signatureDate"] = el)}

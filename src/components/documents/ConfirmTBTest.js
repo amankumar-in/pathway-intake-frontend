@@ -181,9 +181,9 @@ const ConfirmTBTest = ({
       return { day: "_______", month: "_______", year: "_______" };
     const date = new Date(data.tbTestDate);
     return {
-      day: date.getDate(),
-      month: date.getMonth() + 1, // JavaScript months are 0-indexed
-      year: date.getFullYear(),
+      day: date.getUTCDate(),
+      month: date.getUTCMonth() + 1, // JavaScript months are 0-indexed
+      year: date.getUTCFullYear(),
     };
   };
 

@@ -63,7 +63,7 @@ const MonthlyMedicationRecordForm = ({ data, handleInputChange }) => {
   ];
 
   // Year dropdown options (current year and next 5 years)
-  const currentYear = new Date().getFullYear();
+  const currentYear = new Date().getUTCFullYear();
   const yearOptions = Array.from({ length: 6 }, (_, i) => currentYear + i);
 
   // Update local state when props change

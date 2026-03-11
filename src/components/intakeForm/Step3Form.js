@@ -138,21 +138,21 @@ const Step3Form = ({ formData = {}, goToStep }) => {
       fields: [
         {
           label: "Resource Parents Payment",
-          value: formData.ResourceParentsPayment,
+          value: formData.fosterParentsPayment,
         },
         {
           label: "Name of Resource Parents",
-          value: formData.nameOfResourceParents,
+          value: formData.nameOfFosterParents,
         },
-        { label: "Telephone Number", value: formData.ResourceParentsTelephone },
-        { label: "Address", value: formData.ResourceParentsAddress },
+        { label: "Telephone Number", value: formData.fosterParentsTelephone },
+        { label: "Address", value: formData.fosterParentsAddress },
         {
           label: "Mailing Address",
-          value: formData.ResourceParentsMailingAddress || "Same as above",
+          value: formData.fosterParentsMailingAddress || "Same as above",
         },
-        { label: "City", value: formData.ResourceParentsCity },
-        { label: "State", value: formData.ResourceParentsState },
-        { label: "Zip", value: formData.ResourceParentsZip },
+        { label: "City", value: formData.fosterParentsCity },
+        { label: "State", value: formData.fosterParentsState },
+        { label: "Zip", value: formData.fosterParentsZip },
       ],
     },
     {

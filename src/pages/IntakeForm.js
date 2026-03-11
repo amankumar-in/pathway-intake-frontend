@@ -37,6 +37,7 @@ import {
 } from "@mui/icons-material";
 import { createIntakeForm } from "../utils/api";
 import { AuthContext } from "../context/AuthContext";
+import { toUTCDateString, calculateAgeUTC, formatDateForInput } from "../utils/dateUtils";
 
 // Step components
 import Step1Form from "../components/intakeForm/Step1Form";
@@ -109,8 +110,8 @@ const IntakeForm = () => {
     // Office Information
     yourName: user?.name || "",
     office: "Santa Maria",
-    dateSubmitted: new Date().toISOString().split("T")[0],
-    transactionDate: new Date().toISOString().split("T")[0],
+    dateSubmitted: formatDateForInput(new Date().toISOString()),
+    transactionDate: formatDateForInput(new Date().toISOString()),
     typeOfTransaction: "Shelter Placement",
 
     // Case Assigned To
@@ -141,14 +142,14 @@ const IntakeForm = () => {
     infantEthnicity: "Unknown",
 
     // Resource Home Information
-    ResourceParentsPayment: "$1206.00",
-    nameOfResourceParents: "",
-    ResourceParentsTelephone: "",
-    ResourceParentsAddress: "",
-    ResourceParentsMailingAddress: "",
-    ResourceParentsCity: "",
-    ResourceParentsState: "California",
-    ResourceParentsZip: "",
+    fosterParentsPayment: "$1206.00",
+    nameOfFosterParents: "",
+    fosterParentsTelephone: "",
+    fosterParentsAddress: "",
+    fosterParentsMailingAddress: "",
+    fosterParentsCity: "",
+    fosterParentsState: "California",
+    fosterParentsZip: "",
 
     // County Worker Information - correctly mapped to default office (Santa Maria)
     countyWillPay: "$2,638.00",
@@ -281,23 +282,23 @@ const IntakeForm = () => {
 
     if (name === "levelOfCare") {
       // Update Resource parents payment based on level of care
-      let ResourceParentsPayment = "";
+      let fosterParentsPayment = "";
 
       switch (value) {
         case "Level 1":
-          ResourceParentsPayment = "$1,206.00";
+          fosterParentsPayment = "$1,206.00";
           break;
         case "Level 2":
-          ResourceParentsPayment = "$1,570.00";
+          fosterParentsPayment = "$1,570.00";
           break;
         case "Level 3":
-          ResourceParentsPayment = "$2,058.00";
+          fosterParentsPayment = "$2,058.00";
           break;
         case "Level 4":
-          ResourceParentsPayment = "$2,742.00";
+          fosterParentsPayment = "$2,742.00";
           break;
         case "Level 5":
-          ResourceParentsPayment = "$3,426.00";
+          fosterParentsPayment = "$3,426.00";
           break;
         default:
           break;
@@ -328,48 +329,24 @@ const IntakeForm = () => {
 
       setFormData((prev) => ({
         ...prev,
-        ResourceParentsPayment,
+        fosterParentsPayment,
         countyWillPay,
       }));
     }
 
     // Calculate age from date of birth if dateOfBirth changes
     if (name === "dateOfBirth" && value) {
-      const birthDate = new Date(value);
-      const today = new Date();
-      let age = today.getFullYear() - birthDate.getFullYear();
-      const monthDiff = today.getMonth() - birthDate.getMonth();
-
-      if (
-        monthDiff < 0 ||
-        (monthDiff === 0 && today.getDate() < birthDate.getDate())
-      ) {
-        age--;
-      }
-
       setFormData((prev) => ({
         ...prev,
-        age,
+        age: calculateAgeUTC(value),
       }));
     }
 
     // Same for infant date of birth
     if (name === "infantDateOfBirth" && value) {
-      const birthDate = new Date(value);
-      const today = new Date();
-      let age = today.getFullYear() - birthDate.getFullYear();
-      const monthDiff = today.getMonth() - birthDate.getMonth();
-
-      if (
-        monthDiff < 0 ||
-        (monthDiff === 0 && today.getDate() < birthDate.getDate())
-      ) {
-        age--;
-      }
-
       setFormData((prev) => ({
         ...prev,
-        infantAge: age,
+        infantAge: calculateAgeUTC(value),
       }));
     }
 
@@ -486,37 +463,21 @@ const IntakeForm = () => {
       // Create a copy of formData to prepare for submission
       const formToSubmit = { ...formData };
 
-      // Ensure dates are in ISO format
+      // Ensure dates are in ISO format (UTC midnight)
       if (formToSubmit.dateSubmitted) {
-        formToSubmit.dateSubmitted = new Date(
-          formToSubmit.dateSubmitted
-        ).toISOString();
+        formToSubmit.dateSubmitted = toUTCDateString(formToSubmit.dateSubmitted);
       }
       if (formToSubmit.transactionDate) {
-        formToSubmit.transactionDate = new Date(
-          formToSubmit.transactionDate
-        ).toISOString();
+        formToSubmit.transactionDate = toUTCDateString(formToSubmit.transactionDate);
       }
       if (formToSubmit.dateOfBirth) {
-        formToSubmit.dateOfBirth = new Date(
-          formToSubmit.dateOfBirth
-        ).toISOString();
+        formToSubmit.dateOfBirth = toUTCDateString(formToSubmit.dateOfBirth);
       }
-      if (
-        formToSubmit.infantDateOfBirth &&
-        formToSubmit.infantDateOfBirth !== ""
-      ) {
-        formToSubmit.infantDateOfBirth = new Date(
-          formToSubmit.infantDateOfBirth
-        ).toISOString();
+      if (formToSubmit.infantDateOfBirth && formToSubmit.infantDateOfBirth !== "") {
+        formToSubmit.infantDateOfBirth = toUTCDateString(formToSubmit.infantDateOfBirth);
       }
-      if (
-        formToSubmit.infantIntakeDate &&
-        formToSubmit.infantIntakeDate !== ""
-      ) {
-        formToSubmit.infantIntakeDate = new Date(
-          formToSubmit.infantIntakeDate
-        ).toISOString();
+      if (formToSubmit.infantIntakeDate && formToSubmit.infantIntakeDate !== "") {
+        formToSubmit.infantIntakeDate = toUTCDateString(formToSubmit.infantIntakeDate);
       }
 
       // Ensure clientStatus is a number

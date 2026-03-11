@@ -782,7 +782,7 @@ const IDEmergencyInfo = ({
                   DATE:
                 </span>{" "}
                 {formatDate(data?.transactionDate) ||
-                  new Date().toLocaleDateString()}
+                  formatDate(new Date().toISOString())}
               </div>
             </div>
           </div>

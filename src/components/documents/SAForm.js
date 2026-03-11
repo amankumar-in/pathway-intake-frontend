@@ -786,7 +786,7 @@ const SAForm = ({
                   textAlign: "center",
                 }}
               >
-                {data?.signatureDate || formatDate(new Date())}
+                {data?.signatureDate || formatDate(new Date().toISOString())}
               </td>
             </tr>
             <tr>
@@ -816,7 +816,7 @@ const SAForm = ({
                   textAlign: "center",
                 }}
               >
-                {data?.signatureDate || formatDate(new Date())}
+                {data?.signatureDate || formatDate(new Date().toISOString())}
               </td>
             </tr>
             <tr>

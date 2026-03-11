@@ -178,13 +178,11 @@ const EditForm = () => {
       "yourName",
       "transactionDate",
       "typeOfTransaction",
-      "caseNumber",
       "name",
       "dateOfBirth",
       "gender",
       "reasonForPlacement",
       "levelOfCare",
-      "countyWorkerName",
     ];
 
     const filledRequiredFields = requiredFields.filter(
@@ -406,13 +404,11 @@ const EditForm = () => {
       { name: "yourName", label: "Your Name" },
       { name: "transactionDate", label: "Placement Date" },
       { name: "typeOfTransaction", label: "Type of Placement" },
-      { name: "caseNumber", label: "Case Number" },
       { name: "name", label: "Client Name" },
       { name: "dateOfBirth", label: "Date of Birth" },
       { name: "gender", label: "Gender" },
       { name: "reasonForPlacement", label: "Reason for Placement" },
       { name: "levelOfCare", label: "Level of Care" },
-      { name: "countyWorkerName", label: "County Worker Name" },
     ];
 
     const missingFields = requiredFields.filter(

@@ -121,7 +121,14 @@ function App() {
                 </PrivateRoute>
               }
             />
-            <Route path="/edit-form/:id" element={<EditForm />} />
+            <Route
+              path="/edit-form/:id"
+              element={
+                <PrivateRoute>
+                  <EditForm />
+                </PrivateRoute>
+              }
+            />
             <Route
               path="/standalone-document"
               element={

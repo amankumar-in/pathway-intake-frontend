@@ -5,26 +5,20 @@ const API_URL = process.env.REACT_APP_API_URL || "http://localhost:4000/api/v1";
 // Create an axios instance
 const api = axios.create({
   baseURL: API_URL,
+  withCredentials: true,
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-// Add a request interceptor to add auth token to requests
-api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
-
 // Auth API calls
 export const login = async (username, password) => {
   const response = await api.post("/auth/login", { username, password });
+  return response.data;
+};
+
+export const logout = async () => {
+  const response = await api.get("/auth/logout");
   return response.data;
 };
 

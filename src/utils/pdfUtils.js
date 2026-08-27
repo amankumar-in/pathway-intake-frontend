@@ -3,21 +3,13 @@
 import React from "react";
 import ReactDOMServer from "react-dom/server";
 import html2pdf from "html2pdf.js"; // Keep for fallback
+import { API_URL } from "./api";
 
-// Configuration - change this to match your backend API
-// For standalone service:
-// const PDF_SERVICE_URL = "http://localhost:3001/api/generate-pdf";
-// const MULTI_PDF_SERVICE_URL = "http://localhost:3001/api/generate-multiple-pdf";
-
-// For integrated backend:
-const PDF_SERVICE_URL =
-  process.env.NODE_ENV === "production"
-    ? "https://pathway-intake-backend.onrender.com/api/v1/pdf/generate"
-    : "http://localhost:4000/api/v1/pdf/generate";
-const MULTI_PDF_SERVICE_URL =
-  process.env.NODE_ENV === "production"
-    ? "https://pathway-intake-backend.onrender.com/api/v1/pdf/generate-multiple"
-    : "http://localhost:4000/api/v1/pdf/generate-multiple";
+// PDF generation is part of the main backend and must follow the same
+// deployment-specific API configuration as every other API request.
+const NORMALIZED_API_URL = API_URL.replace(/\/$/, "");
+const PDF_SERVICE_URL = `${NORMALIZED_API_URL}/pdf/generate`;
+const MULTI_PDF_SERVICE_URL = `${NORMALIZED_API_URL}/pdf/generate-multiple`;
 
 // Flag to control whether to use server-side PDF generation
 // If false, will fall back to client-side generation (images)
